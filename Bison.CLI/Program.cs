@@ -1,5 +1,5 @@
 ﻿using System;
-using System.IO;
+using System.Text;
 using Microsoft.VisualBasic.FileIO;
 
 
@@ -14,13 +14,20 @@ parser.ReadFields();
 string author;
 string message;
 DateTimeOffset time;
-while (!parser.EndOfData) 
-{
+
+while (!parser.EndOfData) {
     string[] row = parser.ReadFields();
     
     author = row[0];
     message = row[1];
     time = DateTimeOffset.FromUnixTimeSeconds(long.Parse(row[2]));
+    DateTimeOffset localTime = time.ToLocalTime();
 
-    Console.WriteLine(time);
+    var SB = new StringBuilder();
+
+    SB.AppendFormat("{0} @ ", author);
+    SB.Append(localTime.ToString());
+    SB.AppendFormat(": {0}", message);
+
+    Console.WriteLine(SB.ToString());
 }
