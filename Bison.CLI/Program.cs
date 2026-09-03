@@ -10,9 +10,9 @@ using System.Globalization;
 
 
 class Program {
-    public record Cheap(string Author, string Message, long Timestamp)
+    public record Cheep(string Author, string Message, long Timestamp)
     {
-        public Cheap() : this(string.Empty, string.Empty, 0) { }
+        public Cheep() : this(string.Empty, string.Empty, 0) { }
     }
 
     static void Main(string[] args)
@@ -33,9 +33,9 @@ class Program {
         }
 
     }
-    public sealed class CheapMap : ClassMap<Cheap>
+    public sealed class CheepMap : ClassMap<Cheep>
 {
-    public CheapMap()
+    public CheepMap()
     {
         Map(item => item.Author).Name("Author");
         Map(item => item.Message).Name("Observation");
@@ -50,16 +50,16 @@ class Program {
     using var reader = new StreamReader(file);
     using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-    csv.Context.RegisterClassMap<CheapMap>();
+    csv.Context.RegisterClassMap<CheepMap>();
 
-    foreach (var cheap in csv.GetRecords<Cheap>())
+    foreach (var cheep in csv.GetRecords<Cheep>())
     {
         var localTime = DateTimeOffset
-            .FromUnixTimeSeconds(cheap.Timestamp)
+            .FromUnixTimeSeconds(cheep.Timestamp)
             .ToLocalTime();
 
         Console.WriteLine(
-            $"{cheap.Author} @ {localTime}: {cheap.Message}");
+            $"{cheep.Author} @ {localTime}: {cheep.Message}");
     }
 }
 
@@ -67,7 +67,7 @@ class Program {
 {
     var file = "bison_observe_cli_db.csv";
 
-    var cheap = new Cheap(
+    var cheep = new Cheep(
         Environment.UserName,
         message,
         DateTimeOffset.UtcNow.ToUnixTimeSeconds());
@@ -81,7 +81,7 @@ class Program {
     using var writer = new StreamWriter(stream);
     using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
 
-    csv.WriteRecord(cheap);
+    csv.WriteRecord(cheep);
     csv.NextRecord();
 }
 }
