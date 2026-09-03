@@ -4,83 +4,84 @@ using System.Collections;
 using System.IO;
 using System.Text;
 using Microsoft.VisualBasic.FileIO;
+using CsvHelper;
+using CsvHelper.Configuration;
+using System.Globalization;
 
 
 class Program {
+    public record Cheap(string Author, string Message, long Timestamp)
+    {
+        public Cheap() : this(string.Empty, string.Empty, 0) { }
+    }
 
     static void Main(string[] args)
     {
         if (args.Length > 0) {
             if (args[0] == "observe") {
                 if (args.Length > 1) {
-                    observe(args[1]); 
+                    Observe(args[1]);
                 } else {
                     Console.WriteLine("No message is provided");
                 }
                 
             } else if (args[0] == "read") {
-                read();
+                Read();
             }
         } else {
-            read();
+            Read();
         }
+
     }
-
-    static void read() {
-    var file = "/home/timhl/Projects/Bison/bison_observe_cli_db.csv";
-
-    // Source - https://stackoverflow.com/a/8319246
-    var parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(file);
-    parser.TextFieldType = Microsoft.VisualBasic.FileIO.FieldType.Delimited;
-    parser.SetDelimiters(new string[] { "," });
-
-    parser.ReadFields();
-    string author;
-    string message;
-    DateTimeOffset time;
-
-    while (!parser.EndOfData) {
-        string[] row = parser.ReadFields();
-        
-        author = row[0];
-        message = row[1];
-        time = DateTimeOffset.FromUnixTimeSeconds(long.Parse(row[2]));
-        DateTimeOffset localTime = time.ToLocalTime();
-
-        var SB = new StringBuilder();
-
-        SB.AppendFormat("{0} @ ", author);
-        SB.Append(localTime.ToString());
-        SB.AppendFormat(": {0}", message);
-
-        Console.WriteLine(SB.ToString());
-        }
+    public sealed class CheapMap : ClassMap<Cheap>
+{
+    public CheapMap()
+    {
+        Map(item => item.Author).Name("Author");
+        Map(item => item.Message).Name("Observation");
+        Map(item => item.Timestamp).Name("Timestamp");
     }
+}
 
-    static void observe(string message) {
-    
-        long time = DateTimeOffset.UtcNow.ToLocalTime().ToUnixTimeSeconds();
-        string author = Environment.UserName;
-        
-        StringBuilder SB = new StringBuilder();
-        string csvappend = $"{author},\"{message}\",{time}";
-        //String.Format("{0},{1},{2}", author, message, time);
+    static void Read()
+{
+    var file = "bison_observe_cli_db.csv";
 
-        var file = "/home/timhl/Projects/Bison/bison_observe_cli_db.csv";
-        var parser = new Microsoft.VisualBasic.FileIO.TextFieldParser(file);
+    using var reader = new StreamReader(file);
+    using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-        ArrayList csvLines = new ArrayList();
-        while (!parser.EndOfData) {
-            csvLines.Add(parser.ReadLine());
-        }
-        csvLines.Add(csvappend);
+    csv.Context.RegisterClassMap<CheapMap>();
 
-        using (StreamWriter outputFile = new StreamWriter(Path.Combine(file)))
-        {
-            foreach (string line in csvLines)
-                outputFile.WriteLine(line);
-        }
+    foreach (var cheap in csv.GetRecords<Cheap>())
+    {
+        var localTime = DateTimeOffset
+            .FromUnixTimeSeconds(cheap.Timestamp)
+            .ToLocalTime();
 
-        
+        Console.WriteLine(
+            $"{cheap.Author} @ {localTime}: {cheap.Message}");
     }
+}
+
+   static void Observe(string message)
+{
+    var file = "bison_observe_cli_db.csv";
+
+    var cheap = new Cheap(
+        Environment.UserName,
+        message,
+        DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+
+    using var stream = new FileStream(
+        file,
+        FileMode.Append,
+        FileAccess.Write,
+        FileShare.Read);
+
+    using var writer = new StreamWriter(stream);
+    using var csv = new CsvWriter(writer, CultureInfo.InvariantCulture);
+
+    csv.WriteRecord(cheap);
+    csv.NextRecord();
+}
 }
