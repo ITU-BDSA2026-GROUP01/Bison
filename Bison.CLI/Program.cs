@@ -60,8 +60,8 @@ class Program {
 
         Console.WriteLine(
             $"{cheep.Author} @ {localTime}: {cheep.Message}");
+        }
     }
-}
 
    static void Observe(string message)
 {
@@ -83,5 +83,5 @@ class Program {
 
     csv.WriteRecord(cheep);
     csv.NextRecord();
-}
+    }
 }
