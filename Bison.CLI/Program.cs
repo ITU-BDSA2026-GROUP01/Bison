@@ -8,8 +8,9 @@ using CsvHelper;
 using CsvHelper.Configuration;
 using System.Globalization;
 
+namespace Bison.CLI;
 
-class Program {
+public class Program {
     public record Cheep(string Author, string Message, long Timestamp)
     {
         public Cheep() : this(string.Empty, string.Empty, 0) { }
@@ -26,10 +27,10 @@ class Program {
                 }
                 
             } else if (args[0] == "read") {
-                Read();
+                UserInterface.Read();
             }
         } else {
-            Read();
+            UserInterface.Read();
         }
 
     }
@@ -43,7 +44,7 @@ class Program {
     }
 }
 
-    static void Read()
+    /*static void Read()
 {
     var file = "bison_observe_cli_db.csv";
 
@@ -61,7 +62,7 @@ class Program {
         Console.WriteLine(
             $"{cheep.Author} @ {localTime}: {cheep.Message}");
         }
-    }
+    }*/
 
    static void Observe(string message)
 {
