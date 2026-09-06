@@ -5,20 +5,7 @@ namespace Bison.CLI;
 
 public static class UserInterface
 {
-    public static void Read()
-    {
-        var file = "bison_observe_cli_db.csv";
-
-        using var reader = new StreamReader(file);
-        using var csv = new CsvHelper.CsvReader(reader, System.Globalization.CultureInfo.InvariantCulture);
-
-        csv.Context.RegisterClassMap<Program.CheepMap>();
-
-        var cheeps = csv.GetRecords<Program.Cheep>();
-        DisplayCheeps(cheeps);
-    }
-    
-    public static void DisplayCheeps(IEnumerable<Program.Cheep> cheeps)
+    public static void PrintObservations(IEnumerable<Program.Cheep> cheeps)
     {
         foreach (var cheep in cheeps)
         {
@@ -26,8 +13,8 @@ public static class UserInterface
                 .FromUnixTimeSeconds(cheep.Timestamp)
                 .ToLocalTime();
 
-            Console.WriteLine(
-                $"{cheep.Author} @ {localTime}: {cheep.Message}");
+            Console.WriteLine($"{cheep.Author} @ {localTime}: {cheep.Message}");
         }
     }
+    
 }
