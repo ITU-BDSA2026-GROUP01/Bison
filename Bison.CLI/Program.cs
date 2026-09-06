@@ -27,10 +27,10 @@ public class Program {
                 }
                 
             } else if (args[0] == "read") {
-                UserInterface.Read();
+                Read();
             }
         } else {
-            UserInterface.Read();
+            Read();
         }
 
     }
@@ -44,7 +44,7 @@ public class Program {
     }
 }
 
-    /*static void Read()
+  static void Read()
 {
     var file = "bison_observe_cli_db.csv";
 
@@ -53,16 +53,8 @@ public class Program {
 
     csv.Context.RegisterClassMap<CheepMap>();
 
-    foreach (var cheep in csv.GetRecords<Cheep>())
-    {
-        var localTime = DateTimeOffset
-            .FromUnixTimeSeconds(cheep.Timestamp)
-            .ToLocalTime();
-
-        Console.WriteLine(
-            $"{cheep.Author} @ {localTime}: {cheep.Message}");
-        }
-    }*/
+    UserInterface.PrintObservations(csv.GetRecords<Cheep>());
+}
 
    static void Observe(string message)
 {
