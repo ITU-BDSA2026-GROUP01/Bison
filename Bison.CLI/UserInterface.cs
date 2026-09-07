@@ -5,7 +5,7 @@ namespace Bison.CLI;
 
 public static class UserInterface
 {
-    public static void PrintObservations(IEnumerable<Program.Cheep> cheeps)
+    public static void PrintObservations(IEnumerable<SimpleDB.Cheep> cheeps)
     {
         foreach (var cheep in cheeps)
         {
