@@ -1,4 +1,5 @@
 ﻿using SimpleDB;
+using System.CommandLine;
 
 namespace Bison.CLI;
 
