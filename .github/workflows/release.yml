@@ -1,0 +1,60 @@
+name: Release
+
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+  
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+
+    - name: Restore Bison.CLI
+      run: dotnet restore Bison.CLI
+
+    - name: Restore SimpleDB
+      run: dotnet restore SimpleDB
+
+    - name: Build Bison.CLI
+      run: dotnet build Bison.CLI --no-restore
+
+    - name: Build SimpleDB
+      run: dotnet build SimpleDB --no-restore
+
+    - name: Publish win-x64
+      run: dotnet publish Bison.CLI --configuration Release --runtime win-x64 --no-self-contained -p:PublishSingleFile=true --output publish/win-x64
+
+    - name: Publish linux-x64
+      run: dotnet publish Bison.CLI --configuration Release --runtime linux-x64 --no-self-contained -p:PublishSingleFile=true --output publish/linux-x64
+
+    - name: Publish osx-x64
+      run: dotnet publish Bison.CLI --configuration Release --runtime osx-x64 --no-self-contained -p:PublishSingleFile=true --output publish/osx-x64
+
+    - name: Zip artifacts
+      run: |
+        cd publish/win-x64 && zip -r ../../bison-win-x64.zip . && cd ../..
+        cd publish/linux-x64 && zip -r ../../bison-linux-x64.zip . && cd ../..
+        cd publish/osx-x64 && zip -r ../../bison-osx-x64.zip . && cd ../..
+    
+    - name: Create Release
+      uses: softprops/action-gh-release@v3
+      with:
+        files: |
+          bison-win-x64.zip
+          bison-linux-x64.zip
+          bison-osx-x64.zip
