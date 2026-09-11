@@ -1,5 +1,13 @@
-Author,Observation,Timestamp
-ropf,"A bird at DR Byen",1690891760
-adho,"I think that is a Heron at DR Byen",1690978778
-edka,"Ardea cinerea at DR Byen",1690979858
-timhl,"Heron at DR Byen",1787926897
+Id,Author,Message,Timestamp
+1,ropf,"A bird at DR Byen",1690891760
+2,adho,"I think that is a Heron at DR Byen",1690978778
+3,edka,"Ardea cinerea at DR Byen",1690979858
+4,timhl,"Heron at DR Byen",1787926897
+5,rat,"test, test, test",1788512788
+6,rasmu,"banana, banana, banana",1788770711
+7,asbjo,hello,1788814256
+8,rat,test7,1788903579
+9,rat,test7,1788903655
+10,rat,test5,1789069441
+11,rat,test8,1789072677
+12,rat,test 10,1789116138

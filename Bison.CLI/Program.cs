@@ -1,73 +1,37 @@
-﻿
-using System;
-using System.Collections;
-using System.IO;
-using System.Text;
-using Microsoft.VisualBasic.FileIO;
-using CsvHelper;
-using CsvHelper.Configuration;
-using System.Globalization;
+﻿using SimpleDB;
+using System.CommandLine;
 
-using SimpleDB;
-using System.Data;
-
+namespace Bison.CLI;
 
 partial class Program
 {
-
-    private static readonly CSVDatabase<SimpleDB.Cheep> DB = new CSVDatabase<Cheep>("bison_observe_cli_db.csv");
-    static void Main(string[] args)
-    {
-
-        if (args.Length > 0)
-        {
-            if (args[0] == "observe")
-            {
-                if (args.Length > 1)
-                {
-                    Observe(args[1]);
-                }
-                else
-                {
-                    Console.WriteLine("No message is provided");
-                }
-
-            }
-            else if (args[0] == "read")
-            {
-                Read();
-            }
-        }
-        else
-        {
-            Read();
-        }
-
-    }
+    //private static readonly CSVDatabase<Cheep> ObserveDB = new("bison_observe_cli_db.csv");
     
+    //private static readonly CSVDatabase<Comment> CommentDB = new("bison_comment_cli_db.csv");    
 
-    static void Read()
+    static async Task<int> Main(string[] args)
     {
-        IEnumerable<SimpleDB.Cheep> cheeps = DB.Read();
+        var rootCommand = Parsing.BuildRootCommand(Observations.Observe, Observations.Read, Comments.Comment, Comments.Discussion);
+        return await rootCommand.InvokeAsync(args);
+    }
 
-        foreach (var cheep in cheeps)
-        {
-            var localTime = DateTimeOffset
-                .FromUnixTimeSeconds(cheep.Timestamp)
-                .ToLocalTime();
-
-            Console.WriteLine(
-                $"{cheep.Author} @ {localTime}: {cheep.Message}");
-        }
+   /* static void Read()
+    {
+        UserInterface.PrintObservations(ObserveDB.Read());
     }
 
     static void Observe(string message)
     {
+        var cheeps = ObserveDB.Read().ToList();
+        var nextId = cheeps.Count == 0 ? 1 : cheeps.Max(c => c.Id) + 1;
+
         var cheep = new Cheep(
+            nextId,
             Environment.UserName,
             message,
-            DateTimeOffset.UtcNow.ToUnixTimeSeconds());
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            );
 
-        DB.Store(cheep);
-    }
+        ObserveDB.Store(cheep);
+    }*/
 }
