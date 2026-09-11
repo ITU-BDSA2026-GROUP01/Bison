@@ -7,11 +7,21 @@ namespace SimpleDB;
 
 public sealed class CSVDatabase<T> : IDatabaseRepository<T>
 {
+    private static CSVDatabase<T>? _instance; //uanset hvor mange instancer vi laver af CSVDatabase<T>, vil de alle refere tilbage til den STATIC CSVDatabase
     private readonly string bison_observe_cli_dbpath = "";
 
-    public CSVDatabase(string path)
+    private CSVDatabase(string path)
     {
         bison_observe_cli_dbpath = path;
+    }
+
+    public static CSVDatabase<T> getInstance()
+    {
+        if (_instance == null)
+        {
+            _instance = new CSVDatabase<T>(bison_observe_cli_dbpath);
+        }
+        return _instance; 
     }
 
     public IEnumerable<T> Read(int? limit = null)

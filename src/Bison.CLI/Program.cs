@@ -3,13 +3,13 @@ using System.CommandLine;
 
 namespace Bison.CLI;
 
-partial class Program
+public class Program
 {
     //private static readonly CSVDatabase<Cheep> ObserveDB = new("bison_observe_cli_db.csv");
     
     //private static readonly CSVDatabase<Comment> CommentDB = new("bison_comment_cli_db.csv");    
 
-    static async Task<int> Main(string[] args)
+    public static async Task<int> Main(string[] args)
     {
         var rootCommand = Parsing.BuildRootCommand(Observations.Observe, Observations.Read, Comments.Comment, Comments.Discussion);
         return await rootCommand.InvokeAsync(args);
