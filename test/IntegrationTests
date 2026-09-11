@@ -1,0 +1,14 @@
+namespace test;
+
+using System;
+using System.Collections.Generic;
+
+public class IntegrationsTests
+{
+    [Fact]
+    public void sample()
+    {
+        
+
+    }
+}
