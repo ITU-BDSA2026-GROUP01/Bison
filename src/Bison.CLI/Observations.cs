@@ -3,7 +3,7 @@ namespace Bison.CLI;
 
 public static class Observations
 {
-     private static readonly CSVDatabase<Cheep> observeDB = new("bison_observe_cli_db.csv");
+     private static readonly CSVDatabase<Cheep> observeDB = new(DbPaths.Resolve("bison_observe_cli_db.csv"));
 
      public static void Read()
     {
