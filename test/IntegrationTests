@@ -6,7 +6,14 @@ using System.Collections.Generic;
 public class IntegrationsTests
 {
     [Fact]
-    public void sample()
+    public void Recieved_and_stored_in_database()
+    {
+        
+
+    }
+
+    [Fact]
+    public void Stores_and_read_multiple_records_in_order()
     {
         
 
