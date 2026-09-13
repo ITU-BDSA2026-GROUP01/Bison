@@ -38,5 +38,28 @@ public class UnitTests
 
         // Observation 0 is not in the test's local DB -> the CLI reports that.
         Assert.Contains("does not exist", output);
+
+
+        originalOut = Console.Out;
+        originalErr = Console.Error;
+        using var captured1 = new StringWriter();
+        Console.SetOut(captured1);
+        Console.SetError(captured1);
+
+        args = new[] { "comment", "1", "\"test message\"" };
+        try
+        {
+            exitCode = await Bison.CLI.Program.Main(args);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetError(originalErr);
+        }
+
+        output = captured1.ToString();
+
+        // Observation 0 is not in the test's local DB -> the CLI reports that.
+        Assert.DoesNotContain("does not exist", output);
     }
 }
