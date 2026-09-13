@@ -15,7 +15,7 @@ public class UnitTests
     [Fact]
     public async System.Threading.Tasks.Task commentTest()
     {
-        var args = new[] { "comment", "0", "\"test message\"" };
+        var args = new[] { "comment", "0", "test message" };
 
         var originalOut = Console.Out;
         var originalErr = Console.Error;
@@ -46,7 +46,7 @@ public class UnitTests
         Console.SetOut(captured1);
         Console.SetError(captured1);
 
-        args = new[] { "comment", "1", "\"test message\"" };
+        args = new[] { "comment", "1", "test message1" };
         try
         {
             exitCode = await Bison.CLI.Program.Main(args);
