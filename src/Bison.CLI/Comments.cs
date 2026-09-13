@@ -5,7 +5,7 @@ namespace Bison.CLI;
 
 public static class Comments
 {
-    private static readonly CSVDatabase<Comment> CommentDB = new("bison_comment_cli_db.csv");
+    private static readonly CSVDatabase<Comment> CommentDB = new(DbPaths.Resolve("bison_comment_cli_db.csv"));
 
     public static void Comment(long observationId, string message)
     {

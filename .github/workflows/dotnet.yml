@@ -3,29 +3,32 @@ name: .NET
 on:
   push:
   pull_request:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout
-      uses: actions/checkout@v4
+      - name: Checkout
+        uses: actions/checkout@v4
 
-    - name: Setup .NET
-      uses: actions/setup-dotnet@v4
-      with:
-        dotnet-version: '8.0.x'
+      - name: Setup .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: "8.0.x"
 
-    - name: Restore Bison.CLI
-      run: dotnet restore Bison.CLI
+      - name: Restore Bison.CLI
+        run: dotnet restore ./src/Bison.CLI/Bison.CLI.csproj
 
-    - name: Restore SimpleDB
-      run: dotnet restore SimpleDB
+      - name: Restore SimpleDB
+        run: dotnet restore ./src/SimpleDB/SimpleDB.csproj
 
-    - name: Build Bison.CLI
-      run: dotnet build Bison.CLI --no-restore
+      - name: Build Bison.CLI
+        run: dotnet build ./src/Bison.CLI/Bison.CLI.csproj --no-restore
 
-    - name: Build SimpleDB
-      run: dotnet build SimpleDB --no-restore
+      - name: Build SimpleDB
+        run: dotnet build ./src/SimpleDB/SimpleDB.csproj --no-restore
+
+      - name: Test
+        run: dotnet test
