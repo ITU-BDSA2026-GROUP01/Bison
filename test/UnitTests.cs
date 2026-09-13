@@ -86,51 +86,68 @@ public class UnitTests
     [Fact]
     public async System.Threading.Tasks.Task CommentInvalidIdTest()
     {
-        var args = new[] { "comment", "0", "test message" };
+        var observeDb = Bison.CLI.DbPaths.Resolve("bison_observe_cli_db.csv");
+        var commentDb = Bison.CLI.DbPaths.Resolve("bison_comment_cli_db.csv");
+        var observeBackup = Path.GetTempFileName();
+        var commentBackup = Path.GetTempFileName();
+        File.Copy(observeDb, observeBackup, true);
+        File.Copy(commentDb, commentBackup, true);
 
-        var originalOut = Console.Out;
-        var originalErr = Console.Error;
-        using var captured = new StringWriter();
-        Console.SetOut(captured);
-        Console.SetError(captured);
-
-        int exitCode;
         try
         {
-            exitCode = await Bison.CLI.Program.Main(args);
+            var args = new[] { "comment", "0", "test message" };
+
+            var originalOut = Console.Out;
+            var originalErr = Console.Error;
+            using var captured = new StringWriter();
+            Console.SetOut(captured);
+            Console.SetError(captured);
+
+            int exitCode;
+            try
+            {
+                exitCode = await Bison.CLI.Program.Main(args);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                Console.SetError(originalErr);
+            }
+
+            var output = captured.ToString();
+
+            Assert.Contains("does not exist", output);
+
+
+            originalOut = Console.Out;
+            originalErr = Console.Error;
+            using var captured1 = new StringWriter();
+            Console.SetOut(captured1);
+            Console.SetError(captured1);
+
+            args = ["comment", "1", "test message1"];
+            try
+            {
+                exitCode = await Bison.CLI.Program.Main(args);
+            }
+            finally
+            {
+                Console.SetOut(originalOut);
+                Console.SetError(originalErr);
+            }
+
+            output = captured1.ToString();
+
+            // Observation 0 is not in the test's local DB -> the CLI reports that.
+            Assert.DoesNotContain("does not exist", output);
         }
         finally
         {
-            Console.SetOut(originalOut);
-            Console.SetError(originalErr);
+            File.Copy(observeBackup, observeDb, true);
+            File.Copy(commentBackup, commentDb, true);
+            File.Delete(observeBackup);
+            File.Delete(commentBackup);
         }
-
-        var output = captured.ToString();
-
-        Assert.Contains("does not exist", output);
-
-
-        originalOut = Console.Out;
-        originalErr = Console.Error;
-        using var captured1 = new StringWriter();
-        Console.SetOut(captured1);
-        Console.SetError(captured1);
-
-        args = ["comment", "1", "test message1"];
-        try
-        {
-            exitCode = await Bison.CLI.Program.Main(args);
-        }
-        finally
-        {
-            Console.SetOut(originalOut);
-            Console.SetError(originalErr);
-        }
-
-        output = captured1.ToString();
-
-        // Observation 0 is not in the test's local DB -> the CLI reports that.
-        Assert.DoesNotContain("does not exist", output);
     }
 
 }
