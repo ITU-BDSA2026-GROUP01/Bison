@@ -8,7 +8,7 @@ namespace SimpleDB;
 public sealed class CSVDatabase<T> : IDatabaseRepository<T>
 {
     private static CSVDatabase<T>? _instance; // singleton instance
-    private static readonly object _lock = new(); // optional, but good practice even if not required yet
+   
     private string _dbPath = "";
 
     private CSVDatabase(string path)
