@@ -7,26 +7,27 @@ namespace SimpleDB;
 
 public sealed class CSVDatabase<T> : IDatabaseRepository<T>
 {
-    private static CSVDatabase<T>? _instance; //uanset hvor mange instancer vi laver af CSVDatabase<T>, vil de alle refere tilbage til den STATIC CSVDatabase
-    private readonly string bison_observe_cli_dbpath = "";
+    private static CSVDatabase<T>? _instance; // singleton instance
+    private static readonly object _lock = new(); // optional, but good practice even if not required yet
+    private string _dbPath = "";
 
     private CSVDatabase(string path)
     {
-        bison_observe_cli_dbpath = path;
+        _dbPath = path;
     }
 
-    public static CSVDatabase<T> getInstance()
+    public static CSVDatabase<T> GetInstance(string path)
     {
         if (_instance == null)
         {
-            _instance = new CSVDatabase<T>(bison_observe_cli_dbpath);
+            _instance = new CSVDatabase<T>(path);
         }
         return _instance;
     }
 
     public IEnumerable<T> Read(int? limit = null)
     {
-        using var reader = new StreamReader(bison_observe_cli_dbpath);
+        using var reader = new StreamReader(_dbPath);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
         csv.Context.RegisterClassMap<CheepMap>();
@@ -37,7 +38,7 @@ public sealed class CSVDatabase<T> : IDatabaseRepository<T>
     public void Store(T record)
     {
         using var stream = new FileStream(
-        bison_observe_cli_dbpath,
+        _dbPath,
         FileMode.Append,
         FileAccess.Write,
         FileShare.Read);

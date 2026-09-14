@@ -3,9 +3,9 @@ namespace Bison.CLI;
 
 public static class Observations
 {
-     private static readonly CSVDatabase<Cheep> observeDB = new(DbPaths.Resolve("bison_observe_cli_db.csv"));
+    private static readonly CSVDatabase<Cheep> observeDB = CSVDatabase<Cheep>.GetInstance(DbPaths.Resolve("bison_observe_cli_db.csv"));
 
-     public static void Read()
+    public static void Read()
     {
         UserInterface.PrintObservations(observeDB.Read());
     }
