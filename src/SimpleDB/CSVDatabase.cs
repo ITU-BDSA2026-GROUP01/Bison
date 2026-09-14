@@ -21,7 +21,7 @@ public sealed class CSVDatabase<T> : IDatabaseRepository<T>
         {
             _instance = new CSVDatabase<T>(bison_observe_cli_dbpath);
         }
-        return _instance; 
+        return _instance;
     }
 
     public IEnumerable<T> Read(int? limit = null)
