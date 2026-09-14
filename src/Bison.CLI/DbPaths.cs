@@ -4,16 +4,6 @@ using System.Linq;
 
 namespace Bison.CLI;
 
-/// <summary>
-/// Resolves database file paths relative to the project's local folder
-/// (the directory containing the nearest .csproj) rather than the current
-/// working directory.
-///
-/// Because it is resolved per-process, the same call site behaves correctly
-/// in both entry points:
-///   • run as the CLI  -> resolves to the Bison.CLI (/src) project folder
-///   • invoked by the test project -> resolves to the /test project folder
-/// </summary>
 public static class DbPaths
 {
     private static readonly string _base = FindLocalFolder();
