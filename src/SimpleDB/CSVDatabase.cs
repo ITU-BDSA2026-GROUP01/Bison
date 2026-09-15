@@ -7,16 +7,34 @@ namespace SimpleDB;
 
 public sealed class CSVDatabase<T> : IDatabaseRepository<T>
 {
-    private readonly string bison_observe_cli_dbpath = "";
+    private static CSVDatabase<T>? _instance; // singleton instance
+   
+    private string _dbPath = "";
 
-    public CSVDatabase(string path)
+    private CSVDatabase(string path)
     {
-        bison_observe_cli_dbpath = path;
+        _dbPath = path;
+    }
+
+    public static CSVDatabase<T> GetInstance(string path)
+    {
+        if (_instance == null)
+        {
+            _instance = new CSVDatabase<T>(path);
+        }
+
+        // Always (re)bind the current database file. The instance stays unique
+        // per T (that's the Singleton part), but each caller decides which file
+        // it operates on. If the path were only set on the first call, the first
+        // caller's file would win forever and every later GetInstance(otherPath)
+        // would silently read/write the wrong file.
+        _instance._dbPath = path;
+        return _instance;
     }
 
     public IEnumerable<T> Read(int? limit = null)
     {
-        using var reader = new StreamReader(bison_observe_cli_dbpath);
+        using var reader = new StreamReader(_dbPath);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
         csv.Context.RegisterClassMap<CheepMap>();
@@ -27,7 +45,7 @@ public sealed class CSVDatabase<T> : IDatabaseRepository<T>
     public void Store(T record)
     {
         using var stream = new FileStream(
-        bison_observe_cli_dbpath,
+        _dbPath,
         FileMode.Append,
         FileAccess.Write,
         FileShare.Read);

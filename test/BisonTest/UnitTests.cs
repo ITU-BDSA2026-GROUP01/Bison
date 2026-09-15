@@ -4,6 +4,7 @@ using System;
 using Xunit;
 using Xunit.Abstractions;
 using Bison.CLI;
+using SimpleDB;
 
 public class UnitTests
 {
@@ -20,18 +21,20 @@ public class UnitTests
         try
         {
             // Given: a database file that already has its header row.
-            File.WriteAllText(path, "Author,Observation,Timestamp\n");
-            var database = new SimpleDB.CSVDatabase<SimpleDB.Cheep>(path);
+            // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
+            File.WriteAllText(path, "Id,Author,Message,Timestamp\n");
+            var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
 
             // When: an empty record and an invalid (null-bearing) record are stored.
             // (If Store rejects either, the test fails with that exception.)
-            database.Store(new SimpleDB.Cheep());
-            database.Store(new SimpleDB.Cheep(null!, null!, 0));
+            database.Store(new Bison.CLI.Cheep());
+            database.Store(new Bison.CLI.Cheep(0, null!, null!, 0));
 
             // Then: both are persisted and read back as empty (non-null) strings
             // with a zero timestamp — CsvHelper serialises null and "" identically.
             var actual = database.Read().ToList();
 
+            Console.WriteLine(actual);
             Assert.Equal(2, actual.Count);
 
             var empty = actual[0];

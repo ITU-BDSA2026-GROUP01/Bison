@@ -2,6 +2,8 @@ namespace test;
 
 using System;
 using System.Collections.Generic;
+using SimpleDB;
+using Bison.CLI;
 
 public class IntegrationsTests
 {
@@ -15,11 +17,12 @@ public class IntegrationsTests
         try
         { 
             // Write the CSV headers to the temporary file
-            File.WriteAllText(path, "Author,Observation,Timestamp\n");
+            // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
+            File.WriteAllText(path, "Id,Author,Message,Timestamp\n");
 
             // Create a new CSVDatabase instance for Cheep records
-            var database = new SimpleDB.CSVDatabase<SimpleDB.Cheep>(path);
-            var expected = new SimpleDB.Cheep("alice", "Hello", 123);
+            var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
+            var expected = new Bison.CLI.Cheep(2, "alice", "Hello", 123);
 
 
             // Store the expected record in the database
@@ -48,15 +51,16 @@ public class IntegrationsTests
         try
         {
             // Write the CSV headers to the temporary file
-            File.WriteAllText(path, "Author,Observation,Timestamp\n");
+            // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
+            File.WriteAllText(path, "Id,Author,Message,Timestamp\n");
 
             // Create a new CSVDatabase instance for Cheep records
-            var database = new SimpleDB.CSVDatabase<SimpleDB.Cheep>(path);
+            var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
 
             // Create multiple Cheep records to store in the database
-            var first = new SimpleDB.Cheep("alice", "Hello", 123);
-            var second = new SimpleDB.Cheep("bob", "World", 456);
-            var third = new SimpleDB.Cheep("carol", "Again", 789);
+            var first = new Bison.CLI.Cheep(1, "alice", "Hello", 123);
+            var second = new Bison.CLI.Cheep(2, "bob", "World", 456);
+            var third = new Bison.CLI.Cheep(3, "carol", "Again", 789);
 
             // Store the records in the database
             database.Store(first);
