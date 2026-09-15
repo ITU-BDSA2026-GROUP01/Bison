@@ -4,6 +4,8 @@ using System;
 using System.IO;
 using System.Text;
 using System.Threading.Tasks;
+using Bison.CLI;
+using SimpleDB;
 
 public class EtoE_Tests
 {
@@ -58,7 +60,7 @@ public class EtoE_Tests
         {
             await Bison.CLI.Program.Main(["observe", message]);
 
-            var newId = new SimpleDB.CSVDatabase<Bison.CLI.Cheep>(observeDb).Read()
+            var newId = CSVDatabase<Bison.CLI.Cheep>.GetInstance(observeDb).Read()
                 .Where(c => c.Message == message)
                 .Select(c => c.Id)
                 .Single();

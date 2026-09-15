@@ -5,7 +5,10 @@ namespace Bison.CLI;
 
 public static class Comments
 {
-    private static readonly CSVDatabase<Comment> CommentDB = CSVDatabase<Comment>.GetInstance(DbPaths.Resolve("bison_comment_cli_db.csv"));
+    // Re-resolves the singleton (and re-binds the real db path) on every use,
+    // so tests that point the singleton at a temp file don't leak into the app.
+    private static CSVDatabase<Comment> CommentDB =>
+        CSVDatabase<Comment>.GetInstance(DbPaths.Resolve("bison_comment_cli_db.csv"));
 
     public static void Comment(long observationId, string message)
     {
@@ -26,7 +29,7 @@ public static class Comments
     }
 
     public static void Discussion(long observationId)
-{
+    {
         if (!Observations.Exists(observationId))
         {
             Console.WriteLine("Observation not found.");

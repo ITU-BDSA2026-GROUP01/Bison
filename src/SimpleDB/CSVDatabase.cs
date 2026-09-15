@@ -22,6 +22,13 @@ public sealed class CSVDatabase<T> : IDatabaseRepository<T>
         {
             _instance = new CSVDatabase<T>(path);
         }
+
+        // Always (re)bind the current database file. The instance stays unique
+        // per T (that's the Singleton part), but each caller decides which file
+        // it operates on. If the path were only set on the first call, the first
+        // caller's file would win forever and every later GetInstance(otherPath)
+        // would silently read/write the wrong file.
+        _instance._dbPath = path;
         return _instance;
     }
 

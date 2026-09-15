@@ -3,8 +3,8 @@ namespace Bison.CLI;
 
 public static class Observations
 {
-    private static readonly CSVDatabase<Cheep> observeDB = CSVDatabase<Cheep>.GetInstance(DbPaths.Resolve("bison_observe_cli_db.csv"));
-
+    private static CSVDatabase<Cheep> observeDB =>
+        CSVDatabase<Cheep>.GetInstance(DbPaths.Resolve("bison_observe_cli_db.csv"));
     public static void Read()
     {
         UserInterface.PrintObservations(observeDB.Read());
@@ -24,9 +24,9 @@ public static class Observations
 
         observeDB.Store(cheep);
     }
-     
-     public static bool Exists(long id)
+
+    public static bool Exists(long id)
     {
-      return observeDB.Read().Any(c => c.Id == id);  
-    } 
+        return observeDB.Read().Any(c => c.Id == id);
+    }
 }
