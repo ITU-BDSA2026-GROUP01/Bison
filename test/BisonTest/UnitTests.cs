@@ -22,13 +22,13 @@ public class UnitTests
         {
             // Given: a database file that already has its header row.
             // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
-            File.WriteAllText(path, "Id,Author,Message,Timestamp\n");
+            File.WriteAllText(path, "Id,Author,Message,Timestamp,Location\n");
             var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
 
             // When: an empty record and an invalid (null-bearing) record are stored.
             // (If Store rejects either, the test fails with that exception.)
             database.Store(new Bison.CLI.Cheep());
-            database.Store(new Bison.CLI.Cheep(0, null!, null!, 0));
+            database.Store(new Bison.CLI.Cheep(0, null!, null!, 0, null!));
 
             // Then: both are persisted and read back as empty (non-null) strings
             // with a zero timestamp — CsvHelper serialises null and "" identically.
@@ -62,7 +62,7 @@ public class UnitTests
         // Given: a cheep with a fixed, known unix timestamp.
         // 1690891760 == 2023-08-01 12:09:20 UTC (hand-verified with: date -u -d @1690891760).
         var ts = 1690891760L;
-        var cheep = new Bison.CLI.Cheep(1, "alice", "Hello", ts);
+        var cheep = new Bison.CLI.Cheep(1, "alice", "Hello", ts, "DR Byen");
 
         var expectedLocal = DateTimeOffset
             .FromUnixTimeSeconds(ts)

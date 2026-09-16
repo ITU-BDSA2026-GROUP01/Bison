@@ -25,7 +25,7 @@ public class EtoE_Tests
         string readOutput;
         try
         {
-            await Bison.CLI.Program.Main(["observe", message]);
+            await Bison.CLI.Program.Main(["observe", message, "DR Byen"]);
 
             await Bison.CLI.Program.Main(["read"]);
             readOutput = captured.ToString();
@@ -58,7 +58,7 @@ public class EtoE_Tests
 
         try
         {
-            await Bison.CLI.Program.Main(["observe", message]);
+            await Bison.CLI.Program.Main(["observe", message, "DR Byen"]);
 
             var newId = CSVDatabase<Bison.CLI.Cheep>.GetInstance(observeDb).Read()
                 .Where(c => c.Message == message)

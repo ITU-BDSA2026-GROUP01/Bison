@@ -4,20 +4,38 @@ namespace Bison.CLI;
 
 static class Parsing
 {
-	public static RootCommand BuildRootCommand(Action<string> observe, Action read, Action<long, string> comment, Action<long> discussion)
+	public static RootCommand BuildRootCommand(Action<string, string> observe, Action<string?> read, Action<long, string> comment, Action<long> discussion)
 	{
 		var messageArgument = new Argument<string>(
 			name: "message",
 			description: "The message to record as an observation");
 
+		var locationArgument = new Argument<string> (
+			name: "location",
+			description: "The location where the observation was made");
+
+
+
 		var observeCommand = new Command("observe", "Record a new observation")
 		{
-			messageArgument
+			messageArgument,
+			locationArgument
 		};
-		observeCommand.SetHandler((message) => observe(message), messageArgument);
+		observeCommand.SetHandler((message, location) => observe(message, location), messageArgument, locationArgument);
 
-		var readCommand = new Command("read", "List recorded observations");
-		readCommand.SetHandler(() => read());
+
+		var locationOption = new Option<string?> (
+			name: "--location",
+			description: "Filter observations by location"
+		);
+		
+
+		var readCommand = new Command("read", "List recorded observations")
+		{
+			locationOption
+		};
+
+		readCommand.SetHandler((location) => read(location), locationOption);
 
 		var observationIdArgument = new Argument<long>(
 			name: "observationId",
@@ -47,7 +65,7 @@ static class Parsing
 		rootCommand.AddCommand(commentCommand);
 		rootCommand.AddCommand(discussionCommand);
 		// No subcommand given -> default to Read, matching old behavior
-		rootCommand.SetHandler(() => read());
+		rootCommand.SetHandler(() => read(null));
 
 		return rootCommand;
 	}

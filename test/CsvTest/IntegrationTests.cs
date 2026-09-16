@@ -18,11 +18,11 @@ public class IntegrationsTests
         { 
             // Write the CSV headers to the temporary file
             // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
-            File.WriteAllText(path, "Id,Author,Message,Timestamp\n");
+            File.WriteAllText(path, "Id,Author,Message,Timestamp,Location\n");
 
             // Create a new CSVDatabase instance for Cheep records
             var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
-            var expected = new Bison.CLI.Cheep(2, "alice", "Hello", 123);
+            var expected = new Bison.CLI.Cheep(2, "alice", "Hello", 123, "DR Byen");
 
 
             // Store the expected record in the database
@@ -52,15 +52,15 @@ public class IntegrationsTests
         {
             // Write the CSV headers to the temporary file
             // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
-            File.WriteAllText(path, "Id,Author,Message,Timestamp\n");
+            File.WriteAllText(path, "Id,Author,Message,Timestamp,Location\n");
 
             // Create a new CSVDatabase instance for Cheep records
             var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
 
             // Create multiple Cheep records to store in the database
-            var first = new Bison.CLI.Cheep(1, "alice", "Hello", 123);
-            var second = new Bison.CLI.Cheep(2, "bob", "World", 456);
-            var third = new Bison.CLI.Cheep(3, "carol", "Again", 789);
+            var first = new Bison.CLI.Cheep(1, "alice", "Hello", 123, "Dr Byen");
+            var second = new Bison.CLI.Cheep(2, "bob", "World", 456, "Amager");
+            var third = new Bison.CLI.Cheep(3, "carol", "Again", 789, "DR Byen");
 
             // Store the records in the database
             database.Store(first);

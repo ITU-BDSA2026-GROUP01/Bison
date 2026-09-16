@@ -13,7 +13,7 @@ public static class UserInterface
                 .FromUnixTimeSeconds(cheep.Timestamp)
                 .ToLocalTime();
 
-            Console.WriteLine($"({cheep.Id}) {cheep.Author} @ {localTime}: {cheep.Message}");
+            Console.WriteLine($"({cheep.Id}) {cheep.Author} @ {localTime} [{cheep.Location}]: {cheep.Message}");
         }
     }
 
