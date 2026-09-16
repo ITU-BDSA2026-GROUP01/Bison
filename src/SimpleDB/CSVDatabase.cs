@@ -37,8 +37,6 @@ public sealed class CSVDatabase<T> : IDatabaseRepository<T>
         using var reader = new StreamReader(_dbPath);
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
 
-        csv.Context.RegisterClassMap<CheepMap>();
-
         return csv.GetRecords<T>().ToList();
     }
 

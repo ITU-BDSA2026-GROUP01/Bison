@@ -5,12 +5,16 @@ public static class Observations
 {
     private static CSVDatabase<Cheep> observeDB =>
         CSVDatabase<Cheep>.GetInstance(DbPaths.Resolve("bison_observe_cli_db.csv"));
-    public static void Read()
+    public static void Read(string? location)
     {
-        UserInterface.PrintObservations(observeDB.Read());
+            var observation = location is null
+            ? observeDB.Read()
+            :observeDB.Read().Where(c=> c.Location == location);
+        
+        UserInterface.PrintObservations(observation);
     }
 
-    public static void Observe(string message)
+    public static void Observe(string message, string location)
     {
         var cheeps = observeDB.Read().ToList();
         var nextId = cheeps.Count == 0 ? 1 : cheeps.Max(c => c.Id) + 1;
@@ -19,7 +23,8 @@ public static class Observations
             nextId,
             Environment.UserName,
             message,
-            DateTimeOffset.UtcNow.ToUnixTimeSeconds()
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
+            location
             );
 
         observeDB.Store(cheep);
