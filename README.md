@@ -15,5 +15,10 @@ We collectively came to this conclusion, by asking eachother if we are comfortab
 ### Week 3:
 We came to the same conclusion with our test data, as last week's conclusion.
 
+## 2.c Reflection:
+How did the refactoring in 2.b affect adding tests compared to 2.a?
+
+Since CSVDatabase became a singleton, we could no longer just create a fresh instance per test with "new CSVDatabase(path)". Instead, every test calls "GetInstance(path)", which returns the same shared instance regardless of which type/path was used before. GetInstance rebinds the current file path on each call, so tests stay isolated as long as each test uses its own temporary file. This made test isolation slightly less obvious than in 2.a, since the "one shared instance" behavior needs to be understood to trust that tests won't leak state into each other.
+
 ### Week 4:
 There were no ethic decisions this week. : )
