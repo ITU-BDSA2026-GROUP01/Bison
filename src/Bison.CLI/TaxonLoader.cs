@@ -23,15 +23,15 @@ public class TaxonMap : ClassMap<Taxon>
 }
 
 public static class TaxonLoader
-{ // The TaxonLoader class provides a method to load taxonomic data from a CSV file and create a dictionary of Taxon objects, 
-// allowing for easy access to taxa by their unique identifiers and establishing parent-child relationships between taxa based on the ParentNameUsageId property.
+{   // The TaxonLoader class provides a static method to load taxonomic data from a CSV file and establish parent-child relationships between taxa based on their identifiers.
     public static Dictionary<string, Taxon> Load(string path)
-    {
+    {   // The Load method reads taxonomic data from a CSV file specified by the path parameter, creates Taxon objects, and establishes parent-child relationships based on the ParentNameUsageId property.
         using var reader = new StreamReader(path);
+        // Create a CsvReader to read the CSV data from the specified file path, using the invariant culture for consistent parsing of data.
         using var csv = new CsvReader(reader, CultureInfo.InvariantCulture);
-
+        // Register the TaxonMap class to define the mapping between the Taxon class properties and the corresponding CSV column names.
         csv.Context.RegisterClassMap<TaxonMap>();
-
+        // Read the records from the CSV file and convert them into a list of Taxon objects.
         var taxa = csv.GetRecords<Taxon>().ToList();
         // Create a lookup dictionary for taxa by their TaxonId, filtering out any taxa with empty or whitespace TaxonId values.
         var lookup = taxa

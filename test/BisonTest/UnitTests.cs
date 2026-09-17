@@ -153,4 +153,37 @@ public class UnitTests
         }
     }
 
+    [Fact]
+    public void Loads_taxa_and_links_parents_by_taxon_id()
+    {
+        var csv = """
+        dwc:taxonID,dwc:parentNameUsageID,dwc:acceptedNameUsageID,dwc:taxonomicStatus,dwc:taxonRank,dwc:scientificName,dwc:scientificNameAuthorship,dcterms:language,dwc:vernacularName,clb:merged
+        MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea,,,accepted,order,Pelecaniformes,,dan,Årefodede,false
+        MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea,MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea,,accepted,family,Ardeidae,,dan,Hejrer,false
+        MSTSNM:Arter:7f9ef9f3-f785-ea11-aa77-501ac539d1ea,MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea,,accepted,genus,Ardea,,,,
+        MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea,MSTSNM:Arter:7f9ef9f3-f785-ea11-aa77-501ac539d1ea,,accepted,species,Ardea cinerea,"Linnaeus, 1758",dan,Fiskehejre,false
+        """;
+
+        var path = Path.GetTempFileName();
+
+        try
+        {
+            File.WriteAllText(path, csv);
+
+            var taxa = TaxonLoader.Load(path);
+
+            Assert.True(taxa.ContainsKey("MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea"));
+            Assert.True(taxa.ContainsKey("MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"));
+
+            var species = taxa["MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"];
+            Assert.Equal("Ardea", species.Parent?.ScientificName);
+            Assert.Equal("Ardeidae", species.Parent?.Parent?.ScientificName);
+            Assert.Equal("Pelecaniformes", species.Parent?.Parent?.Parent?.ScientificName);
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
 }
