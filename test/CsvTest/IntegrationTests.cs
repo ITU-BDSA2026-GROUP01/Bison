@@ -79,4 +79,34 @@ public class IntegrationsTests
             File.Delete(path);
         }
     }
+
+
+   [Fact] // Ny test der specifikt tester location
+
+   public void FiltersObservationsByLocation() {
+
+   var path = Path.GetTempFileName(); // laver midlertidig da det sikrer isolation. Ingen forurene vores faktisk data. 
+
+   try 
+    { 
+        File.WriteAllText(path, "Id,Author,Message,Timestamp,Location\n");
+
+        var database= CSVDatabase<Bison.CLI.Cheep>.GetInstance(path); // henter/opretter singleton af CSVdatabase
+
+        var drByen = new Bison.CLI.Cheep(1, "alice", "Heron", 100, "DR Byen");
+        var amager = new Bison.CLI.Cheep(2, "bob", "Sparrow", 200, "Amager");
+
+        database.Store(drByen); // gemmer dem midlertidige CSV
+        database.Store(amager);
+
+            var filtered = database.Read().Where(c => c.Location == "DR Byen").ToList();
+            
+            Assert.Single(filtered); // præcis en record kom igennem filteret = fejlede
+            Assert.Equal(drByen, filtered[0]); // Bekræfter den er rigtige record
+        }    
+        finally 
+        {
+        File.Delete(path);  // den midlertidig fil altid slettet efter testen.
+        }
+    }   
 }
