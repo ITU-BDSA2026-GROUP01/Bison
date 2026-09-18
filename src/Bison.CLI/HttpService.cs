@@ -12,7 +12,7 @@ static async Task Post(HttpClient client, string endpoint, Bison.CLI.Cheep cheep
     
 }
 
-static async Task<string> GetRequest(HttpClient client, string endpoint)
+static async Task<string> Get(HttpClient client, string endpoint)
 {
     var json = await client.GetStringAsync(
     "https://api.github.com/orgs/dotnet/repos");
