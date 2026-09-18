@@ -22,3 +22,9 @@ Since CSVDatabase became a singleton, we could no longer just create a fresh ins
 
 ### Week 4:
 There were no ethic decisions this week. : )
+
+
+# Branch Protocol
+
+When we are done with a new week, delete the old branches from current week - 1 week. Ie. Week 4 done, delete branches Week 3 and behind. 
+
