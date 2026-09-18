@@ -4,7 +4,7 @@ namespace Bison.CLI;
 
 static class Parsing
 {
-	public static RootCommand BuildRootCommand(Action<string, string> observe, Action<string?> read, Action<long, string> comment, Action<long> discussion)
+	public static RootCommand BuildRootCommand(Func<string, string, Task> observe, Func<string?, Task> read, Func<long, string, Task> comment, Func<long, Task> discussion)
 	{
 		var messageArgument = new Argument<string>(
 			name: "message",
