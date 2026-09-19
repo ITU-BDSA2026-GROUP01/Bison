@@ -37,7 +37,7 @@ jobs:
         run: dotnet build ./src/Bison.CSVDBService/Bison.CSVDBService.csproj --no-restore
 
       - name: Run server for tests
-        run: dotnet run ./src/Bison.CSVDBService/Bison.CSVDBService.csproj
+        run: dotnet run --project ./src/Bison.CSVDBService/Bison.CSVDBService.csproj
 
       - name: Test
         run: dotnet test
