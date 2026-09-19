@@ -18,26 +18,38 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
-      - name: Restore Bison.CLI
-        run: dotnet restore ./src/Bison.CLI/Bison.CLI.csproj
+      - name: Restore
+        run: dotnet restore ./Bison.sln
 
-      - name: Restore SimpleDB
-        run: dotnet restore ./src/SimpleDB/SimpleDB.csproj
+      - name: Build
+        run: dotnet build ./Bison.sln --no-restore
 
-      - name: Restore Bison.CSVDBService
-        run: dotnet restore ./src/Bison.CSVDBService/Bison.CSVDBService.csproj
-
-      - name: Build Bison.CLI
-        run: dotnet build ./src/Bison.CLI/Bison.CLI.csproj --no-restore
-
-      - name: Build SimpleDB
-        run: dotnet build ./src/SimpleDB/SimpleDB.csproj --no-restore
-
-      - name: Build Bison.CSVDBService
-        run: dotnet build ./src/Bison.CSVDBService/Bison.CSVDBService.csproj --no-restore
-
-      - name: Run server for tests
-        run: dotnet run --project ./src/Bison.CSVDBService/Bison.CSVDBService.csproj
+      - name: Start web server
+        working-directory: src/Bison.CSVDBService
+        run: |
+          nohup dotnet run --launch-profile http > server.log 2>&1 &
+          echo $! > server.pid
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:5195/observations > /dev/null 2>&1; then
+              echo "Server is up."
+              break
+            fi
+            if [ "$i" -eq 60 ]; then
+              echo "Server failed to start. Log:" >&2
+              cat server.log >&2
+              exit 1
+            fi
+            sleep 1
+          done
 
       - name: Test
-        run: dotnet test
+        run: dotnet test ./Bison.sln --no-build
+
+      - name: Stop web server
+        working-directory: src/Bison.CSVDBService
+        if: always()
+        run: |
+          if [ -f server.pid ]; then
+            kill "$(cat server.pid)" 2>/dev/null || true
+          fi
+          pkill -f Bison.CSVDBService 2>/dev/null || true
