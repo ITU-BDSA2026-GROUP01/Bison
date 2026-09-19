@@ -89,8 +89,8 @@ public class UnitTests
     [Fact]
     public async System.Threading.Tasks.Task CommentInvalidIdTest()
     {
-        var observeDb = Bison.CLI.DbPaths.Resolve("bison_observe_cli_db.csv");
-        var commentDb = Bison.CLI.DbPaths.Resolve("bison_comment_cli_db.csv");
+        var observeDb = ServerData.Observations;
+        var commentDb = ServerData.Comments;
         var observeBackup = Path.GetTempFileName();
         var commentBackup = Path.GetTempFileName();
         File.Copy(observeDb, observeBackup, true);
