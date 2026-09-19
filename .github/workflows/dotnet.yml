@@ -24,11 +24,20 @@ jobs:
       - name: Restore SimpleDB
         run: dotnet restore ./src/SimpleDB/SimpleDB.csproj
 
+      - name: Restore Bison.CSVDBService
+        run: dotnet restore ./src/Bison.CSVDBService/Bison.CSVDBService.csproj
+
       - name: Build Bison.CLI
         run: dotnet build ./src/Bison.CLI/Bison.CLI.csproj --no-restore
 
       - name: Build SimpleDB
         run: dotnet build ./src/SimpleDB/SimpleDB.csproj --no-restore
+
+      - name: Build Bison.CSVDBService
+        run: dotnet build ./src/Bison.CSVDBService/Bison.CSVDBService.csproj --no-restore
+
+      - name: Run server for tests
+        run: dotnet run ./src/Bison.CSVDBService/Bison.CSVDBService.csproj
 
       - name: Test
         run: dotnet test
