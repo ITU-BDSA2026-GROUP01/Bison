@@ -1,6 +1,8 @@
 namespace test;
 
 using System;
+using System.IO;
+using System.Linq;
 using Xunit;
 using Xunit.Abstractions;
 using Bison.CLI;
@@ -9,32 +11,45 @@ using SimpleDB;
 public class UnitTests
 {
     private readonly ITestOutputHelper output;
+
     public UnitTests(ITestOutputHelper output)
     {
         this.output = output;
+
+        // Reset EVERYTHING before each test
+        DbPaths.Reset();
+        ResetDatabaseSingletons();
+        Observations.Reset();
+        Comments.Reset();
+        Taxonomy.Reset();
     }
+
+    private static void ResetDatabaseSingletons()
+    {
+        CSVDatabase<Cheep>.Reset();
+        CSVDatabase<Comment>.Reset();
+        CSVDatabase<Proposal>.Reset();
+    }
+
+    // ---------------------------
+    //  ORIGINAL TESTS (cleaned)
+    // ---------------------------
 
     [Fact]
     public void StoringInvalidRecord()
     {
         var path = Path.Combine(Path.GetTempPath(), $"bison_test_{Guid.NewGuid():N}.csv");
+
         try
         {
-            // Given: a database file that already has its header row.
-            // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
             File.WriteAllText(path, "Id,Author,Message,Timestamp,Location\n");
-            var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
+            var database = CSVDatabase<Cheep>.GetInstance(path);
 
-            // When: an empty record and an invalid (null-bearing) record are stored.
-            // (If Store rejects either, the test fails with that exception.)
-            database.Store(new Bison.CLI.Cheep());
-            database.Store(new Bison.CLI.Cheep(0, null!, null!, 0, null!));
+            database.Store(new Cheep());
+            database.Store(new Cheep(0, null!, null!, 0, null!));
 
-            // Then: both are persisted and read back as empty (non-null) strings
-            // with a zero timestamp — CsvHelper serialises null and "" identically.
             var actual = database.Read().ToList();
 
-            Console.WriteLine(actual);
             Assert.Equal(2, actual.Count);
 
             var empty = actual[0];
@@ -49,24 +64,17 @@ public class UnitTests
         }
         finally
         {
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            if (File.Exists(path)) File.Delete(path);
         }
     }
 
     [Fact]
     public void UnixTimestampTest()
     {
-        // Given: a cheep with a fixed, known unix timestamp.
-        // 1690891760 == 2023-08-01 12:09:20 UTC (hand-verified with: date -u -d @1690891760).
         var ts = 1690891760L;
-        var cheep = new Bison.CLI.Cheep(1, "alice", "Hello", ts, "DR Byen");
+        var cheep = new Cheep(1, "alice", "Hello", ts, "DR Byen");
 
-        var expectedLocal = DateTimeOffset
-            .FromUnixTimeSeconds(ts)
-            .ToLocalTime();
+        var expectedLocal = DateTimeOffset.FromUnixTimeSeconds(ts).ToLocalTime();
 
         var originalOut = Console.Out;
         using var captured = new StringWriter();
@@ -82,75 +90,63 @@ public class UnitTests
         }
 
         var output = captured.ToString();
-
         Assert.Contains(expectedLocal.ToString(), output);
     }
 
     [Fact]
     public async System.Threading.Tasks.Task CommentInvalidIdTest()
     {
-        var observeDb = Bison.CLI.DbPaths.Resolve("bison_observe_cli_db.csv");
-        var commentDb = Bison.CLI.DbPaths.Resolve("bison_comment_cli_db.csv");
-        var observeBackup = Path.GetTempFileName();
-        var commentBackup = Path.GetTempFileName();
-        File.Copy(observeDb, observeBackup, true);
-        File.Copy(commentDb, commentBackup, true);
+        // Override DB paths with temp files
+        var observeTemp = TempFile.Create("observe_test.csv", "Id,Author,Message,Timestamp,Location\n");
+        var commentTemp = TempFile.Create("comment_test.csv", "ObservationId,Author,Message,Timestamp\n");
 
+        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
+        DbPaths.Override("bison_comment_cli_db.csv", commentTemp.Path);
+
+        // Add one valid observation
+        Observations.AddObservation("Test obs", "Copenhagen");
+
+        var args = new[] { "comment", "0", "test message" };
+
+        var originalOut = Console.Out;
+        var originalErr = Console.Error;
+        using var captured = new StringWriter();
+        Console.SetOut(captured);
+        Console.SetError(captured);
+
+        int exitCode;
         try
         {
-            var args = new[] { "comment", "0", "test message" };
-
-            var originalOut = Console.Out;
-            var originalErr = Console.Error;
-            using var captured = new StringWriter();
-            Console.SetOut(captured);
-            Console.SetError(captured);
-
-            int exitCode;
-            try
-            {
-                exitCode = await Bison.CLI.Program.Main(args);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetError(originalErr);
-            }
-
-            var output = captured.ToString();
-
-            Assert.Contains("does not exist", output);
-
-
-            originalOut = Console.Out;
-            originalErr = Console.Error;
-            using var captured1 = new StringWriter();
-            Console.SetOut(captured1);
-            Console.SetError(captured1);
-
-            args = ["comment", "1", "test message1"];
-            try
-            {
-                exitCode = await Bison.CLI.Program.Main(args);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetError(originalErr);
-            }
-
-            output = captured1.ToString();
-
-            // Observation 0 is not in the test's local DB -> the CLI reports that.
-            Assert.DoesNotContain("does not exist", output);
+            exitCode = await Program.Main(args);
         }
         finally
         {
-            File.Copy(observeBackup, observeDb, true);
-            File.Copy(commentBackup, commentDb, true);
-            File.Delete(observeBackup);
-            File.Delete(commentBackup);
+            Console.SetOut(originalOut);
+            Console.SetError(originalErr);
         }
+
+        var output1 = captured.ToString();
+        Assert.Contains("does not exist", output1);
+
+        // Valid observation
+        args = new[] { "comment", "1", "test message1" };
+
+        using var captured2 = new StringWriter();
+        Console.SetOut(captured2);
+        Console.SetError(captured2);
+
+        try
+        {
+            exitCode = await Program.Main(args);
+        }
+        finally
+        {
+            Console.SetOut(originalOut);
+            Console.SetError(originalErr);
+        }
+
+        var output2 = captured2.ToString();
+        Assert.DoesNotContain("does not exist", output2);
     }
 
     [Fact]
@@ -186,4 +182,79 @@ public class UnitTests
         }
     }
 
+    // ---------------------------
+    //  PROPOSAL TESTS (clean)
+    // ---------------------------
+
+    [Fact]
+    public void AddProposal_InvalidTaxonId_IsRejected()
+    {
+        var proposalTemp = TempFile.Create("proposal_test.csv",
+            "ObservationId,Author,TaxonId,Timestamp\n");
+
+        var observeTemp = TempFile.Create("observe_test.csv",
+            "Id,Author,Message,Timestamp,Location\n");
+
+        DbPaths.Override("bison_proposal_cli_db.csv", proposalTemp.Path);
+        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
+
+        Observations.AddObservation("Saw a bird", "Copenhagen");
+
+        Proposals.AddProposal(1, "INVALID_TAXON");
+
+        var proposals = CSVDatabase<Proposal>.GetInstance(proposalTemp.Path).Read().ToList();
+        Assert.Empty(proposals);
+    }
+
+    [Fact]
+    public void AddProposal_ValidTaxonId_IsStored()
+    {
+        var proposalTemp = TempFile.Create("proposal_test.csv",
+            "ObservationId,Author,TaxonId,Timestamp\n");
+
+        var observeTemp = TempFile.Create("observe_test.csv",
+            "Id,Author,Message,Timestamp,Location\n");
+
+        DbPaths.Override("bison_proposal_cli_db.csv", proposalTemp.Path);
+        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
+
+        Observations.AddObservation("Saw a bird", "Copenhagen");
+
+        string validTaxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
+
+        Proposals.AddProposal(1, validTaxon);
+
+        var proposals = CSVDatabase<Proposal>.GetInstance(proposalTemp.Path).Read().ToList();
+        Assert.Single(proposals);
+        Assert.Equal(validTaxon, proposals[0].TaxonId);
+    }
+
+    [Fact]
+    public void ShowProposals_ReturnsOnlyMatchingObservation()
+    {
+        var proposalTemp = TempFile.Create("proposal_test.csv",
+            "ObservationId,Author,TaxonId,Timestamp\n");
+
+        var observeTemp = TempFile.Create("observe_test.csv",
+            "Id,Author,Message,Timestamp,Location\n");
+
+        DbPaths.Override("bison_proposal_cli_db.csv", proposalTemp.Path);
+        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
+
+        Observations.AddObservation("Saw a bird", "Copenhagen");
+        Observations.AddObservation("Saw a fox", "Aarhus");
+
+        string taxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
+
+        Proposals.AddProposal(1, taxon);
+        Proposals.AddProposal(2, taxon);
+
+        var proposalsFor1 = CSVDatabase<Proposal>.GetInstance(proposalTemp.Path)
+            .Read()
+            .Where(p => p.ObservationId == 1)
+            .ToList();
+
+        Assert.Single(proposalsFor1);
+        Assert.Equal(1, proposalsFor1[0].ObservationId);
+    }
 }

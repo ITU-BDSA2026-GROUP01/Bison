@@ -17,6 +17,15 @@ namespace Bison.CLI
 
         public static bool Exists(string taxonId) =>
             Lookup.ContainsKey(taxonId);
-    }
 
+
+        // Reset method to clear the taxonomy lookup, useful for testing purposes.
+        public static void Reset()
+        {
+            Lookup.Clear();
+        }
+    }
 }
+
+
+    

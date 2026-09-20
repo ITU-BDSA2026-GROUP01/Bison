@@ -48,6 +48,13 @@ public static class Comments
 
         UserInterface.PrintComments(observationId, comments);
 }
+
+    // This method is useful for testing purposes, to reset the state of the Comments class.
+    public static void Reset()
+    {
+        // Same idea — clear any static state
+    }
+
 }
 
 /*public sealed class CommentMap : ClassMap<Comment>

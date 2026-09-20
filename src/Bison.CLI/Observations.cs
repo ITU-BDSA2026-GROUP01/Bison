@@ -34,4 +34,19 @@ public static class Observations
     {
         return observeDB.Read().Any(c => c.Id == id);
     }
+
+    // This method is useful for testing purposes, to reset the state of the Observations class.
+    public static void Reset()
+    {
+        // Clear the in-memory cache if you have one
+        // If not, this can be empty
+    }
+
+    // This method is useful for testing purposes, to add an observation without going through the CLI. Wrapper Method. 
+    public static void AddObservation(string message, string location)
+    {
+        Observe(message, location);
+    }
+
+
 }
