@@ -29,4 +29,16 @@ public static class UserInterface
             Console.WriteLine($"{comment.Author} @ {localTime}: {comment.Message}");
         }
     }
+
+    public static void PrintProposals(long observationId, IEnumerable<Proposal> proposals)
+    {
+        Console.WriteLine($"Proposals for Observation {observationId}:");
+        foreach (var proposal in proposals)
+        {
+            var localTime = DateTimeOffset
+                .FromUnixTimeSeconds(proposal.Timestamp)
+                .ToLocalTime();
+            Console.WriteLine($"{proposal.Author} @ {localTime}: Proposed Taxon ID {proposal.TaxonID}");
+        }
+    }
 }
