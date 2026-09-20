@@ -8,7 +8,7 @@ namespace Bison.CLI
 {
     public static class Taxonomy
     {
-        public static Dictionary<string, Taxon> Lookup { get; private set; }
+        public static Dictionary<string, Taxon> Lookup { get; private set; } = new();
 
         public static void Initialize(string path)
         {
