@@ -18,7 +18,7 @@ namespace Bison.CLI
         {
             Map(item => item.ObservationId).Name("ObservationId");
             Map(item => item.Author).Name("Author");
-            Map(item => item.TaxonID).Name("TaxonID");
+            Map(item => item.TaxonId).Name("TaxonId");
             Map(item => item.Timestamp).Name("Timestamp");
         }
     }
