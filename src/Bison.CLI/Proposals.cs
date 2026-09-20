@@ -13,25 +13,32 @@ namespace Bison.CLI
     private static CSVDatabase<Proposal> ProposalDB =>
         CSVDatabase<Proposal>.GetInstance(DbPaths.Resolve("bison_proposal_cli_db.csv"));
 
-    public static void Comment(long observationId, string message)
+    public static void AddProposal(long observationId, string taxonId)
     {
         if (!Observations.Exists(observationId))
         {
             Console.WriteLine($"Observation with ID {observationId} does not exist.");
             return;
         }
+        
+        // Validate taxon ID using the taxonomy lookup
+        if (!Taxonomy.Exists(taxonId))
+        {
+            Console.WriteLine($"Taxon ID {taxonId} is invalid.");
+            return;
+        }
 
-        var comment = new Comment(
+        var proposal = new Proposal(
             observationId,
             Environment.UserName,
-            message,
+            taxonId,
             DateTimeOffset.UtcNow.ToUnixTimeSeconds()
         );
 
-        CommentDB.Store(comment);
+        ProposalDB.Store(proposal);
     }
 
-    public static void Discussion(long observationId)
+    public static void ShowProposals(long observationId)
     {
         if (!Observations.Exists(observationId))
         {
@@ -39,16 +46,16 @@ namespace Bison.CLI
             return;
         }
 
-        var comments = CommentDB.Read()
-            .Where(c => c.ObservationId == observationId)
+        var proposals = ProposalDB.Read()
+            .Where(p => p.ObservationId == observationId)
             .ToList();
 
-        if (comments.Count == 0)
+        if (proposals.Count == 0)
         {
-            Console.WriteLine($"No comments found for observation {observationId}.");
+            Console.WriteLine($"No proposals found for observation {observationId}.");
             return;
         }
 
-        UserInterface.PrintComments(observationId, comments);
+        UserInterface.PrintProposals(observationId, proposals);
     }
 }

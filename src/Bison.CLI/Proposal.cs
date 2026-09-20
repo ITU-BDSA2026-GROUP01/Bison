@@ -7,18 +7,18 @@ using System.Threading.Tasks;
 
 namespace Bison.CLI
 {
-    public record Proposal(long ObservationId, string Author, string Message, long Timestamp)
+    public record Proposal(long ObservationId, string Author, string TaxonId, long Timestamp)
     {
-        public Comment() : this(0, string.Empty, string.Empty, 0) { }
+        public Proposal() : this(0, string.Empty, string.Empty, 0) { }
     }
 
-    public sealed class CommentMap : ClassMap<Comment>
+    public sealed class ProposalMap : ClassMap<Proposal>
     {
-        public CommentMap()
+        public ProposalMap()
         {
             Map(item => item.ObservationId).Name("ObservationId");
             Map(item => item.Author).Name("Author");
-            Map(item => item.Message).Name("Message");
+            Map(item => item.TaxonID).Name("TaxonID");
             Map(item => item.Timestamp).Name("Timestamp");
         }
     }
