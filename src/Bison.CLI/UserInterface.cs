@@ -38,7 +38,7 @@ public static class UserInterface
             var localTime = DateTimeOffset
                 .FromUnixTimeSeconds(proposal.Timestamp)
                 .ToLocalTime();
-            Console.WriteLine($"{proposal.Author} @ {localTime}: Proposed Taxon ID {proposal.TaxonID}");
+            Console.WriteLine($"{proposal.Author} @ {localTime}: Proposed Taxon Id {proposal.TaxonId}");
         }
     }
 }
