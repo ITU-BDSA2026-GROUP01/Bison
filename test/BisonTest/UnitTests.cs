@@ -258,75 +258,84 @@ public class UnitTests
     //  PROPOSAL TESTS (clean)
     // ---------------------------
 
+
     [Fact]
-    public void AddProposal_InvalidTaxonId_IsRejected()
+    public async Task AddProposal_InvalidTaxonId_IsRejected()
     {
-        var proposalTemp = TempFile.Create("proposal_test.csv",
-            "ObservationId,Author,TaxonId,Timestamp\n");
+        var fake = new FakeHttpService();
 
-        var observeTemp = TempFile.Create("observe_test.csv",
-            "Id,Author,Message,Timestamp,Location\n");
+        // Observation exists
+        fake.Cheeps.Add(new Cheep(
+            1,
+            "alice",
+            "Saw a bird",
+            123,
+            "Copenhagen"));
 
-        DbPaths.Override("bison_proposal_cli_db.csv", proposalTemp.Path);
-        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
+        // INVALID taxon ID
+        await Proposals.AddProposal(1, "INVALID_TAXON", fake);
 
-        Observations.AddObservation("Saw a bird", "Copenhagen");
+        // No proposal should be stored
+        Assert.Empty(fake.Proposals);
+    }
 
-        Proposals.AddProposal(1, "INVALID_TAXON");
 
-        var proposals = CSVDatabase<Proposal>.GetInstance(proposalTemp.Path).Read().ToList();
-        Assert.Empty(proposals);
+    [Fact]
+    public async Task AddProposal_ValidTaxonId_IsStored()
+    {
+        var fake = new FakeHttpService();
+
+        // Observation exists
+        fake.Cheeps.Add(new Cheep(
+            1,
+            "alice",
+            "Saw a bird",
+            123,
+            "Copenhagen"));
+
+        // Valid taxon ID
+        string validTaxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
+
+        await Proposals.AddProposal(1, validTaxon, fake);
+
+        Assert.Single(fake.Proposals);
+        Assert.Equal(validTaxon, fake.Proposals[0].TaxonId);
+        Assert.Equal(1, fake.Proposals[0].ObservationId);
     }
 
     [Fact]
-    public void AddProposal_ValidTaxonId_IsStored()
+    public async Task ShowProposals_ReturnsOnlyMatchingObservation()
     {
-        var proposalTemp = TempFile.Create("proposal_test.csv",
-            "ObservationId,Author,TaxonId,Timestamp\n");
+        var fake = new FakeHttpService();
 
-        var observeTemp = TempFile.Create("observe_test.csv",
-            "Id,Author,Message,Timestamp,Location\n");
+        // Two observations
+        fake.Cheeps.Add(new Cheep(
+            1,
+            "alice",
+            "Saw a bird",
+            123,
+            "Copenhagen"));
 
-        DbPaths.Override("bison_proposal_cli_db.csv", proposalTemp.Path);
-        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
-
-        Observations.AddObservation("Saw a bird", "Copenhagen");
-
-        string validTaxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
-
-        Proposals.AddProposal(1, validTaxon);
-
-        var proposals = CSVDatabase<Proposal>.GetInstance(proposalTemp.Path).Read().ToList();
-        Assert.Single(proposals);
-        Assert.Equal(validTaxon, proposals[0].TaxonId);
-        
-
-    [Fact]
-    public void ShowProposals_ReturnsOnlyMatchingObservation()
-    {
-        var proposalTemp = TempFile.Create("proposal_test.csv",
-            "ObservationId,Author,TaxonId,Timestamp\n");
-
-        var observeTemp = TempFile.Create("observe_test.csv",
-            "Id,Author,Message,Timestamp,Location\n");
-
-        DbPaths.Override("bison_proposal_cli_db.csv", proposalTemp.Path);
-        DbPaths.Override("bison_observe_cli_db.csv", observeTemp.Path);
-
-        Observations.AddObservation("Saw a bird", "Copenhagen");
-        Observations.AddObservation("Saw a fox", "Aarhus");
+        fake.Cheeps.Add(new Cheep(
+            2,
+            "bob",
+            "Saw a fox",
+            456,
+            "Aarhus"));
 
         string taxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
 
-        Proposals.AddProposal(1, taxon);
-        Proposals.AddProposal(2, taxon);
+        // Two proposals, one for each observation
+        await Proposals.AddProposal(1, taxon, fake);
+        await Proposals.AddProposal(2, taxon, fake);
 
-        var proposalsFor1 = CSVDatabase<Proposal>.GetInstance(proposalTemp.Path)
-            .Read()
+        // Filter proposals for observation 1
+        var proposalsFor1 = fake.Proposals
             .Where(p => p.ObservationId == 1)
             .ToList();
 
         Assert.Single(proposalsFor1);
         Assert.Equal(1, proposalsFor1[0].ObservationId);
     }
+
 }

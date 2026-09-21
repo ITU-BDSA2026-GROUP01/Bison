@@ -1,28 +1,35 @@
-﻿using SimpleDB;
-using System;
-using System.Collections.Generic;
+﻿using System;
+using System.ComponentModel.Design;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Bison.CLI
 {
     public static class Proposals
     {
-        // Re-resolves the singleton (and re-binds the real db path) on every use,
-        // so tests that point the singleton at a temp file don't leak into the app.
-        private static CSVDatabase<Proposal> ProposalDB =>
-            CSVDatabase<Proposal>.GetInstance(DbPaths.Resolve("bison_proposal_cli_db.csv"));
-
-        public static void AddProposal(long observationId, string taxonId)
+        // ------------------------------------------------------------
+        // 1. REAL HTTP VERSION (used by CLI)
+        // ------------------------------------------------------------
+        public static async Task AddProposal(long observationId, string taxonId)
         {
-            if (!Observations.Exists(observationId))
+            using var service = new HttpService();
+            await AddProposal(observationId, taxonId, service);
+        }
+
+        // ------------------------------------------------------------
+        // 2. TESTABLE VERSION (used by FakeHttpService)
+        // ------------------------------------------------------------
+        public static async Task AddProposal(long observationId, string taxonId, ITHttpService service)
+        {
+            // Validate observation ID via web service
+            var observations = await service.GetObservationsAsync();
+            if (!observations.Any(o => o.Id == observationId))
             {
                 Console.WriteLine($"Observation with ID {observationId} does not exist.");
                 return;
             }
 
-            // Validate taxon ID using the taxonomy lookup
+            // Validate taxon ID using taxonomy lookup
             if (!Taxonomy.Exists(taxonId))
             {
                 Console.WriteLine($"Taxon ID {taxonId} is invalid.");
@@ -36,20 +43,24 @@ namespace Bison.CLI
                 DateTimeOffset.UtcNow.ToUnixTimeSeconds()
             );
 
-            ProposalDB.Store(proposal);
+            await service.PostProposalAsync(proposal);
         }
 
-        public static void ShowProposals(long observationId)
+        // ------------------------------------------------------------
+        // SHOW PROPOSALS
+        // ------------------------------------------------------------
+        public static async Task ShowProposals(long observationId)
         {
-            if (!Observations.Exists(observationId))
+            using var service = new HttpService();
+
+            var observations = await service.GetObservationsAsync();
+            if (!observations.Any(o => o.Id == observationId))
             {
                 Console.WriteLine("Observation not found.");
                 return;
             }
 
-            var proposals = ProposalDB.Read()
-                .Where(p => p.ObservationId == observationId)
-                .ToList();
+            var proposals = await service.GetProposalsAsync(observationId);
 
             if (proposals.Count == 0)
             {
@@ -60,5 +71,4 @@ namespace Bison.CLI
             UserInterface.PrintProposals(observationId, proposals);
         }
     }
-
 }

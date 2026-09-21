@@ -26,4 +26,10 @@
     <ProjectReference Include="..\..\src\Bison.CLI\Bison.CLI.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <None Update="data\taxonomy.csv">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+  </ItemGroup>
+
 </Project>
