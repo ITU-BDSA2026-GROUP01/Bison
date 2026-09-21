@@ -17,8 +17,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BisonTest", "test\BisonTest
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Bison.CSVDBService", "src\Bison.CSVDBService\Bison.CSVDBService.csproj", "{DDF31F67-113B-45EF-85E0-5338D9942C91}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WebserverTest", "test\WebserverTest\WebserverTest.csproj", "{04622EDD-1E6A-4917-9C64-8329FCD0A55C}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -45,10 +43,6 @@ Global
 		{DDF31F67-113B-45EF-85E0-5338D9942C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{DDF31F67-113B-45EF-85E0-5338D9942C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{DDF31F67-113B-45EF-85E0-5338D9942C91}.Release|Any CPU.Build.0 = Release|Any CPU
-		{04622EDD-1E6A-4917-9C64-8329FCD0A55C}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{04622EDD-1E6A-4917-9C64-8329FCD0A55C}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{04622EDD-1E6A-4917-9C64-8329FCD0A55C}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{04622EDD-1E6A-4917-9C64-8329FCD0A55C}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
@@ -59,6 +53,5 @@ Global
 		{7B3B40E0-12F6-4D17-A3F2-09453E8C155E} = {70542F86-92FB-414A-9CE6-E27D8DF2BBB9}
 		{1DEFED85-60BE-440A-ACA7-F15C2506686D} = {70542F86-92FB-414A-9CE6-E27D8DF2BBB9}
 		{DDF31F67-113B-45EF-85E0-5338D9942C91} = {7142B1BF-3778-4131-9C53-D2E99B22C132}
-		{04622EDD-1E6A-4917-9C64-8329FCD0A55C} = {70542F86-92FB-414A-9CE6-E27D8DF2BBB9}
 	EndGlobalSection
 EndGlobal

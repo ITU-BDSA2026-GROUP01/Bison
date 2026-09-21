@@ -16,17 +16,27 @@ public static class Observations
     public static async Task Observe(string message, string location)
     {
         using var service = new HttpService();
-        var existing = await service.GetCheepsAsync();
-        var nextId = existing.Count == 0 ? 1 : existing.Max(c => c.Id) + 1;
 
-        var cheep = new Cheep(
+        await Observe (message, location, service);
+    }
+
+    public static async Task Observe (
+        string message,
+        string location,
+        ITHttpService service)
+
+        {
+            var existing = await service.GetCheepsAsync();
+            var nextId = existing.Count == 0 ? 1 : existing.Max(c => c.Id) + 1;
+
+            var cheep = new Cheep(
             nextId,
             Environment.UserName,
             message,
             DateTimeOffset.UtcNow.ToUnixTimeSeconds(),
             location);
 
-        await service.SendCheepAsync(cheep);
+        await service.SendCheepAsync(cheep); 
     }
 
     public static async Task<bool> Exists(long id)
