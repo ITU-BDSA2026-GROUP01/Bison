@@ -12,7 +12,7 @@ public class EtoE_Tests
     [Fact]
     public async Task ObserveThenRead()
     {
-        var observeDb = Bison.CLI.DbPaths.Resolve("bison_observe_cli_db.csv");
+        var observeDb = ServerData.Observations;
         var backup = Path.GetTempFileName();
         File.Copy(observeDb, backup, true);
 
@@ -46,8 +46,8 @@ public class EtoE_Tests
     {
         // This test writes to both shared test DBs (an observation and a
         // comment), so back both up and restore them in finally.
-        var observeDb = Bison.CLI.DbPaths.Resolve("bison_observe_cli_db.csv");
-        var commentDb = Bison.CLI.DbPaths.Resolve("bison_comment_cli_db.csv");
+        var observeDb = ServerData.Observations;
+        var commentDb = ServerData.Comments;
         var observeBackup = Path.GetTempFileName();
         var commentBackup = Path.GetTempFileName();
         File.Copy(observeDb, observeBackup, true);
@@ -60,7 +60,8 @@ public class EtoE_Tests
         {
             await Bison.CLI.Program.Main(["observe", message, "DR Byen"]);
 
-            var newId = CSVDatabase<Bison.CLI.Cheep>.GetInstance(observeDb).Read()
+            using var service = new HttpService();
+            var newId = (await service.GetCheepsAsync())
                 .Where(c => c.Message == message)
                 .Select(c => c.Id)
                 .Single();

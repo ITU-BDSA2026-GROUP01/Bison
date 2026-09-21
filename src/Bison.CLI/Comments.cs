@@ -1,44 +1,56 @@
-using System.Net;
-using SimpleDB;
-
 namespace Bison.CLI;
 
 public static class Comments
 {
-    // Re-resolves the singleton (and re-binds the real db path) on every use,
-    // so tests that point the singleton at a temp file don't leak into the app.
-    private static CSVDatabase<Comment> CommentDB =>
-        CSVDatabase<Comment>.GetInstance(DbPaths.Resolve("bison_comment_cli_db.csv"));
-
-    public static void Comment(long observationId, string message)
+    public static async Task Comment(long observationId, string message)
     {
-        if (!Observations.Exists(observationId))
+        using var service = new HttpService();
+
+        await Comment(observationId, message, service);
+    }
+
+    public static async Task Comment(
+        long observationId,
+        string message,
+        ITHttpService service)
+    {
+        var observations = await service.GetCheepsAsync();
+
+        if (!observations.Any(c => c.Id == observationId))
         {
             Console.WriteLine($"Observation with ID {observationId} does not exist.");
             return;
         }
-         
+
         var comment = new Comment(
             observationId,
             Environment.UserName,
             message,
-            DateTimeOffset.UtcNow.ToUnixTimeSeconds()
-        );
+            DateTimeOffset.UtcNow.ToUnixTimeSeconds());
 
-        CommentDB.Store(comment);
+        await service.SendCommentAsync(comment);
     }
 
-    public static void Discussion(long observationId)
+    public static async Task Discussion(long observationId)
     {
-        if (!Observations.Exists(observationId))
+        using var service = new HttpService();
+
+        await Discussion(observationId, service);
+    }
+
+    public static async Task Discussion(
+        long observationId,
+        ITHttpService service)
+    {
+        var observations = await service.GetCheepsAsync();
+
+        if (!observations.Any(c => c.Id == observationId))
         {
             Console.WriteLine("Observation not found.");
             return;
         }
 
-        var comments = CommentDB.Read()
-            .Where(c => c.ObservationId == observationId)
-            .ToList();
+        var comments = await service.GetCommentsAsync(observationId);
 
         if (comments.Count == 0)
         {
@@ -47,23 +59,5 @@ public static class Comments
         }
 
         UserInterface.PrintComments(observationId, comments);
-}
-
-    // This method is useful for testing purposes, to reset the state of the Comments class.
-    public static void Reset()
-    {
-        // Same idea — clear any static state
     }
-
 }
-
-/*public sealed class CommentMap : ClassMap<Comment>
-{
-    public CommentMap()
-    {
-        Map(item => item.ObservationId).Name("ObservationId");
-        Map(item => item.Message).Name("Message");
-        Map(item => item.Timestamp).Name("Timestamp");
-    }
-}*/
-
