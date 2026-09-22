@@ -2,7 +2,7 @@ using System.Net.Http.Json;
 
 namespace Bison.CLI;
 
-public sealed class HttpService : IDisposable
+public sealed class HttpService : ITHttpService, IDisposable
 {
     private readonly HttpClient _client;
 

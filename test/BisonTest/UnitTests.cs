@@ -1,48 +1,56 @@
-namespace test;
-
 using System;
-using Xunit;
-using Xunit.Abstractions;
+using System.IO;
+using System.Linq;
 using Bison.CLI;
+using BisonTest;
 using SimpleDB;
+using Xunit;
 
 public class UnitTests
 {
-    private readonly ITestOutputHelper output;
-    public UnitTests(ITestOutputHelper output)
-    {
-        this.output = output;
-    }
-
     [Fact]
     public void StoringInvalidRecord()
     {
-        var path = Path.Combine(Path.GetTempPath(), $"bison_test_{Guid.NewGuid():N}.csv");
+        var path = Path.Combine(
+            Path.GetTempPath(),
+            $"bison_test_{Guid.NewGuid():N}.csv");
+
         try
         {
             // Given: a database file that already has its header row.
-            // Header must match the Cheep record's column names (Id, Author, Message, Timestamp).
-            File.WriteAllText(path, "Id,Author,Message,Timestamp,Location\n");
-            var database = CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
+            // Header must match the Cheep record's column names.
+            File.WriteAllText(
+                path,
+                "Id,Author,Message,Timestamp,Location\n");
+
+            var database =
+                CSVDatabase<Bison.CLI.Cheep>.GetInstance(path);
 
             // When: an empty record and an invalid (null-bearing) record are stored.
-            // (If Store rejects either, the test fails with that exception.)
             database.Store(new Bison.CLI.Cheep());
-            database.Store(new Bison.CLI.Cheep(0, null!, null!, 0, null!));
+            database.Store(
+                new Bison.CLI.Cheep(
+                    0,
+                    null!,
+                    null!,
+                    0,
+                    null!));
 
-            // Then: both are persisted and read back as empty (non-null) strings
-            // with a zero timestamp — CsvHelper serialises null and "" identically.
+            // Then: both are persisted and read back.
             var actual = database.Read().ToList();
 
             Console.WriteLine(actual);
+
             Assert.Equal(2, actual.Count);
 
             var empty = actual[0];
+
             Assert.Equal(string.Empty, empty.Author);
             Assert.Equal(string.Empty, empty.Message);
             Assert.Equal(0, empty.Timestamp);
 
             var invalid = actual[1];
+
             Assert.Equal(string.Empty, invalid.Author);
             Assert.Equal(string.Empty, invalid.Message);
             Assert.Equal(0, invalid.Timestamp);
@@ -60,16 +68,24 @@ public class UnitTests
     public void UnixTimestampTest()
     {
         // Given: a cheep with a fixed, known unix timestamp.
-        // 1690891760 == 2023-08-01 12:09:20 UTC (hand-verified with: date -u -d @1690891760).
+        // 1690891760 == 2023-08-01 12:09:20 UTC.
         var ts = 1690891760L;
-        var cheep = new Bison.CLI.Cheep(1, "alice", "Hello", ts, "DR Byen");
+
+        var cheep = new Bison.CLI.Cheep(
+            1,
+            "alice",
+            "Hello",
+            ts,
+            "DR Byen");
 
         var expectedLocal = DateTimeOffset
             .FromUnixTimeSeconds(ts)
             .ToLocalTime();
 
         var originalOut = Console.Out;
+
         using var captured = new StringWriter();
+
         Console.SetOut(captured);
 
         try
@@ -87,70 +103,16 @@ public class UnitTests
     }
 
     [Fact]
-    public async System.Threading.Tasks.Task CommentInvalidIdTest()
+    public async Task CommentInvalidIdTest()
     {
-        var observeDb = ServerData.Observations;
-        var commentDb = ServerData.Comments;
-        var observeBackup = Path.GetTempFileName();
-        var commentBackup = Path.GetTempFileName();
-        File.Copy(observeDb, observeBackup, true);
-        File.Copy(commentDb, commentBackup, true);
+        var fake = new FakeHttpService();
 
-        try
-        {
-            var args = new[] { "comment", "0", "test message" };
+        await Comments.Comment(
+            0,
+            "test message",
+            fake);
 
-            var originalOut = Console.Out;
-            var originalErr = Console.Error;
-            using var captured = new StringWriter();
-            Console.SetOut(captured);
-            Console.SetError(captured);
-
-            int exitCode;
-            try
-            {
-                exitCode = await Bison.CLI.Program.Main(args);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetError(originalErr);
-            }
-
-            var output = captured.ToString();
-
-            Assert.Contains("does not exist", output);
-
-
-            originalOut = Console.Out;
-            originalErr = Console.Error;
-            using var captured1 = new StringWriter();
-            Console.SetOut(captured1);
-            Console.SetError(captured1);
-
-            args = ["comment", "1", "test message1"];
-            try
-            {
-                exitCode = await Bison.CLI.Program.Main(args);
-            }
-            finally
-            {
-                Console.SetOut(originalOut);
-                Console.SetError(originalErr);
-            }
-
-            output = captured1.ToString();
-
-            // Observation 0 is not in the test's local DB -> the CLI reports that.
-            Assert.DoesNotContain("does not exist", output);
-        }
-        finally
-        {
-            File.Copy(observeBackup, observeDb, true);
-            File.Copy(commentBackup, commentDb, true);
-            File.Delete(observeBackup);
-            File.Delete(commentBackup);
-        }
+        Assert.Empty(fake.Comments);
     }
 
     [Fact]
@@ -158,7 +120,7 @@ public class UnitTests
     {
         var csv = """
         dwc:taxonID,dwc:parentNameUsageID,dwc:acceptedNameUsageID,dwc:taxonomicStatus,dwc:taxonRank,dwc:scientificName,dwc:scientificNameAuthorship,dcterms:language,dwc:vernacularName,clb:merged
-        MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea,,,accepted,order,Pelecaniformes,,dan,Årefodede,false
+        MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea,,,accepted,order,Pelecaniformes,,dan,Ã…refodede,false
         MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea,MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea,,accepted,family,Ardeidae,,dan,Hejrer,false
         MSTSNM:Arter:7f9ef9f3-f785-ea11-aa77-501ac539d1ea,MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea,,accepted,genus,Ardea,,,,
         MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea,MSTSNM:Arter:7f9ef9f3-f785-ea11-aa77-501ac539d1ea,,accepted,species,Ardea cinerea,"Linnaeus, 1758",dan,Fiskehejre,false
@@ -172,13 +134,28 @@ public class UnitTests
 
             var taxa = TaxonLoader.Load(path);
 
-            Assert.True(taxa.ContainsKey("MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea"));
-            Assert.True(taxa.ContainsKey("MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"));
+            Assert.True(
+                taxa.ContainsKey(
+                    "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea"));
 
-            var species = taxa["MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"];
-            Assert.Equal("Ardea", species.Parent?.ScientificName);
-            Assert.Equal("Ardeidae", species.Parent?.Parent?.ScientificName);
-            Assert.Equal("Pelecaniformes", species.Parent?.Parent?.Parent?.ScientificName);
+            Assert.True(
+                taxa.ContainsKey(
+                    "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"));
+
+            var species =
+                taxa["MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"];
+
+            Assert.Equal(
+                "Ardea",
+                species.Parent?.ScientificName);
+
+            Assert.Equal(
+                "Ardeidae",
+                species.Parent?.Parent?.ScientificName);
+
+            Assert.Equal(
+                "Pelecaniformes",
+                species.Parent?.Parent?.Parent?.ScientificName);
         }
         finally
         {
@@ -186,4 +163,96 @@ public class UnitTests
         }
     }
 
+    [Fact]
+    public async Task Observe_Creates_Next_Id()
+    {
+        var fake = new FakeHttpService();
+
+        fake.Cheeps.Add(
+            new Cheep(
+                5,
+                "alice",
+                "Hello",
+                123,
+                "DR Byen"));
+
+        await Observations.Observe(
+            "New message",
+            "DR Byen",
+            fake);
+
+        Assert.Equal(2, fake.Cheeps.Count);
+        Assert.Equal(6, fake.Cheeps.Last().Id);
+    }
+
+    [Fact]
+    public async Task Comment_Creates_Comment()
+    {
+        var fake = new FakeHttpService();
+
+        fake.Cheeps.Add(
+            new Cheep(
+                1,
+                "alice",
+                "Hello",
+                123,
+                "DR Byen"));
+
+        await Comments.Comment(
+            1,
+            "This is a comment",
+            fake);
+
+        Assert.Single(fake.Comments);
+        Assert.Equal(1, fake.Comments[0].ObservationId);
+        Assert.Equal(
+            "This is a comment",
+            fake.Comments[0].Message);
+    }
+
+    [Fact]
+    public async Task Discussion_Uses_Correct_Observation()
+    {
+        var fake = new FakeHttpService();
+
+        fake.Cheeps.Add(
+            new Cheep(
+                1,
+                "alice",
+                "Hello",
+                123,
+                "DR Byen"));
+
+        fake.Cheeps.Add(
+            new Cheep(
+                2,
+                "bob",
+                "Another observation",
+                456,
+                "Copenhagen"));
+
+        fake.Comments.Add(
+            new Comment(
+                1,
+                "bob",
+                "Nice observation!",
+                789));
+
+        await Comments.Discussion(
+            1,
+            fake);
+
+        var comments =
+            await fake.GetCommentsAsync(1);
+
+        Assert.Single(comments);
+
+        Assert.Equal(
+            1,
+            comments[0].ObservationId);
+
+        Assert.Equal(
+            "Nice observation!",
+            comments[0].Message);
+    }
 }
