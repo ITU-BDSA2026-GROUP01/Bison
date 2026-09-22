@@ -259,83 +259,56 @@ public class UnitTests
     // ---------------------------
 
 
+    private const string ValidTaxon =
+    "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"; // Ardea cinerea - valid taxon ID for testing, copy from the taxonomy CSV used in the test above.
+
+    private static void SeedTaxonomy()
+    {
+        Taxonomy.Reset();
+        Taxonomy.Lookup[ValidTaxon] = new Taxon { TaxonId = ValidTaxon };
+    }
+
     [Fact]
     public async Task AddProposal_InvalidTaxonId_IsRejected()
     {
+        SeedTaxonomy();
         var fake = new FakeHttpService();
+        fake.Cheeps.Add(new Cheep(1, "alice", "Saw a bird", 123, "Copenhagen"));
 
-        // Observation exists
-        fake.Cheeps.Add(new Cheep(
-            1,
-            "alice",
-            "Saw a bird",
-            123,
-            "Copenhagen"));
-
-        // INVALID taxon ID
         await Proposals.AddProposal(1, "INVALID_TAXON", fake);
 
-        // No proposal should be stored
         Assert.Empty(fake.Proposals);
     }
-
 
     [Fact]
     public async Task AddProposal_ValidTaxonId_IsStored()
     {
+        SeedTaxonomy();
         var fake = new FakeHttpService();
+        fake.Cheeps.Add(new Cheep(1, "alice", "Saw a bird", 123, "Copenhagen"));
 
-        // Observation exists
-        fake.Cheeps.Add(new Cheep(
-            1,
-            "alice",
-            "Saw a bird",
-            123,
-            "Copenhagen"));
-
-        // Valid taxon ID
-        string validTaxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
-
-        await Proposals.AddProposal(1, validTaxon, fake);
+        await Proposals.AddProposal(1, ValidTaxon, fake);
 
         Assert.Single(fake.Proposals);
-        Assert.Equal(validTaxon, fake.Proposals[0].TaxonId);
+        Assert.Equal(ValidTaxon, fake.Proposals[0].TaxonId);
         Assert.Equal(1, fake.Proposals[0].ObservationId);
     }
 
     [Fact]
     public async Task ShowProposals_ReturnsOnlyMatchingObservation()
     {
+        SeedTaxonomy();
         var fake = new FakeHttpService();
 
-        // Two observations
-        fake.Cheeps.Add(new Cheep(
-            1,
-            "alice",
-            "Saw a bird",
-            123,
-            "Copenhagen"));
+        fake.Cheeps.Add(new Cheep(1, "alice", "Saw a bird", 123, "Copenhagen"));
+        fake.Cheeps.Add(new Cheep(2, "bob", "Saw a fox", 456, "Aarhus"));
 
-        fake.Cheeps.Add(new Cheep(
-            2,
-            "bob",
-            "Saw a fox",
-            456,
-            "Aarhus"));
+        await Proposals.AddProposal(1, ValidTaxon, fake);
+        await Proposals.AddProposal(2, ValidTaxon, fake);
 
-        string taxon = "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea";
-
-        // Two proposals, one for each observation
-        await Proposals.AddProposal(1, taxon, fake);
-        await Proposals.AddProposal(2, taxon, fake);
-
-        // Filter proposals for observation 1
-        var proposalsFor1 = fake.Proposals
-            .Where(p => p.ObservationId == 1)
-            .ToList();
+        var proposalsFor1 = fake.Proposals.Where(p => p.ObservationId == 1).ToList();
 
         Assert.Single(proposalsFor1);
         Assert.Equal(1, proposalsFor1[0].ObservationId);
     }
-
 }

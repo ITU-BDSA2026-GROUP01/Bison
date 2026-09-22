@@ -1,15 +1,31 @@
-﻿using Bison.CLI;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
 
-public static class Taxonomy
+namespace Bison.CLI
 {
-    public static Dictionary<string, Taxon> Lookup { get; private set; } = new();
-
-    static Taxonomy()
+    public static class Taxonomy
     {
-        // Auto-load taxonomy.csv when the class is first used
-        Lookup = TaxonLoader.Load("../../data/taxonomy.csv");
-    }
+        public static Dictionary<string, Taxon> Lookup { get; private set; } = new();
 
-    public static bool Exists(string taxonId) =>
-        Lookup.ContainsKey(taxonId);
+        public static void Initialize(string path)
+        {
+            Lookup = TaxonLoader.Load(path);
+        }
+
+        public static bool Exists(string taxonId) =>
+            Lookup.ContainsKey(taxonId);
+
+
+        // Reset method to clear the taxonomy lookup, useful for testing purposes.
+        public static void Reset()
+        {
+            Lookup.Clear();
+        }
+    }
 }
+
+
+    
