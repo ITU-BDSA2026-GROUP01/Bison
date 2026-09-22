@@ -24,17 +24,11 @@ jobs:
         dotnet-version: '8.0.x'
 
 
-    - name: Restore Bison.CLI
-      run: dotnet restore Bison.CLI
+    - name: Restore
+      run: dotnet restore ./Bison.sln
 
-    - name: Restore SimpleDB
-      run: dotnet restore SimpleDB
-
-    - name: Build Bison.CLI
-      run: dotnet build Bison.CLI --no-restore
-
-    - name: Build SimpleDB
-      run: dotnet build SimpleDB --no-restore
+    - name: Build
+      run: dotnet build ./Bison.sln --no-restore
 
     - name: Publish win-x64
       run: dotnet publish Bison.CLI --configuration Release --runtime win-x64 --no-self-contained -p:PublishSingleFile=true --output publish/win-x64
