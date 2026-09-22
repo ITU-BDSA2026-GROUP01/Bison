@@ -10,37 +10,79 @@ using SimpleDB;
 public class EtoE_Tests
 {
     [Fact]
-    public async Task ObserveThenRead()
+    public async Task ObserveThenReadFuzz()
     {
         var observeDb = ServerData.Observations;
         var backup = Path.GetTempFileName();
         File.Copy(observeDb, backup, true);
 
-        var message = $"E2E round trip {Guid.NewGuid():N}";
-
-        var originalOut = Console.Out;
-        using var captured = new StringWriter();
-        Console.SetOut(captured);
-
-        string readOutput;
+        var rng = new Random();
+        var expectedMessages = new List<string>();
+        
         try
         {
-            await Bison.CLI.Program.Main(["observe", message, "DR Byen"]);
+            const int iterations = 500;
 
-            await Bison.CLI.Program.Main(["read"]);
-            readOutput = captured.ToString();
+            for (int i = 0; i < iterations; i++)
+            {
+                var message = RandomMessage(rng);
+                var location = RandomLocation(rng);
+
+                await Bison.CLI.Program.Main(new[] { "observe", message, location });
+
+                expectedMessages.Add(message);
+            }
+
+        using var service = new HttpService();
+
+        var observations = await service.GetCheepsAsync();
+
+        foreach (var expectedMessage in expectedMessages)
+        {
+            Assert.Contains(observations, c => c.Message == expectedMessage);
+        }
         }
         finally
         {
-            Console.SetOut(originalOut);
             File.Copy(backup, observeDb, true);
             File.Delete(backup);
         }
-
-        // Then: the new observation is listed with its message.
-        Assert.Contains(message, readOutput);
+    }
+    private static string RandomMessage(Random rng)
+    {
+        var choices = new []
+        {
+           $"Random message {Guid.NewGuid():N}",
+           "",
+           "A",
+           "Random",
+           "øæå test",
+           "!@#$%^&*()_+",
+           new string('X', 100),
+           $"Random-message-{rng.Next(1, 1000)}",
+           $"Observation {DateTime.UtcNow.Ticks}"
+        };
+        return choices[rng.Next(choices.Length)];
     }
 
+    private static string RandomLocation(Random rng)
+    {
+        var locations = new []
+        {
+            "DR Byen",
+            "Copenhagen",
+            "New York",
+            "Tokyo",
+            "London",
+            "Berlin",
+            "Paris",
+            "Sydney",
+            "São Paulo",
+            "Moscow"
+        };
+        return locations[rng.Next(locations.Length)];
+    }
+    
     [Fact]
     public async Task CommentThenDiscussion()
     {
