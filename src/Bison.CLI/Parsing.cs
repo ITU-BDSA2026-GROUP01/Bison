@@ -14,9 +14,7 @@ static class Parsing
 			name: "location",
 			description: "The location where the observation was made");
 
-
-
-		var observeCommand = new Command("observe", "Record a new observation")
+        var observeCommand = new Command("observe", "Record a new observation")
 		{
 			messageArgument,
 			locationArgument
@@ -37,26 +35,59 @@ static class Parsing
 
 		readCommand.SetHandler((location) => read(location), locationOption);
 
+
+
 		var observationIdArgument = new Argument<long>(
 			name: "observationId",
 			description: "The ID of the observation to comment on");
-
+		var taxonIdArgument = new Argument<string>(
+			name: "taxonId",
+			description: "The taxon ID being proposed for the observation");
 		var commentMessageArgument = new Argument<string>(
 			name: "message",
 			description: "The message to record as a comment");
 
-		var commentCommand = new Command("comment", "Add a comment to an observation")
+        
+
+
+        var commentCommand = new Command("comment", "Add a comment to an observation")
 		{
 			observationIdArgument,
 			commentMessageArgument
 		};
 		commentCommand.SetHandler((observationId, message) => comment(observationId, message), observationIdArgument, commentMessageArgument);
 
-		var discussionCommand = new Command("discussion", "List all observations and their comments")
+        var proposalCommand = new Command("proposal", "Add a taxon proposal to an observation")
+		{
+			observationIdArgument,
+			taxonIdArgument
+		};
+
+        proposalCommand.SetHandler(
+            (observationId, taxonId) => Proposals.AddProposal(observationId, taxonId),
+            observationIdArgument,
+            taxonIdArgument
+        );
+
+        var proposalsCommand = new Command("proposals", "List all proposals for an observation")
+		{
+			 observationIdArgument
+		};
+
+        proposalsCommand.SetHandler(
+            (observationId) => Proposals.ShowProposals(observationId),
+            observationIdArgument
+        );
+
+
+
+        var discussionCommand = new Command("discussion", "List all observations and their comments")
 		{
 			observationIdArgument
 		};
 		discussionCommand.SetHandler((observationId) => discussion(observationId), observationIdArgument);
+
+
 
 
 		var rootCommand = new RootCommand("Bison CLI");
@@ -64,8 +95,10 @@ static class Parsing
 		rootCommand.AddCommand(readCommand);
 		rootCommand.AddCommand(commentCommand);
 		rootCommand.AddCommand(discussionCommand);
-		// No subcommand given -> default to Read, matching old behavior
-		rootCommand.SetHandler(() => read(null));
+        rootCommand.AddCommand(proposalCommand);
+        rootCommand.AddCommand(proposalsCommand);
+        // No subcommand given -> default to Read, matching old behavior
+        rootCommand.SetHandler(() => read(null));
 
 		return rootCommand;
 	}

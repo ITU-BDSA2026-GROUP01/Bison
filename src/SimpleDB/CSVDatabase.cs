@@ -54,5 +54,13 @@ public sealed class CSVDatabase<T> : IDatabaseRepository<T>
         csv.NextRecord();
 
     }
+
+
+    // Reset the singleton instance (for testing purposes)
+    public static void Reset()
+    {
+        _instance = null;
+    }
+
 }
 

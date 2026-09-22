@@ -32,4 +32,28 @@ public class FakeHttpService : ITHttpService
         Comments.Add(comment);
         return Task.CompletedTask;
     }
+
+    public List<Proposal> Proposals { get; } = new();
+
+    public Task PostProposalAsync(Proposal proposal)
+    {
+        Proposals.Add(proposal);
+        return Task.CompletedTask;
+    }
+
+    public Task<List<Proposal>> GetProposalsAsync(long observationId)
+    {
+        var filtered = Proposals
+            .Where(p => p.ObservationId == observationId)
+            .ToList();
+
+        return Task.FromResult(filtered);
+    }
+
+    public Task<IReadOnlyList<Cheep>> GetObservationsAsync()
+    {
+        return Task.FromResult<IReadOnlyList<Cheep>>(Cheeps);
+    }
+
+
 }

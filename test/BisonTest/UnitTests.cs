@@ -1,6 +1,8 @@
 using System;
 using System.IO;
 using System.Linq;
+using Xunit;
+using Xunit.Abstractions;
 using Bison.CLI;
 using BisonTest;
 using SimpleDB;
@@ -57,10 +59,7 @@ public class UnitTests
         }
         finally
         {
-            if (File.Exists(path))
-            {
-                File.Delete(path);
-            }
+            if (File.Exists(path)) File.Delete(path);
         }
     }
 
@@ -98,7 +97,6 @@ public class UnitTests
         }
 
         var output = captured.ToString();
-
         Assert.Contains(expectedLocal.ToString(), output);
     }
 
@@ -202,7 +200,6 @@ public class UnitTests
             1,
             "This is a comment",
             fake);
-
         Assert.Single(fake.Comments);
         Assert.Equal(1, fake.Comments[0].ObservationId);
         Assert.Equal(
@@ -254,5 +251,64 @@ public class UnitTests
         Assert.Equal(
             "Nice observation!",
             comments[0].Message);
+    }
+
+
+    // ---------------------------
+    //  PROPOSAL TESTS (clean)
+    // ---------------------------
+
+
+    private const string ValidTaxon =
+    "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea"; // Ardea cinerea - valid taxon ID for testing, copy from the taxonomy CSV used in the test above.
+
+    private static void SeedTaxonomy()
+    {
+        Taxonomy.Reset();
+        Taxonomy.Lookup[ValidTaxon] = new Taxon { TaxonId = ValidTaxon };
+    }
+
+    [Fact]
+    public async Task AddProposal_InvalidTaxonId_IsRejected()
+    {
+        SeedTaxonomy();
+        var fake = new FakeHttpService();
+        fake.Cheeps.Add(new Cheep(1, "alice", "Saw a bird", 123, "Copenhagen"));
+
+        await Proposals.AddProposal(1, "INVALID_TAXON", fake);
+
+        Assert.Empty(fake.Proposals);
+    }
+
+    [Fact]
+    public async Task AddProposal_ValidTaxonId_IsStored()
+    {
+        SeedTaxonomy();
+        var fake = new FakeHttpService();
+        fake.Cheeps.Add(new Cheep(1, "alice", "Saw a bird", 123, "Copenhagen"));
+
+        await Proposals.AddProposal(1, ValidTaxon, fake);
+
+        Assert.Single(fake.Proposals);
+        Assert.Equal(ValidTaxon, fake.Proposals[0].TaxonId);
+        Assert.Equal(1, fake.Proposals[0].ObservationId);
+    }
+
+    [Fact]
+    public async Task ShowProposals_ReturnsOnlyMatchingObservation()
+    {
+        SeedTaxonomy();
+        var fake = new FakeHttpService();
+
+        fake.Cheeps.Add(new Cheep(1, "alice", "Saw a bird", 123, "Copenhagen"));
+        fake.Cheeps.Add(new Cheep(2, "bob", "Saw a fox", 456, "Aarhus"));
+
+        await Proposals.AddProposal(1, ValidTaxon, fake);
+        await Proposals.AddProposal(2, ValidTaxon, fake);
+
+        var proposalsFor1 = fake.Proposals.Where(p => p.ObservationId == 1).ToList();
+
+        Assert.Single(proposalsFor1);
+        Assert.Equal(1, proposalsFor1[0].ObservationId);
     }
 }
