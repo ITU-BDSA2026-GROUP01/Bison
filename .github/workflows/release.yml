@@ -31,13 +31,13 @@ jobs:
       run: dotnet build ./Bison.sln --no-restore
 
     - name: Publish win-x64
-      run: dotnet publish Bison.CLI --configuration Release --runtime win-x64 --no-self-contained -p:PublishSingleFile=true --output publish/win-x64
+      run: dotnet publish ./src/Bison.CLI --configuration Release --runtime win-x64 --no-self-contained -p:PublishSingleFile=true --output publish/win-x64
 
     - name: Publish linux-x64
-      run: dotnet publish Bison.CLI --configuration Release --runtime linux-x64 --no-self-contained -p:PublishSingleFile=true --output publish/linux-x64
+      run: dotnet publish ./src/Bison.CLI --configuration Release --runtime linux-x64 --no-self-contained -p:PublishSingleFile=true --output publish/linux-x64
 
     - name: Publish osx-x64
-      run: dotnet publish Bison.CLI --configuration Release --runtime osx-x64 --no-self-contained -p:PublishSingleFile=true --output publish/osx-x64
+      run: dotnet publish ./src/Bison.CLI --configuration Release --runtime osx-x64 --no-self-contained -p:PublishSingleFile=true --output publish/osx-x64
 
     - name: Zip artifacts
       run: |
