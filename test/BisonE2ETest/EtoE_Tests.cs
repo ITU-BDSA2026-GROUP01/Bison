@@ -7,6 +7,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
 using Bison.CLI;
+using CsvHelper;
 using SimpleDB;
 
 public class EtoE_Tests
@@ -106,6 +107,65 @@ public class EtoE_Tests
     }
 
 
+    [Fact]
+    public async Task ProposalThenDiscussionFuzz()
+    {
+        var observeDb = ServerData.Observations;
+        var proposalDb = ServerData.Proposals;
+        var observeBackup = Path.GetTempFileName();
+        var proposalBackup = Path.GetTempFileName();
+        File.Copy(observeDb, observeBackup, true);
+        File.Copy(proposalDb, proposalBackup, true);
+
+        var rng = new Random();
+        var expectedProposalsByObservation = new Dictionary<long, List<string>>();
+        var message = $"E2E proposal {Guid.NewGuid():N}";
+
+        try
+        {
+            await Bison.CLI.Program.Main(["observe", message, "DR Byen"]);
+
+            using var service = new HttpService();
+            var observationId = (await service.GetCheepsAsync())
+                .Where(c => c.Message == message)
+                .Select(c => c.Id)
+                .Single();
+
+            expectedProposalsByObservation[observationId] = new List<string>();
+
+            var validTaxa = new []
+            {
+                "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea",
+                "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea",
+                "MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea",
+            };
+
+             const int iterations = 200;
+
+        for (var i = 0; i < iterations; i++)
+            {
+                var taxonId = RandomProposal(rng);
+
+                try
+                {
+                    await Bison.CLI.Program.Main(["proposal", observationId.ToString(), taxonId]);
+                    expectedProposalsByObservation[observationId].Add(taxonId);
+                }
+                catch
+                {
+                    //invalid taxon IDs
+                }
+            }
+
+    }
+    finally
+        {
+        File.Copy(observeBackup, observeDb, true);
+        File.Copy(proposalBackup, proposalDb, true);
+        File.Delete(observeBackup);
+        File.Delete(proposalBackup);
+        }
+    }
     private static string RandomMessage(Random rng)
     {
         var choices = new[]
@@ -124,7 +184,9 @@ public class EtoE_Tests
             $"Observation {DateTime.UtcNow.Ticks}",
             new string('Z', rng.Next(1, 200)),
             "Mixed Case TEXT 123",
-            "  padded  message  "
+            "  padded  message  ",
+            "aaaaaaaaaaaaaaaaaaa",
+            "aaaaaa aaaaaa",
         };
 
         return choices[rng.Next(choices.Length)];
@@ -166,8 +228,27 @@ public class EtoE_Tests
             "!@#$%^&*()_+",
             "emoji 🥀🥀",
             "very long comment test " + new string('Y', 500),
-            "Mixed Case COMMENT Test 123"
+            "Mixed Case COMMENT Test 123",
+            "aaaaaaaaaaaaaaaaaaa",
+            "aaaaaa aaaaaa",
         };
         return comments[rng.Next(comments.Length)];
+    }
+
+    private static string RandomProposal(Random rng)
+    {
+          var validTaxa = new[]
+    {
+        "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea",
+        "MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea",
+        "MSTSNM:Arter:a15367e4-f785-ea11-aa77-501ac539d1ea",
+    };
+
+    if(rng.Next(100)<95)
+        {
+            return validTaxa[rng.Next(validTaxa.Length)];
+        }
+
+        return $"INVALID-{Guid.NewGuid()}";
     }
 }
