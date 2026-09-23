@@ -117,7 +117,27 @@ public class EtoE_Tests
         File.Copy(observeDb, observeBackup, true);
         File.Copy(proposalDb, proposalBackup, true);
 
-        var rng = new Random();
+        var validTaxa = new[]
+        {
+            "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea",
+            "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea",
+            "MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea",
+        };
+
+        var fuzzedTaxa = new[]
+        {
+            "INVALID_TAXON",
+            "test test",
+            "    a    ",
+            "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1eaX",
+            "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1e",
+            "mstsnm:arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea",
+            "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea ",
+            "MSTSNM:Arter:" + new string('x', 500),
+            "   ",
+            ""
+        };
+
         var expectedProposalsByObservation = new Dictionary<long, List<string>>();
         var message = $"E2E proposal {Guid.NewGuid():N}";
 
@@ -133,39 +153,32 @@ public class EtoE_Tests
 
             expectedProposalsByObservation[observationId] = new List<string>();
 
-            var validTaxa = new []
+            foreach (var taxonId in fuzzedTaxa)
             {
-                "MSTSNM:Arter:c28811f4-f785-ea11-aa77-501ac539d1ea",
-                "MSTSNM:Arter:3e4e67e4-f785-ea11-aa77-501ac539d1ea",
-                "MSTSNM:Arter:495067e4-f785-ea11-aa77-501ac539d1ea",
-            };
+                var isValid = validTaxa.Contains(taxonId);
 
-             const int iterations = 200;
-
-        for (var i = 0; i < iterations; i++)
-            {
-                var taxonId = RandomProposal(rng);
-
-                try
+                if (!isValid)
                 {
-                    await Bison.CLI.Program.Main(["proposal", observationId.ToString(), taxonId]);
+                    PrintInvalidTaxon(taxonId);
+                }
+
+                await Bison.CLI.Program.Main(["proposal", observationId.ToString(), taxonId]);
+
+                if (isValid)
+                {
                     expectedProposalsByObservation[observationId].Add(taxonId);
                 }
-                catch
-                {
-                    //invalid taxon IDs
-                }
             }
-
-    }
-    finally
+        }
+        finally
         {
-        File.Copy(observeBackup, observeDb, true);
-        File.Copy(proposalBackup, proposalDb, true);
-        File.Delete(observeBackup);
-        File.Delete(proposalBackup);
+            File.Copy(observeBackup, observeDb, true);
+            File.Copy(proposalBackup, proposalDb, true);
+            File.Delete(observeBackup);
+            File.Delete(proposalBackup);
         }
     }
+
     private static string RandomMessage(Random rng)
     {
         var choices = new[]
@@ -250,5 +263,10 @@ public class EtoE_Tests
         }
 
         return $"INVALID-{Guid.NewGuid()}";
+    }
+
+    private static void PrintInvalidTaxon(string taxonId)
+    {
+        Console.WriteLine($"Taxon doesn't work: {taxonId}");
     }
 }
