@@ -43,7 +43,7 @@ jobs:
           done
 
       - name: Test
-        run: dotnet test ./Bison.sln --no-build
+        run: dotnet test ./Bison.sln --no-build -m:1
 
       - name: Stop web server
         working-directory: src/Bison.CSVDBService
