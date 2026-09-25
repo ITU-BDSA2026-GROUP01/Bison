@@ -29,4 +29,5 @@ internal static class ServerData
 
     public static string Observations => Path.Combine(Folder, "observations.csv");
     public static string Comments => Path.Combine(Folder, "comments.csv");
+    public static string Proposals => Path.Combine(Folder, "proposals.csv");
 }
