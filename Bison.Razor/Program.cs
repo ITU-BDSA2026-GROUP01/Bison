@@ -1,8 +1,13 @@
+using Bison.Razor.Services;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
 builder.Services.AddSingleton<ICheepService, CheepService>();
+builder.Services.AddScoped<DBFacade>();
+builder.Services.AddScoped<IPostService, PostService>();
+builder.Services.AddScoped<IObservationService, ObservationService>();
 
 
 var app = builder.Build();

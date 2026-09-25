@@ -1,6 +1,8 @@
-﻿namespace Bison.Razor.Services
+﻿using Bison.Razor.Models;
+
+namespace Bison.Razor.Services;
+
+public interface IPostService
 {
-    public interface IPostService
-    {
-    }
+    List<ObservationViewModel> GetObservations();
 }

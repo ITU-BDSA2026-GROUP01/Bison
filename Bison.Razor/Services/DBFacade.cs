@@ -27,10 +27,10 @@ public class DBFacade
 
         var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-            SELECT o.id, o.message, o.timestamp, u.username
+            SELECT o.observation_id, o.text, o.pub_date, u.username
             FROM observation o
-            JOIN user u ON o.author_id = u.id
-            ORDER BY o.timestamp DESC;
+            JOIN user u ON o.author_id = u.user_id
+            ORDER BY o.pub_date DESC;
         ";
 
         using var reader = cmd.ExecuteReader();
@@ -40,7 +40,7 @@ public class DBFacade
             {
                 Id = reader.GetInt32(0),
                 Message = reader.GetString(1),
-                Timestamp = reader.GetString(2),
+                Timestamp = DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64(2)).ToString("u"),
                 Author = reader.GetString(3)
             });
         }
@@ -57,11 +57,11 @@ public class DBFacade
 
         var cmd = conn.CreateCommand();
         cmd.CommandText = @"
-            SELECT o.id, o.message, o.timestamp, u.username
+            SELECT o.observation_id, o.text, o.pub_date, u.username
             FROM observation o
-            JOIN user u ON o.author_id = u.id
+            JOIN user u ON o.author_id = u.user_id
             WHERE u.username = @author
-            ORDER BY o.timestamp DESC;
+            ORDER BY o.pub_date DESC;
         ";
 
         cmd.Parameters.AddWithValue("@author", author);
@@ -73,7 +73,7 @@ public class DBFacade
             {
                 Id = reader.GetInt32(0),
                 Message = reader.GetString(1),
-                Timestamp = reader.GetString(2),
+                Timestamp = DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64(2)).ToString("u"),
                 Author = reader.GetString(3)
             });
         }
