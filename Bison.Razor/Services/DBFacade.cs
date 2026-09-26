@@ -9,7 +9,7 @@ public class DBFacade
 
     public DBFacade(IConfiguration config)
     {
-        var envPath = Environment.GetEnvironmentVariable("BISONDBPATH");
+        var envPath = config["BISONDBPATH"];
         _dbPath = envPath ?? Path.Combine(Path.GetTempPath(), "bison.db");
     }
 
