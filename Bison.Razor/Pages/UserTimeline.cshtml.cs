@@ -1,21 +1,23 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
+using Bison.Razor.Models;
+using Bison.Razor.Services;
 
 namespace Bison.Razor.Pages;
 
 public class UserTimelineModel : PageModel
 {
-    private readonly ICheepService _service;
-    public List<CheepViewModel> Cheeps { get; set; }
+    private readonly IObservationService _service;
+    public List<ObservationViewModel> Cheeps { get; set; } = new();
 
-    public UserTimelineModel(ICheepService service)
+    public UserTimelineModel(IObservationService service)
     {
         _service = service;
     }
 
     public ActionResult OnGet(string author)
     {
-        Cheeps = _service.GetCheepsFromAuthor(author);
+        Cheeps = _service.GetObservationsFromAuthor(author);
         return Page();
     }
 }
