@@ -11,12 +11,12 @@ public class ObservationService : IObservationService
         _db = db;
     }
 
-    public List<ObservationViewModel> GetObservations()
+    public List<ObservationViewModel> GetObservations(int page = 1)
     {
         return _db.GetAllObservations();
     }
 
-    public List<ObservationViewModel> GetObservationsFromAuthor(string author)
+    public List<ObservationViewModel> GetObservationsFromAuthor(string author, int page = 1)
     {
         return _db.GetObservationsByAuthor(author);
     }
