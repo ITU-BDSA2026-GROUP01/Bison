@@ -13,6 +13,6 @@ public class PostService : IPostService
 
     public List<ObservationViewModel> GetObservations(int page = 1)
     {
-        return _db.GetAllObservations();
+        return _db.GetAllObservations(page);
     }
 }
