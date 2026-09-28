@@ -118,7 +118,7 @@ public class DBFacade
     }
 
     //Ui model for comments connected to observations, containing author, message and timestamp
-    public List<CommentViewModel> GetCommentsForObservations(int observationId)
+    public List<CommentViewModel> GetCommentsForObservation(int observationId)
     {
         var result = new List<CommentViewModel>();
 

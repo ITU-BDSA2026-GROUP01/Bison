@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Bison.Razor.Models;
 using Bison.Razor.Services;
+using System.Data.Common;
 
 namespace Bison.Razor.Pages;
 
@@ -29,6 +30,9 @@ public class ObservationModel : PageModel
             {
                 return NotFound();
             }
+            Comments = _db.GetCommentsForObservation(id.Value);
+            Proposals = _db.GetProposalsForObservation(id.Value);
+
             return Page();
         }
         Observations = _db.GetAllObservations();
