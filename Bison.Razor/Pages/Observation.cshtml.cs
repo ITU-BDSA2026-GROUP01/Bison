@@ -5,11 +5,11 @@ using Bison.Razor.Services;
 
 namespace Bison.Razor.Pages;
 
-public class ObservationsModel : PageModel
+public class ObservationModel : PageModel
 {
     private readonly DBFacade _db;
 
-    public ObservationsModel(DBFacade db)
+    public ObservationModel(DBFacade db)
     {
         _db = db;
     }

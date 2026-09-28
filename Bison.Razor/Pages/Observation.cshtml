@@ -1,0 +1,36 @@
+@page "/ob/{id:int?}"
+@model Bison.Razor.Pages.ObservationModel
+@{
+    ViewData["Title"] = "Observation";
+    Layout = "Shared/_Layout";
+}
+
+<div>
+    @if (Model.Observation != null)
+    {
+        <h2> Observation @Model.Observation.Id</h2>
+        <p><strong>@Model.Observation.Author</strong></p>
+        <p> @Model.Observation.Message</p>
+        <small> @Model.Observation.Timestamp</small>
+    } else
+    {
+        <h2>All Observations</h2>
+        @if (Model.Observations.Any())
+        {
+            <ul>
+                @foreach (var observation in Model.Observations)
+                {
+                    <li>
+                        <a href="/ob/@observation.Id"> @observation.Message</a>
+                        <small>by @observation.Author</small>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No observations found</p>
+        }
+    }
+
+</div>
