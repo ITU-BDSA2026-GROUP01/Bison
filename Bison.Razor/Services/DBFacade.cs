@@ -88,4 +88,32 @@ public class DBFacade
 
         return result;
     }
+
+    public ObservationViewModel? GetObservationsById(int id)
+    {
+        using var conn = GetConnection();
+        conn.Open();
+
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+            SELECT o.observation_id, o.text, o.pub_date, u.username
+            FROM observation o
+            JOIN user u ON o.author_id = u.user_id
+            WHERE o.observation_id = @id;";
+            
+    cmd.Parameters.AddWithValue("@id", id);
+
+    using var reader = cmd.ExecuteReader();
+    if(!reader.Read())
+        {
+            return null;
+        }
+        return new ObservationViewModel
+        {
+            Id = reader.GetInt32(0),
+            Message = reader.GetString(1),
+            Timestamp = DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64(2)).ToString("u"),
+            Author = reader.GetString(3)
+        };
+    }
 }
