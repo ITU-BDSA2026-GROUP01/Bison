@@ -100,7 +100,7 @@ public class DBFacade
             FROM observation o
             JOIN user u ON o.author_id = u.user_id
             WHERE o.observation_id = @id;";
-            
+
     cmd.Parameters.AddWithValue("@id", id);
 
     using var reader = cmd.ExecuteReader();
@@ -116,4 +116,71 @@ public class DBFacade
             Author = reader.GetString(3)
         };
     }
+
+    //Ui model for comments connected to observations, containing author, message and timestamp
+    public List<CommentViewModel> GetCommentsForObservations(int observationId)
+    {
+        var result = new List<CommentViewModel>();
+
+        using var conn = GetConnection();
+        conn.Open();
+
+        var cmd = conn.CreateCommand();
+        cmd.CommandText = @"
+            SELECT comment_id, observation_id, author, text, pub_date
+            FROM comment
+            WHERE observation_id = @observationId
+            ORDER BY pub_date DESC;";
+
+        cmd.Parameters.AddWithValue("@observationId", observationId);
+
+        using var reader = cmd.ExecuteReader();
+        while (reader.Read())
+        {
+            result.Add(new CommentViewModel
+            {
+                Id = reader.GetInt32(0),
+                ObservationId = reader.GetInt32(1),
+                Author = reader.GetString(2),
+                Message = reader.GetString(3),
+                Timestamp = DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64(4)).ToString("u"),
+                
+            });
+        }
+
+        return result;
+    }
+
+    //Ui model for taxon proposals connected to observations, containing author, taxon id and timestamp
+    public List<ProposalViewModel> GetProposalsForObservation(int observationId)
+{
+    var result = new List<ProposalViewModel>();
+
+    using var conn = GetConnection();
+    conn.Open();
+
+    var cmd = conn.CreateCommand();
+    cmd.CommandText = @"
+        SELECT proposal_id, observation_id, author, taxon_id, pub_date
+        FROM proposal
+        WHERE observation_id = @observationId
+        ORDER BY pub_date DESC;";
+
+    cmd.Parameters.AddWithValue("@observationId", observationId);
+
+    using var reader = cmd.ExecuteReader();
+    while (reader.Read())
+    {
+        result.Add(new ProposalViewModel
+        {
+            Id = reader.GetInt32(0),
+            ObservationId = reader.GetInt32(1),
+            Author = reader.GetString(2),
+            TaxonId = reader.GetString(3),
+            Timestamp = DateTimeOffset.FromUnixTimeSeconds(reader.GetInt64(4)).ToString("u")
+        });
+    }
+
+    return result;
+}
 }

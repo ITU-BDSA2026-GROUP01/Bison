@@ -16,6 +16,8 @@ public class ObservationModel : PageModel
 
     public ObservationViewModel? Observation { get; set;}
     public List<ObservationViewModel> Observations { get; set;} = new();
+    public List<CommentViewModel> Comments {get; set; } = new();
+    public List<ProposalViewModel> Proposals {get; set;} = new();
 
     public IActionResult OnGet(int? id)
     {
