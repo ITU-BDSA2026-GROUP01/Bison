@@ -135,6 +135,7 @@ public class DBFacade
         cmd.Parameters.AddWithValue("@observationId", observationId);
 
         using var reader = cmd.ExecuteReader();
+        
         while (reader.Read())
         {
             result.Add(new CommentViewModel
