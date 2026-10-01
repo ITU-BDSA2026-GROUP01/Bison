@@ -7,3 +7,4 @@ public class Author
     public string Email { get; set; } = "";
 
     public List<Post> Posts { get; set; } = new();
+}
