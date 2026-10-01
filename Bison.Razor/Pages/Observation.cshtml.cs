@@ -20,7 +20,7 @@ public class ObservationModel : PageModel
     public List<CommentViewModel> Comments {get; set; } = new();
     public List<ProposalViewModel> Proposals {get; set;} = new();
 
-    public IActionResult OnGet(int? id)
+    public IActionResult OnGet(int? id, [FromQuery] int page = 1)
     {
         if (id.HasValue)
         {
@@ -35,7 +35,7 @@ public class ObservationModel : PageModel
 
             return Page();
         }
-        Observations = _db.GetAllObservations();
+        Observations = _db.GetAllObservations(page);
         return Page();
     }
 }
