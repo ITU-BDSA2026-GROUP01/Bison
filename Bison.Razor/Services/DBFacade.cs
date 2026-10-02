@@ -20,9 +20,9 @@ public class DBFacade
 
     private const int PageSize = 32;
 
-    public List<ObservationViewModel> GetAllObservations(int page = 1)
+    public List<ObservationDTO> GetAllObservations(int page = 1)
     {
-        var result = new List<ObservationViewModel>();
+        var result = new List<ObservationDTO>();
 
         using var conn = GetConnection();
         conn.Open();
@@ -42,7 +42,7 @@ public class DBFacade
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-            result.Add(new ObservationViewModel
+            result.Add(new ObservationDTO
             {
                 Id = reader.GetInt32(0),
                 Message = reader.GetString(1),
@@ -54,9 +54,9 @@ public class DBFacade
         return result;
     }
 
-    public List<ObservationViewModel> GetObservationsByAuthor(string author, int page = 1)
+    public List<ObservationDTO> GetObservationsByAuthor(string author, int page = 1)
     {
-        var result = new List<ObservationViewModel>();
+        var result = new List<ObservationDTO>();
 
         using var conn = GetConnection();
         conn.Open();
@@ -77,7 +77,7 @@ public class DBFacade
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-            result.Add(new ObservationViewModel
+            result.Add(new ObservationDTO
             {
                 Id = reader.GetInt32(0),
                 Message = reader.GetString(1),
@@ -89,7 +89,7 @@ public class DBFacade
         return result;
     }
 
-    public ObservationViewModel? GetObservationsById(int id)
+    public ObservationDTO? GetObservationsById(int id)
     {
         using var conn = GetConnection();
         conn.Open();
@@ -108,7 +108,7 @@ public class DBFacade
         {
             return null;
         }
-        return new ObservationViewModel
+        return new ObservationDTO
         {
             Id = reader.GetInt32(0),
             Message = reader.GetString(1),
@@ -118,9 +118,9 @@ public class DBFacade
     }
 
     //Ui model for comments connected to observations, containing author, message and timestamp
-    public List<CommentViewModel> GetCommentsForObservation(int observationId)
+    public List<CommentDTO> GetCommentsForObservation(int observationId)
     {
-        var result = new List<CommentViewModel>();
+        var result = new List<CommentDTO>();
 
         using var conn = GetConnection();
         conn.Open();
@@ -138,7 +138,7 @@ public class DBFacade
         
         while (reader.Read())
         {
-            result.Add(new CommentViewModel
+            result.Add(new CommentDTO
             {
                 Id = reader.GetInt32(0),
                 ObservationId = reader.GetInt32(1),
@@ -153,9 +153,9 @@ public class DBFacade
     }
 
     //Ui model for taxon proposals connected to observations, containing author, taxon id and timestamp
-    public List<ProposalViewModel> GetProposalsForObservation(int observationId)
+    public List<ProposalDTO> GetProposalsForObservation(int observationId)
 {
-    var result = new List<ProposalViewModel>();
+    var result = new List<ProposalDTO>();
 
     using var conn = GetConnection();
     conn.Open();
@@ -172,7 +172,7 @@ public class DBFacade
     using var reader = cmd.ExecuteReader();
     while (reader.Read())
     {
-        result.Add(new ProposalViewModel
+        result.Add(new ProposalDTO
         {
             Id = reader.GetInt32(0),
             ObservationId = reader.GetInt32(1),
