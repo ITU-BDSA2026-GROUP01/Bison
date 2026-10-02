@@ -9,10 +9,12 @@ namespace Bison.Razor.Pages;
 public class ObservationModel : PageModel
 {
     private readonly DBFacade _db;
+    private readonly IPostRepository _postRepository;
 
-    public ObservationModel(DBFacade db)
+    public ObservationModel(DBFacade db, IPostRepository postRepository)
     {
         _db = db;
+        _postRepository = postRepository;
     }
 
     public ObservationViewModel? Observation { get; set;}
@@ -35,7 +37,7 @@ public class ObservationModel : PageModel
 
             return Page();
         }
-        Observations = _db.GetAllObservations(page);
+        Observations = _postRepository.GetAllObservations(page);
         return Page();
     }
 }
