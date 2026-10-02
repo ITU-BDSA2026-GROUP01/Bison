@@ -4,5 +4,5 @@ namespace Bison.Razor.Services;
 
 public interface IPostService
 {
-    List<ObservationViewModel> GetObservations(int page = 1);
+    List<ObservationDTO> GetObservations(int page = 1);
 }

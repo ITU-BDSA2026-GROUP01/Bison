@@ -3,7 +3,7 @@ namespace Bison.Razor.Models;
 
 
 /// DTO used to transport comment data to the UI without exposing the underlying repository model.
-public class CommentViewModel
+public class CommentDTO
 {
     public int Id { get; set; }
     public int ObservationId { get; set; }
@@ -15,7 +15,7 @@ public class CommentViewModel
 
 /// DTO used to transport proposal data to the UI without exposing the underlying repository model.
 
-public class ProposalViewModel
+public class ProposalDTO
 {
     public int Id { get; set; }
     public int ObservationId { get; set; }

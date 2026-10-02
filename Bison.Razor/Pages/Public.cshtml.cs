@@ -8,7 +8,7 @@ namespace Bison.Razor.Pages;
 public class PublicModel : PageModel
 {
     private readonly IPostService _service;
-    public List<ObservationViewModel> Cheeps { get; set; } = new();
+    public List<ObservationDTO> Cheeps { get; set; } = new();
 
     public PublicModel(IPostService service)
     {
