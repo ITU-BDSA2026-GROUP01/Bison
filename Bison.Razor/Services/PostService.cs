@@ -4,15 +4,15 @@ namespace Bison.Razor.Services;
 
 public class PostService : IPostService
 {
-    private readonly DBFacade _db;
+    private readonly IPostRepository _repository;
 
-    public PostService(DBFacade db)
+    public PostService(IPostRepository repository)
     {
-        _db = db;
+        _repository = repository;
     }
 
     public List<ObservationViewModel> GetObservations(int page = 1)
     {
-        return _db.GetAllObservations(page);
+        return _repository.GetAllObservations(page);
     }
 }
