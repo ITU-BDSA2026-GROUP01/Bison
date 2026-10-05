@@ -32,10 +32,7 @@ public class TimelineApiTests : IDisposable
                 {
                     config.AddInMemoryCollection(new Dictionary<string, string?>
                     {
-                        ["BISONDBPATH"] = _db.DbPath,
-                        // Neutralise the HTTPS-redirect middleware so the
-                        // in-memory test server doesn't 302 to https.
-                        ["https_port"]  = ""
+                        ["BISONDBPATH"] = _db.DbPath
                     });
                 });
             });
