@@ -11,8 +11,9 @@ public class PostService : IPostService
         _repository = repository;
     }
 
-    public List<ObservationViewModel> GetObservations(int page = 1)
+    public List<ObservationDTO> GetObservations(int page = 1)
     {
         return _repository.GetAllObservations(page);
     }
+    
 }
