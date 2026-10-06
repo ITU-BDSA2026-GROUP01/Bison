@@ -14,7 +14,7 @@ public class ObservationServiceTests : IDisposable
     {
         _db = new SQLiteDatabaseTestHelper();
         (_, _pet, _obs1, _obs2) = _db.SeedStandard();
-        _svc = new ObservationService(_db.CreateFacade());
+        _svc = new ObservationService(_db.CreatePostRepository());
     }
 
     public void Dispose() => _db.Dispose();
