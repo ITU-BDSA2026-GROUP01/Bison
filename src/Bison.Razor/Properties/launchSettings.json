@@ -15,7 +15,7 @@
       "applicationUrl": "http://localhost:5273",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "BISONDBPATH": ".\\Data\\bison.db"
+        "BISONDBPATH": "Data/bison.db"
       }
     },
     "https": {
@@ -25,7 +25,7 @@
       "applicationUrl": "https://localhost:7102;http://localhost:5273",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "BISONDBPATH": ".\\Data\\bison.db"
+        "BISONDBPATH": "Data/bison.db"
       }
     },
     "IIS Express": {
@@ -33,7 +33,7 @@
       "launchBrowser": true,
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
-        "BISONDBPATH": ".\\Data\\bison.db"
+        "BISONDBPATH": "Data/bison.db"
       }
     }
   }
