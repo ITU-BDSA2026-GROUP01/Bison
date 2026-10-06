@@ -23,7 +23,11 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Bison.CLI\Bison.CLI.csproj" />
+    <FrameworkReference Include="Microsoft.AspNetCore.App" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Bison.Razor\Bison.Razor.csproj" />
   </ItemGroup>
 
 </Project>
