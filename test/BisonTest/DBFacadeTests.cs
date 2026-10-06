@@ -12,6 +12,7 @@ public class DBFacadeTests : IDisposable
 {
     private readonly SQLiteDatabaseTestHelper _db;
     private readonly DBFacade _facade;
+    private readonly PostRepository _repo;
     private readonly int _obs1; // Eduard's "A heron"
     private readonly int _obs2; // Peter's "A big bird"
 
@@ -20,6 +21,7 @@ public class DBFacadeTests : IDisposable
         _db = new SQLiteDatabaseTestHelper();
         (_, _, _obs1, _obs2) = _db.SeedStandard();
         _facade = _db.CreateFacade();
+        _repo = _db.CreatePostRepository();
     }
 
     public void Dispose() => _db.Dispose();
@@ -29,7 +31,7 @@ public class DBFacadeTests : IDisposable
     [Fact]
     public void GetAllObservations_ReturnsAllOrderedByPubDateDesc()
     {
-        var result = _facade.GetAllObservations();
+        var result = _repo.GetAllObservations();
 
         Assert.Equal(2, result.Count);
         // pub_date DESC: obs2 (1690895308) is newer than obs1 (1690892208).
@@ -41,7 +43,7 @@ public class DBFacadeTests : IDisposable
     [Fact]
     public void GetAllObservations_MapsAllFields()
     {
-        var obs = _facade.GetAllObservations().First(o => o.Id == _obs1);
+        var obs = _repo.GetAllObservations().First(o => o.Id == _obs1);
 
         Assert.Equal("Eduard", obs.Author);     // resolved via the user JOIN
         Assert.Equal("A heron", obs.Message);
@@ -57,7 +59,7 @@ public class DBFacadeTests : IDisposable
         for (int i = 0; i < 33; i++)
             db.InsertObservation(author, $"bird {i}", 1690000000 + i);
 
-        var facade = db.CreateFacade();
+        var facade = db.CreatePostRepository();
         var page1 = facade.GetAllObservations(page: 1);
         var page2 = facade.GetAllObservations(page: 2);
 
@@ -75,7 +77,7 @@ public class DBFacadeTests : IDisposable
         int edu = _db.InsertUser("Eduard", "edka@itu.dk");
         _db.InsertObservation(edu, "A small bird", 1691000000); // a 3rd Eduard row
 
-        var result = _facade.GetObservationsByAuthor(author: "Eduard");
+        var result = _repo.GetObservationsByAuthor(author: "Eduard");
 
         Assert.Equal(2, result.Count);
         Assert.All(result, o => Assert.Equal("Eduard", o.Author));
@@ -84,7 +86,7 @@ public class DBFacadeTests : IDisposable
     [Fact]
     public void GetObservationsByAuthor_UnknownAuthor_ReturnsEmpty()
     {
-        var result = _facade.GetObservationsByAuthor(author: "Nobody");
+        var result = _repo.GetObservationsByAuthor(author: "Nobody");
 
         Assert.Empty(result);
     }
@@ -98,8 +100,8 @@ public class DBFacadeTests : IDisposable
         for (int i = 0; i < 32; i++)
             _db.InsertObservation(edu, $"bird {i}", 1690000000 + i);
 
-        var page1 = _facade.GetObservationsByAuthor("Eduard", page: 1);
-        var page2 = _facade.GetObservationsByAuthor("Eduard", page: 2);
+        var page1 = _repo.GetObservationsByAuthor("Eduard", page: 1);
+        var page2 = _repo.GetObservationsByAuthor("Eduard", page: 2);
 
         Assert.Equal(32, page1.Count);
         Assert.Single(page2);

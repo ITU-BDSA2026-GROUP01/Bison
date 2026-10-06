@@ -135,17 +135,22 @@ create table proposal(
 
     // ── Facade / service factories (all pointed at this helper's temp DB) ──
 
-    public Bison.Razor.Services.DBFacade CreateFacade()
+    private Microsoft.Extensions.Configuration.IConfiguration CreateConfig()
     {
-        var config = new ConfigurationBuilder()
+        return new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string?> { ["BISONDBPATH"] = DbPath })
             .Build();
-        return new Bison.Razor.Services.DBFacade(config);
     }
 
+    public Bison.Razor.Services.DBFacade CreateFacade()
+        => new(CreateConfig());
+
+    public Bison.Razor.Services.PostRepository CreatePostRepository()
+        => new(CreateConfig());
+
     public Bison.Razor.Services.ObservationService CreateObservationService()
-        => new(CreateFacade());
+        => new(CreatePostRepository());
 
     public Bison.Razor.Services.PostService CreatePostService()
-        => new(CreateFacade());
+        => new(CreatePostRepository());
 }

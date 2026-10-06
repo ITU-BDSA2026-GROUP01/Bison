@@ -24,8 +24,9 @@ public class E2EReadPipelineTests : IDisposable
         _db = new SQLiteDatabaseTestHelper();
         (_, _, _obs1, _obs2) = _db.SeedStandard();
         _facade = _db.CreateFacade();
-        _obsSvc = new ObservationService(_facade);
-        _postSvc = new PostService(_facade);
+        var repo = _db.CreatePostRepository();
+        _obsSvc = new ObservationService(repo);
+        _postSvc = new PostService(repo);
     }
 
     public void Dispose() => _db.Dispose();
@@ -79,7 +80,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_FacadeToPageModel_DeliversSeededCommentAndProposal()
     {
-        var page = new ObservationModel(_facade);
+        var page = new ObservationModel(_facade, _db.CreatePostRepository());
         var result = page.OnGet(id: _obs1);
 
         Assert.IsType<PageResult>(result);
@@ -93,7 +94,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ObservationWithoutAttachments_HasEmptyLists()
     {
-        var page = new ObservationModel(_facade);
+        var page = new ObservationModel(_facade, _db.CreatePostRepository());
         page.OnGet(id: _obs2);
 
         Assert.NotNull(page.Observation);
@@ -104,7 +105,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_UnknownId_PipelineReturnsNotFound()
     {
-        var page = new ObservationModel(_facade);
+        var page = new ObservationModel(_facade, _db.CreatePostRepository());
         var result = page.OnGet(id: 424242);
 
         var nfr = Assert.IsType<NotFoundResult>(result);
@@ -115,7 +116,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ListModeWithoutId_ReturnsAll()
     {
-        var page = new ObservationModel(_facade);
+        var page = new ObservationModel(_facade, _db.CreatePostRepository());
         var result = page.OnGet(id: null);
 
         Assert.IsType<PageResult>(result);
@@ -148,7 +149,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newObs, timeline[0].Id);
 
         // 4. ObservationModel detail page sees it + its comment + proposal.
-        var detail = new ObservationModel(_facade);
+        var detail = new ObservationModel(_facade, _db.CreatePostRepository());
         detail.OnGet(id: newObs);
         Assert.Equal(newObs, detail.Observation!.Id);
         Assert.Single(detail.Comments);

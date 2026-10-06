@@ -21,7 +21,7 @@ public class ObservationModelTests : IDisposable
     {
         _db = new SQLiteDatabaseTestHelper();
         (_, _, _obs1, _obs2) = _db.SeedStandard();
-        _model = new ObservationModel(_db.CreateFacade());
+        _model = new ObservationModel(_db.CreateFacade(), _db.CreatePostRepository());
     }
 
     public void Dispose() => _db.Dispose();
