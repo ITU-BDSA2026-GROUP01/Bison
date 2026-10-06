@@ -19,6 +19,18 @@ public class ObservationModel : PageModel
     public List<ObservationDTO> Observations { get; set;} = new();
     public List<CommentDTO> Comments {get; set; } = new();
     public List<ProposalDTO> Proposals {get; set;} = new();
+    private readonly IPostRepository _postRepository;
+
+    public ObservationModel(DBFacade db, IPostRepository postRepository)
+    {
+        _db = db;
+        _postRepository = postRepository;
+    }
+
+    public ObservationViewModel? Observation { get; set;}
+    public List<ObservationViewModel> Observations { get; set;} = new();
+    public List<CommentViewModel> Comments {get; set; } = new();
+    public List<ProposalViewModel> Proposals {get; set;} = new();
 
     public IActionResult OnGet(int? id, [FromQuery] int page = 1)
     {
@@ -35,7 +47,7 @@ public class ObservationModel : PageModel
 
             return Page();
         }
-        Observations = _db.GetAllObservations(page);
+        Observations = _postRepository.GetAllObservations(page);
         return Page();
     }
 }
