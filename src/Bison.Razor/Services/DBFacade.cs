@@ -18,7 +18,7 @@ public class DBFacade
         return new SqliteConnection($"Data Source={_dbPath}");
     }
 
-    public ObservationViewModel? GetObservationsById(int id)
+    public ObservationDTO? GetObservationsById(int id)
     {
         using var conn = GetConnection();
         conn.Open();

@@ -16,9 +16,9 @@ public class PostRepository : IPostRepository
     {
         return new SqliteConnection($"Data Source={_dbPath}");
     }
-    public List<ObservationViewModel> GetAllObservations(int page = 1)
+    public List<ObservationDTO> GetAllObservations(int page = 1)
     {
-        var result = new List<ObservationViewModel>();
+        var result = new List<ObservationDTO>();
 
         using var conn = GetConnection();
         conn.Open();
@@ -38,7 +38,7 @@ public class PostRepository : IPostRepository
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-            result.Add(new ObservationViewModel
+            result.Add(new ObservationDTO
             {
                 Id = reader.GetInt32(0),
                 Message = reader.GetString(1),
@@ -50,9 +50,9 @@ public class PostRepository : IPostRepository
         return result;
     }
 
-    public List<ObservationViewModel> GetObservationsByAuthor(string author, int page = 1)
+    public List<ObservationDTO> GetObservationsByAuthor(string author, int page = 1)
     {
-        var result = new List<ObservationViewModel>();
+        var result = new List<ObservationDTO>();
 
         using var conn = GetConnection();
         conn.Open();
@@ -73,7 +73,7 @@ public class PostRepository : IPostRepository
         using var reader = cmd.ExecuteReader();
         while (reader.Read())
         {
-            result.Add(new ObservationViewModel
+            result.Add(new ObservationDTO
             {
                 Id = reader.GetInt32(0),
                 Message = reader.GetString(1),

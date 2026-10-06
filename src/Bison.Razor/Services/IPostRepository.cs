@@ -4,6 +4,6 @@ namespace Bison.Razor.Services;
 
 public interface IPostRepository
 {
-    List<ObservationViewModel> GetAllObservations(int page = 1);
-    List<ObservationViewModel> GetObservationsByAuthor(string author, int page = 1);
+    List<ObservationDTO> GetAllObservations(int page = 1);
+    List<ObservationDTO> GetObservationsByAuthor(string author, int page = 1);
 }
