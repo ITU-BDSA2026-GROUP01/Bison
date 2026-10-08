@@ -15,6 +15,17 @@ builder.Services.AddDbContext<BisonDBContext>(options =>
 
 var app = builder.Build();
 
+// Ensure the database is created and seeded
+using (var scope = app.Services.CreateScope())
+{
+    var context =
+        scope.ServiceProvider.GetRequiredService<BisonDBContext>();
+
+    await context.Database.EnsureCreatedAsync();
+
+    await DBInitializer.SeedAsync(context);
+}
+
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
