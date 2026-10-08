@@ -1,3 +1,5 @@
+using Bison.Razor.Data;
+using Microsoft.EntityFrameworkCore;
 using Bison.Razor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -8,7 +10,8 @@ builder.Services.AddScoped<DBFacade>();
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
-
+builder.Services.AddDbContext<BisonDBContext>(options =>
+    options.UseSqlite("Data Source=Data/bison.db"));
 
 var app = builder.Build();
 
