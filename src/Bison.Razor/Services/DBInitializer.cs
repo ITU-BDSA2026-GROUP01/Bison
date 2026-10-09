@@ -38,11 +38,28 @@ public static class DBInitializer
             Taxon = taxon
         };
 
-
-
         context.Observations.Add(observation);
 
-        
+        var comment = new Comment
+        {
+            Text = "Nice sighting!",
+            TimeStamp = DateTime.UtcNow,
+            Author = author,
+            Observation = observation
+        };
+
+        context.Comments.Add(comment);
+
+        var proposal = new Proposal
+        {
+            Text = "I believe this is Ardea cinerea.",
+            TimeStamp = DateTime.UtcNow,
+            Author = author,
+            Observation = observation,
+            Taxon = taxon
+        };
+
+        context.Proposals.Add(proposal);
 
         await context.SaveChangesAsync();
     }
