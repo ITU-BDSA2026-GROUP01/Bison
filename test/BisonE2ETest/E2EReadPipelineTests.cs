@@ -7,14 +7,14 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 namespace BisonE2ETest;
 
 /// <summary>
-/// End-to-end read pipeline tests: full schema + seed data → DBFacade →
-/// services → page models. Verifies the whole read path works together
-/// without a live web server, against a hermetic SQLite DB.
+/// End-to-end read pipeline tests: full schema + seed data → PostRepository
+/// (EF-Core) → services → page models. Verifies the whole read path works
+/// together without a live web server, against a hermetic EF-Core SQLite DB.
 /// </summary>
 public class E2EReadPipelineTests : IDisposable
 {
     private readonly SQLiteDatabaseTestHelper _db;
-    private readonly DBFacade _facade;
+    private readonly PostRepository _repo;
     private readonly ObservationService _obsSvc;
     private readonly PostService _postSvc;
     private int _obs1, _obs2;
@@ -23,10 +23,9 @@ public class E2EReadPipelineTests : IDisposable
     {
         _db = new SQLiteDatabaseTestHelper();
         (_, _, _obs1, _obs2) = _db.SeedStandard();
-        _facade = _db.CreateFacade();
-        var repo = _db.CreatePostRepository();
-        _obsSvc = new ObservationService(repo);
-        _postSvc = new PostService(repo);
+        _repo = _db.CreatePostRepository();
+        _obsSvc = new ObservationService(_repo);
+        _postSvc = new PostService(_repo);
     }
 
     public void Dispose() => _db.Dispose();
@@ -78,9 +77,9 @@ public class E2EReadPipelineTests : IDisposable
     // ── Pipeline 3: Single observation detail ─────────────────────────
 
     [Fact]
-    public void ObservationDetail_FacadeToPageModel_DeliversSeededCommentAndProposal()
+    public void ObservationDetail_RepositoryToPageModel_DeliversSeededCommentAndProposal()
     {
-        var page = new ObservationModel(_facade, _db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostRepository());
         var result = page.OnGet(id: _obs1);
 
         Assert.IsType<PageResult>(result);
@@ -94,7 +93,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ObservationWithoutAttachments_HasEmptyLists()
     {
-        var page = new ObservationModel(_facade, _db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostRepository());
         page.OnGet(id: _obs2);
 
         Assert.NotNull(page.Observation);
@@ -105,7 +104,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_UnknownId_PipelineReturnsNotFound()
     {
-        var page = new ObservationModel(_facade, _db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostRepository());
         var result = page.OnGet(id: 424242);
 
         var nfr = Assert.IsType<NotFoundResult>(result);
@@ -116,7 +115,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ListModeWithoutId_ReturnsAll()
     {
-        var page = new ObservationModel(_facade, _db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostRepository());
         var result = page.OnGet(id: null);
 
         Assert.IsType<PageResult>(result);
@@ -133,11 +132,11 @@ public class E2EReadPipelineTests : IDisposable
         int newComment = _db.InsertComment(newObs, "Fresh", "fresh comment", 1690999998);
         int newProposal = _db.InsertProposal(newObs, "Fresh", "1234", 1690999997);
 
-        // 1. DBFacade sees it.
-        var fromFacade = _facade.GetObservationsById(newObs);
-        Assert.NotNull(fromFacade);
-        Assert.Equal("fresh e2e bird", fromFacade!.Message);
-        Assert.Equal("Fresh", fromFacade.Author);
+        // 1. PostRepository (detail) sees it.
+        var fromRepo = _repo.GetObservationWithAttachments(newObs);
+        Assert.NotNull(fromRepo);
+        Assert.Equal("fresh e2e bird", fromRepo!.Text);
+        Assert.Equal("Fresh", fromRepo.Author.Name);
 
         // 2. PostService (feed) sees it — it's the newest.
         var feed = _postSvc.GetObservations();
@@ -149,7 +148,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newObs, timeline[0].Id);
 
         // 4. ObservationModel detail page sees it + its comment + proposal.
-        var detail = new ObservationModel(_facade, _db.CreatePostRepository());
+        var detail = new ObservationModel(_db.CreatePostRepository());
         detail.OnGet(id: newObs);
         Assert.Equal(newObs, detail.Observation!.Id);
         Assert.Single(detail.Comments);
@@ -172,8 +171,13 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void TimestampsAreFormattedConsistently()
     {
-        // SeedStandard obs1 pub_date = 1690892208 → "2023-08-01 12:16:48Z"
-        var obs = _facade.GetObservationsById(_obs1);
-        Assert.Equal("2023-08-01 12:16:48Z", obs!.Timestamp);
+        // SeedStandard obs1 pub_date = 1690892208 → stored as a UTC DateTime;
+        // the "u" format gives the datetime portion (2023-08-01 12:16:48).
+        var fromRepo = _repo.GetObservationWithAttachments(_obs1);
+        Assert.NotNull(fromRepo);
+        Assert.Equal(
+            DateTimeOffset.FromUnixTimeSeconds(1690892208).UtcDateTime,
+            fromRepo!.TimeStamp);
+        Assert.StartsWith("2023-08-01 12:16:48", fromRepo.TimeStamp.ToString("u"));
     }
 }

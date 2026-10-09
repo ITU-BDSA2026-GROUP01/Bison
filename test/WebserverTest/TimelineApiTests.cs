@@ -2,6 +2,7 @@ using Bison.Razor;
 using BisonTest;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;
+using System.Runtime.InteropServices;
 
 namespace WebserverTest;
 
@@ -10,20 +11,31 @@ namespace WebserverTest;
 /// private timeline (/{author}) endpoints via WebApplicationFactory, and
 /// assert the rendered HTML body contains the expected cheep data.
 ///
-/// Canonical seed (mirrors Data/dump.sql):
+/// The app is pointed at a hermetic temp database (via the BISONDBPATH
+/// environment variable — which Program.cs honours) so it reads exactly the
+/// standard seed the suite has always expected:
 ///   Eduard → "A heron"
 ///   Peter  → "A big bird"
+/// BISON_SEED=false disables the app's 400+ post seed so it doesn't clobber
+/// the test fixture.
 /// </summary>
 public class TimelineApiTests : IDisposable
 {
     private readonly SQLiteDatabaseTestHelper _db;
     private readonly WebApplicationFactory<Program> _factory;
     private readonly HttpClient _client;
+    private string? _oldBisonDbPath;
 
     public TimelineApiTests()
     {
         _db = new SQLiteDatabaseTestHelper();
         _db.SeedStandard();
+
+        // Point the app at our hermetic temp DB and disable its 400+ post seed
+        // so the test fixture is what the app reads.
+        _oldBisonDbPath = Environment.GetEnvironmentVariable("BISONDBPATH");
+        Environment.SetEnvironmentVariable("BISONDBPATH", _db.DbPath);
+        Environment.SetEnvironmentVariable("BISON_SEED", "false");
 
         _factory = new WebApplicationFactory<Program>()
             .WithWebHostBuilder(builder =>
@@ -32,7 +44,12 @@ public class TimelineApiTests : IDisposable
                 {
                     config.AddInMemoryCollection(new Dictionary<string, string?>
                     {
-                        ["BISONDBPATH"] = _db.DbPath
+                        ["BISONDBPATH"] = _db.DbPath,
+                        ["BISON_SEED"] = "false",
+                        // Silence EF Core's per-statement SQL logging (it logs
+                        // at Information level, which the app's Default=Information
+                        // lets through) so test output stays readable.
+                        ["Logging:LogLevel:Microsoft.EntityFrameworkCore"] = "Warning"
                     });
                 });
             });
@@ -44,6 +61,9 @@ public class TimelineApiTests : IDisposable
     {
         _client.Dispose();
         _factory.Dispose();
+        // Restore the environment so we don't leak test state into other tests.
+        Environment.SetEnvironmentVariable("BISONDBPATH", _oldBisonDbPath);
+        Environment.SetEnvironmentVariable("BISON_SEED", null);
         _db.Dispose();
     }
 
