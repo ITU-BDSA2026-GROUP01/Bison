@@ -1,4 +1,5 @@
 using Bison.Razor.Pages;
+using Bison.Razor.Services;
 using BisonTest;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -7,9 +8,9 @@ namespace WebserverTest;
 
 /// <summary>
 /// Tests the ObservationModel page (single-observation detail + list-when-no-id)
-/// against a hermetic SQLite DB.
-/// The real seed (Data/dump.sql) puts one comment and one proposal (both by
-/// "Rats") on obs1 (Eduard's "A heron"); obs2 (Peter's) has neither.
+/// against a hermetic EF-Core SQLite DB.
+/// The standard seed puts one comment and one proposal (both by "Rats") on
+/// obs1 (Eduard's "A heron"); obs2 (Peter's) has neither.
 /// </summary>
 public class ObservationModelTests : IDisposable
 {
@@ -21,7 +22,7 @@ public class ObservationModelTests : IDisposable
     {
         _db = new SQLiteDatabaseTestHelper();
         (_, _, _obs1, _obs2) = _db.SeedStandard();
-        _model = new ObservationModel(_db.CreateFacade(), _db.CreatePostRepository());
+        _model = new ObservationModel(_db.CreatePostRepository());
     }
 
     public void Dispose() => _db.Dispose();
