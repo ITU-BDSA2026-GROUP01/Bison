@@ -1,127 +1,147 @@
-using Microsoft.Data.Sqlite;
-using Microsoft.Extensions.Configuration;
+using Bison.Razor.Data;
+using Bison.Razor.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace BisonTest;
 
 /// <summary>
-/// Hermetic SQLite test fixture. Each test gets its own isolated temp .db file
-/// (a fresh GUID-named file) created from the project's real schema, then
-/// deleted in Dispose. No live server, no shared state, no real data files —
-/// matching the project's test rules (server-free + hermetic).
+/// Hermetic EF-Core test fixture. Each test gets its own isolated temp .db
+/// file (fresh GUID-named) whose schema is created by EF Core on first use,
+/// then deleted in <see cref="Dispose"/>. No live server, no shared state,
+/// no real data files — matching the project's test rules (server-free +
+/// hermetic).
 ///
-/// The schema below mirrors Bison.Razor/Data/schema.sql exactly.
+/// All insert helpers add entities through <see cref="BisonDBContext"/> so
+/// the repository under test sees exactly what the app would see.
 /// </summary>
 public sealed class SQLiteDatabaseTestHelper : IDisposable
 {
-    // Mirrors Bison.Razor/Data/schema.sql (kept in sync with the app's DDL).
-    private const string Schema = @"
-create table user (
-  user_id integer primary key autoincrement,
-  username string not null,
-  email string not null
-);
-create table observation (
-  observation_id integer primary key autoincrement,
-  author_id integer not null,
-  text string not null,
-  pub_date integer
-);
-create table comment(
-  comment_id integer primary key autoincrement,
-  observation_id integer not null,
-  author string not null,
-  text string not null,
-  pub_date integer not null
-);
-create table proposal(
-  proposal_id integer primary key autoincrement,
-  observation_id integer not null,
-  author string not null,
-  taxon_id string not null,
-  pub_date integer not null
-);";
-
     /// <summary>Absolute path to the isolated temp database file.</summary>
     public string DbPath { get; }
+
+    private readonly BisonDBContext _ctx;
 
     public SQLiteDatabaseTestHelper()
     {
         DbPath = Path.Combine(Path.GetTempPath(), $"bison_test_{Guid.NewGuid():N}.db");
-        using var conn = Open();
-        Execute(conn, Schema);
+        _ctx = NewContext();
+        _ctx.Database.EnsureCreated();
+
+        // The Observation entity requires a non-null Taxon. Seed a single
+        // default taxon so InsertObservation always has one to link to.
+        using var ctx = NewContext();
+        ctx.Taxons.Add(new Taxon
+        {
+            dwc_TaxonID = "MSTSNM:Arter:default",
+            VernacularName = "Test taxon"
+        });
+        ctx.SaveChanges();
     }
 
     public void Dispose()
     {
+        try { _ctx.Dispose(); } catch { /* best-effort */ }
         try { if (File.Exists(DbPath)) File.Delete(DbPath); }
-        catch { /* best-effort cleanup; never mask the real test failure */ }
+        catch { /* never mask the real test failure */ }
     }
 
-    private SqliteConnection Open()
+    private BisonDBContext NewContext()
     {
-        var conn = new SqliteConnection($"Data Source={DbPath}");
-        conn.Open();
-        return conn;
+        var options = new DbContextOptionsBuilder<BisonDBContext>()
+            .UseSqlite($"Data Source={DbPath}")
+            .Options;
+        return new BisonDBContext(options);
     }
 
-    private static void Execute(SqliteConnection conn, string sql)
-    {
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = sql;
-        cmd.ExecuteNonQuery();
-    }
-
-    // ── Typed insert helpers (return the new row's id) ────────────────────
+    // ── EF insert helpers (return the new row's id) ──────────────────────
 
     public int InsertUser(string username, string email)
     {
-        using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO user (username, email) VALUES (@u, @e); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@u", username);
-        cmd.Parameters.AddWithValue("@e", email);
-        return Convert.ToInt32(cmd.ExecuteScalar()!);
+        using var ctx = NewContext();
+        var author = new Author { Name = username, Email = email };
+        ctx.Authors.Add(author);
+        ctx.SaveChanges();
+        return author.AuthorId;
     }
 
     public int InsertObservation(int authorId, string text, long pubDate)
     {
-        using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO observation (author_id, text, pub_date) VALUES (@a, @t, @d); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@a", authorId);
-        cmd.Parameters.AddWithValue("@t", text);
-        cmd.Parameters.AddWithValue("@d", pubDate);
-        return Convert.ToInt32(cmd.ExecuteScalar()!);
+        using var ctx = NewContext();
+        var author = ctx.Authors.Find(authorId)
+            ?? throw new InvalidOperationException($"Author {authorId} not found");
+        var taxon = ctx.Taxons.OrderBy(t => t.TaxonId).First();
+        var obs = new Observation
+        {
+            Author = author,
+            Taxon = taxon,
+            Text = text,
+            TimeStamp = DateTimeOffset.FromUnixTimeSeconds(pubDate).UtcDateTime
+        };
+        ctx.Observations.Add(obs);
+        ctx.SaveChanges();
+        return obs.PostId;
     }
 
     public int InsertComment(int observationId, string author, string text, long pubDate)
     {
-        using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO comment (observation_id, author, text, pub_date) VALUES (@o, @a, @t, @d); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@o", observationId);
-        cmd.Parameters.AddWithValue("@a", author);
-        cmd.Parameters.AddWithValue("@t", text);
-        cmd.Parameters.AddWithValue("@d", pubDate);
-        return Convert.ToInt32(cmd.ExecuteScalar()!);
+        using var ctx = NewContext();
+        var observation = ctx.Observations.Find(observationId)
+            ?? throw new InvalidOperationException($"Observation {observationId} not found");
+        var authorEntity = ctx.Authors.FirstOrDefault(a => a.Name == author);
+        if (authorEntity == null)
+        {
+            authorEntity = new Author { Name = author, Email = $"{author}@local.test" };
+            ctx.Authors.Add(authorEntity);
+        }
+        var comment = new Comment
+        {
+            Observation = observation,
+            Author = authorEntity,
+            Text = text,
+            TimeStamp = DateTimeOffset.FromUnixTimeSeconds(pubDate).UtcDateTime
+        };
+        ctx.Comments.Add(comment);
+        ctx.SaveChanges();
+        return comment.PostId;
     }
 
     public int InsertProposal(int observationId, string author, string taxonId, long pubDate)
     {
-        using var conn = Open();
-        using var cmd = conn.CreateCommand();
-        cmd.CommandText = "INSERT INTO proposal (observation_id, author, taxon_id, pub_date) VALUES (@o, @a, @t, @d); SELECT last_insert_rowid();";
-        cmd.Parameters.AddWithValue("@o", observationId);
-        cmd.Parameters.AddWithValue("@a", author);
-        cmd.Parameters.AddWithValue("@t", taxonId);
-        cmd.Parameters.AddWithValue("@d", pubDate);
-        return Convert.ToInt32(cmd.ExecuteScalar()!);
+        using var ctx = NewContext();
+        var observation = ctx.Observations.Find(observationId)
+            ?? throw new InvalidOperationException($"Observation {observationId} not found");
+        var authorEntity = ctx.Authors.FirstOrDefault(a => a.Name == author);
+        if (authorEntity == null)
+        {
+            authorEntity = new Author { Name = author, Email = $"{author}@local.test" };
+            ctx.Authors.Add(authorEntity);
+        }
+        // Ensure a taxon with this dwc_TaxonID exists (the DTO exposes the
+        // string, not the int PK).
+        var taxon = ctx.Taxons.FirstOrDefault(t => t.dwc_TaxonID == taxonId);
+        if (taxon == null)
+        {
+            taxon = new Taxon { dwc_TaxonID = taxonId, VernacularName = null };
+            ctx.Taxons.Add(taxon);
+        }
+        var proposal = new Proposal
+        {
+            Observation = observation,
+            Author = authorEntity,
+            Taxon = taxon,
+            Text = "",
+            TimeStamp = DateTimeOffset.FromUnixTimeSeconds(pubDate).UtcDateTime
+        };
+        ctx.Proposals.Add(proposal);
+        ctx.SaveChanges();
+        return proposal.PostId;
     }
 
-    // ── Convenience: the standard seed (mirrors Bison.Razor/Data/dump.sql) ──
+    // ── Convenience: the standard seed ────────────────────────────────────
 
-    /// <summary>Inserts the two users + two observations + one comment + one proposal
-    /// that mirror the app's real Data/dump.sql. Returns the generated ids.</summary>
+    /// <summary>Inserts the two users + two observations + one comment + one
+    /// proposal that the test suite has always expected (Eduard "A heron",
+    /// Peter "A big bird", a "Rats" comment and proposal on obs1).</summary>
     public (int edu, int pet, int obs1, int obs2) SeedStandard()
     {
         int edu  = InsertUser("Eduard", "edka@itu.dk");
@@ -133,20 +153,12 @@ create table proposal(
         return (edu, pet, obs1, obs2);
     }
 
-    // ── Facade / service factories (all pointed at this helper's temp DB) ──
+    // ── Factories (all pointed at this helper's temp DB) ─────────────────
 
-    private Microsoft.Extensions.Configuration.IConfiguration CreateConfig()
-    {
-        return new ConfigurationBuilder()
-            .AddInMemoryCollection(new Dictionary<string, string?> { ["BISONDBPATH"] = DbPath })
-            .Build();
-    }
-
-    public Bison.Razor.Services.DBFacade CreateFacade()
-        => new(CreateConfig());
+    public BisonDBContext CreateContext() => _ctx;
 
     public Bison.Razor.Services.PostRepository CreatePostRepository()
-        => new(CreateConfig());
+        => new(CreateContext());
 
     public Bison.Razor.Services.ObservationService CreateObservationService()
         => new(CreatePostRepository());
