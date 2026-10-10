@@ -1,13 +1,7 @@
-datatype Observation = Observation(taxonId: int)
+class {:extern} Taxon {
+  function {:extern} isSubTaxon(ancestor: Taxon): bool
+}
 
-method FilterByTaxon(taxonId: int, observations: seq<Observation>) returns (filtered: seq<Observation>)
-{
-  filtered := [];
-
-  for i := 0 to |observations|
-  {
-    if observations[i].taxonId == taxonId {
-      filtered := filtered + [observations[i]];
-    }
-  }
+class {:extern} Observation {
+  function {:extern} getTaxon(): Taxon
 }
