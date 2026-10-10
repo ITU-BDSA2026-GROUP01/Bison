@@ -19,4 +19,8 @@
     <InternalsVisibleTo Include="WebserverTest" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Compile Include="..\..\verification\ObservationFilter.cs" />
+  </ItemGroup>
+  
 </Project>
