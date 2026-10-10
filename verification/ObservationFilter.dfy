@@ -1,16 +1,37 @@
-class {:extern} Taxon {
-  function {:extern} getTaxonId(): string
-  function {:extern} isSubTaxon(ancestor: Taxon): bool
+module ObservationFilter {
+
+  class {:extern} Taxon {
+    function {:extern}  {:axiom} isSubTaxon(ancestor: Taxon): bool
+  }
+
+  class {:extern} Observation {
+    function {:extern} {:axiom} getTaxon(): Taxon
+  }
+
+  //An observation matches a taxon if its taxon is the root itself or a subtaxon of it 
+  predicate Matches(taxon: Taxon, obs: Observation)
+  {
+    var t := obs.getTaxon();
+    t == taxon || t.isSubTaxon(taxon)
+  }
+
+  function FilterBy(root: Taxon, obs: seq<Observation>): seq<Observation>
+    ensures forall o :: o in FilterBy(root, obs) ==> o in obs && Matches(root, o) //checks everything returnd came from input and matches the root
+    ensures forall o :: o in obs && Matches(root, o) ==> o in FilterBy(root, obs) // checks every matching input observation is returned
+  {
+    if |obs| == 0 then []
+    else if Matches(root, obs[0]) then [obs[0]] + FilterBy(root, obs[1..])
+    else FilterBy(root, obs[1..])
+  }
 }
 
-class {:extern} Observation {
-  function {:extern} getTaxon(): Taxon
-}
+module FilterWrapper{
+  import opened ObservationFilter
 
-function FilterBy(root: Taxon, obs: seq<Observation>): seq<Observation> decreases |obs|
-{
-  if |obs| == 0 then [] // if there are no observations, return an empty sequence
-  else if obs[0].getTaxon().getTaxonId() == root.getTaxonId() || obs[0].getTaxon().isSubTaxon(root) // if the taxon of the first observation is equal to the root or is a sub-taxon of the root, include it in the filtered sequence and continue filtering the rest
-  then [obs[0]] + FilterBy(root, obs[1..])
-  else FilterBy(root, obs[1..]) // if the taxon of the first observation is not equal to the root and is not a sub-taxon of the root, skip it and continue filtering the rest
+  method FilterWrapped(root: Taxon, obs: seq<Observation>) returns (filtered: seq<Observation>)
+    ensures forall o :: o in filtered ==> o in obs && Matches(root, o) //checks everything returnd came from input and matches the root
+    ensures forall o :: o in obs && Matches(root, o) ==> o in filtered // checks every matching input observation is returned
+  {
+    filtered := FilterBy(root, obs);
+  }
 }
