@@ -29,8 +29,7 @@ module FilterWrapper{
   import opened ObservationFilter
 
   method FilterWrapped(root: Taxon, obs: seq<Observation>) returns (filtered: seq<Observation>)
-    ensures forall o :: o in filtered ==> o in obs && Matches(root, o) //checks everything returnd came from input and matches the root
-    ensures forall o :: o in obs && Matches(root, o) ==> o in filtered // checks every matching input observation is returned
+    ensures filtered == FilterBy(root, obs)
   {
     filtered := FilterBy(root, obs);
   }
