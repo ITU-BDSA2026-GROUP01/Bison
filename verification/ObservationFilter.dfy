@@ -1,18 +1,18 @@
-module ObservationFilter {
+module {:extern "Bison.Razor.Models"}ObservationFilter {
 
-  class {:extern} Taxon {
-    function {:extern}  {:axiom} isSubTaxon(ancestor: Taxon): bool
+  class {:extern "Taxon"} Taxon {
+    function {:extern}  {:axiom} IsSubTaxon(ancestor: Taxon): bool
   }
 
-  class {:extern} Observation {
-    function {:extern} {:axiom} getTaxon(): Taxon
+  class {:extern "Observation"} Observation {
+    function {:extern} {:axiom} GetTaxon(): Taxon
   }
 
   //An observation matches a taxon if its taxon is the root itself or a subtaxon of it 
   predicate Matches(taxon: Taxon, obs: Observation)
   {
-    var t := obs.getTaxon();
-    t == taxon || t.isSubTaxon(taxon)
+    var t := obs.GetTaxon();
+    t == taxon || t.IsSubTaxon(taxon)
   }
 
   function FilterBy(root: Taxon, obs: seq<Observation>): seq<Observation>
