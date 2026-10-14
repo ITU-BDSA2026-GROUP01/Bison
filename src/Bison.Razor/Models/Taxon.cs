@@ -16,13 +16,15 @@ public class Taxon
 
     public bool IsSubTaxon(Taxon ancestor)
     {
-        var current = Parent;
+        var current = this;
         while (current != null)
         {
             if(current.TaxonId == ancestor.TaxonId)
             {
                 return true;
             }
+            current = current.Parent;
+
         }
         return false;
     }
