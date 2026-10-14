@@ -20,4 +20,10 @@ public class ObservationService : IObservationService
     {
         return _repository.GetObservationsByAuthor(author, page);
     }
+
+    public List<Observation> GetByTaxon(Taxon root)
+    {
+        var allObservations = _repository.GetAllObservationsWithTaxons();
+        return ObservationFilterHelper.FilterByTaxon(root, allObservations);
+    }
 }

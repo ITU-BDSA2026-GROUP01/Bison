@@ -99,4 +99,13 @@ public class PostRepository : IPostRepository
             })
             .ToList();
     }
+
+    public List<Observation> GetAllObservationsWithTaxons()
+    {
+        _context.Taxons.Load();
+        
+        return _context.Observations
+            .Include(o => o.Taxon)
+            .ToList();
+    }
 }

@@ -19,4 +19,5 @@ public interface IPostRepository
 
     List<CommentDTO> GetCommentsForObservation(int observationId);
     List<ProposalDTO> GetProposalsForObservation(int observationId);
+    List<Observation> GetAllObservationsWithTaxons();
 }
