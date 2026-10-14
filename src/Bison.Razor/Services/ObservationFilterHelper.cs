@@ -2,12 +2,18 @@ using Bison.Razor.Models;
 
 namespace Bison.Razor.Services;
 
-public static class ObservationFilterHelper
+public interface IObservationTaxonFilterService
 {
-    public static List<Observation> FilterByTaxon(Taxon root, IEnumerable<Observation> observations)
+    List<Observation> FilterByTaxon(Taxon root, IEnumerable<Observation> observations);
+}
+
+public class ObservationTaxonFilterService : IObservationTaxonFilterService
+{
+    public List<Observation> FilterByTaxon(Taxon root, IEnumerable<Observation> observations)
     {
-        var input = Dafny.Sequence<Observation>.FromArray(observations.ToArray());
-        var result = FilterWrapper.__default.FilterWrapped(root, input);
-        return result.CloneAsArray().ToList();
+        if (root == null)
+            return observations.ToList();
+
+        return ObservationFilterHelper.FilterByTaxon(root, observations);
     }
 }
