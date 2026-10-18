@@ -102,10 +102,14 @@ public class PostRepository : IPostRepository
 
     public List<Observation> GetAllObservationsWithTaxons()
     {
+        // Load the whole taxonomy first so EF links every Parent chain; IsSubTaxon
+        // walks Parent all the way up, which a single Include/ThenInclude can't guarantee.
         _context.Taxons.Load();
-        
+
         return _context.Observations
+            .Include(o => o.Author)
             .Include(o => o.Taxon)
+            .OrderByDescending(o => o.TimeStamp)
             .ToList();
     }
 }

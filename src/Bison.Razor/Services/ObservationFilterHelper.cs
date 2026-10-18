@@ -4,29 +4,33 @@ namespace Bison.Razor.Services;
 
 public interface IObservationTaxonFilterService
 {
-    List<Observation> FilterByTaxon(Taxon root, IEnumerable<Observation> observations);
+    /// <summary>
+    /// Returns the observations whose taxon is <paramref name="root"/> or one of its
+    /// descendants. A null root means "no filter" and returns everything.
+    /// </summary>
+    List<Observation> FilterByTaxon(Taxon? root, IEnumerable<Observation> observations);
 }
 
-public static class ObservationFilterHelper
-{
-    public static List<Observation> FilterByTaxon(Taxon root, IEnumerable<Observation> observations)
-    {
-        if (root == null)
-            return observations.ToList();
-
-        return observations
-            .Where(o => o.Taxon != null && (o.Taxon == root || o.Taxon.IsSubTaxon(root)))
-            .ToList();
-    }
-}
-
+/// <summary>
+/// Thin wrapper around the Dafny-verified filter (verification/ObservationFilter.dfy).
+/// All matching is done by the generated FilterWrapper.__default.FilterWrapped; this class
+/// only converts between .NET collections and Dafny sequences.
+/// </summary>
 public class ObservationTaxonFilterService : IObservationTaxonFilterService
 {
-    public List<Observation> FilterByTaxon(Taxon root, IEnumerable<Observation> observations)
+    public List<Observation> FilterByTaxon(Taxon? root, IEnumerable<Observation> observations)
     {
         if (root == null)
             return observations.ToList();
 
-        return ObservationFilterHelper.FilterByTaxon(root, observations);
+        // The Dafny model has non-null Taxon/Observation types, so observations
+        // without a taxon cannot be passed in (they can never match anyway).
+        var candidates = observations.Where(o => o.Taxon != null).ToArray();
+
+        var verified = FilterWrapper.__default.FilterWrapped(
+            root,
+            Dafny.Sequence<Observation>.FromArray(candidates));
+
+        return verified.ToList();
     }
 }

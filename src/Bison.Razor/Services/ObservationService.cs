@@ -5,10 +5,12 @@ namespace Bison.Razor.Services;
 public class ObservationService : IObservationService
 {
     private readonly IPostRepository _repository;
+    private readonly IObservationTaxonFilterService _filter;
 
-    public ObservationService(IPostRepository repository)
+    public ObservationService(IPostRepository repository, IObservationTaxonFilterService? filter = null)
     {
         _repository = repository;
+        _filter = filter ?? new ObservationTaxonFilterService();
     }
 
     public List<ObservationDTO> GetObservations(int page = 1)
@@ -24,6 +26,6 @@ public class ObservationService : IObservationService
     public List<Observation> GetByTaxon(Taxon root)
     {
         var allObservations = _repository.GetAllObservationsWithTaxons();
-        return ObservationFilterHelper.FilterByTaxon(root, allObservations);
+        return _filter.FilterByTaxon(root, allObservations);
     }
 }
