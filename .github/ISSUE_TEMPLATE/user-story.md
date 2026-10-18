@@ -10,7 +10,7 @@ assignees: ''
 User story:
 As a "role", I want "goal", so that "benefit".
 
-Acceptance criteria:
+Task:
 - [ ] 
 - [ ] 
 - [ ]
