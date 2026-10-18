@@ -45,6 +45,8 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
         catch { /* never mask the real test failure */ }
     }
 
+    public BisonDBContext Context => _ctx;
+
     private BisonDBContext NewContext()
     {
         var options = new DbContextOptionsBuilder<BisonDBContext>()
