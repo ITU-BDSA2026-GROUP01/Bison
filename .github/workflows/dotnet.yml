@@ -26,4 +26,11 @@ jobs:
 
       - name: Test
         run: dotnet test ./Bison.sln --no-build -m:1
+      
+      - name: Restore local tools
+        run: dotnet tool restore
+      
+      - name: Compile Dafny verification code
+        run: dotnet tool run dafny translate cs --include-runtime verification/ObservationFilter.cs
+        
 
