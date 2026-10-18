@@ -29,8 +29,10 @@ jobs:
       
       - name: Restore local tools
         run: dotnet tool restore
+        working-directory: verification
       
       - name: Compile Dafny verification code
-        run: dotnet tool run dafny translate cs --include-runtime verification/ObservationFilter.cs
+        run: dotnet tool run dafny translate cs --include-runtime ObservationFilter.dfy
+        working-directory: verification
         
 
