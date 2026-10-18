@@ -19,7 +19,7 @@ public class PublicModelTests : IDisposable
     {
         _db = new SQLiteDatabaseTestHelper();
         (_, _, _obs1, _obs2) = _db.SeedStandard();
-        _model = new PublicModel(new PostService(_db.CreatePostRepository()));
+        _model = new PublicModel(new PostService(_db.CreatePostRepository()), _db.Context);
     }
 
     public void Dispose() => _db.Dispose();
