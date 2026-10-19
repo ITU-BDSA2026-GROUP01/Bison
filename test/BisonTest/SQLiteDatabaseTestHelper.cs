@@ -4,25 +4,20 @@ using Microsoft.EntityFrameworkCore;
 
 namespace BisonTest;
 
-/// <summary>
-/// Hermetic EF-Core test fixture. Each test gets its own isolated temp .db
-/// file (fresh GUID-named) whose schema is created by EF Core on first use,
-/// then deleted in <see cref="Dispose"/>. No live server, no shared state,
-/// no real data files — matching the project's test rules (server-free +
-/// hermetic).
-///
-/// All insert helpers add entities through <see cref="BisonDBContext"/> so
-/// the repository under test sees exactly what the app would see.
-/// </summary>
+
+
 public sealed class SQLiteDatabaseTestHelper : IDisposable
 {
-    /// <summary>Absolute path to the isolated temp database file.</summary>
+    // The path to the temporary SQLite database file. Each test gets its own isolated database.
     public string DbPath { get; }
 
+    // The EF Core database context for the test database. This is created once and reused for the lifetime of the helper.
     private readonly BisonDBContext _ctx;
 
+    // Constructor creates a new temporary SQLite database and ensures it is created. It also seeds a default taxon so that observations can be inserted without violating foreign key constraints.
     public SQLiteDatabaseTestHelper()
     {
+        // Create a unique temporary file path for the SQLite database. This ensures that each test run has its own isolated database.
         DbPath = Path.Combine(Path.GetTempPath(), $"bison_test_{Guid.NewGuid():N}.db");
         _ctx = NewContext();
         _ctx.Database.EnsureCreated();
@@ -44,7 +39,7 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
         try { if (File.Exists(DbPath)) File.Delete(DbPath); }
         catch { /* never mask the real test failure */ }
     }
-
+    
     public BisonDBContext Context => _ctx;
 
     private BisonDBContext NewContext()
@@ -55,8 +50,7 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
         return new BisonDBContext(options);
     }
 
-    // ── EF insert helpers (return the new row's id) ──────────────────────
-
+    // ── Convenience: insert helpers ───────────────────────────────────────
     public int InsertUser(string username, string email)
     {
         using var ctx = NewContext();
@@ -84,8 +78,38 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
         return obs.PostId;
     }
 
+
+    public int InsertTaxon(string dwcTaxonId, string? vernacularName, int? parentId = null)
+    {
+        using var ctx = NewContext();
+        var taxon = new Taxon { dwc_TaxonID = dwcTaxonId, VernacularName = vernacularName, ParentId = parentId };
+        ctx.Taxons.Add(taxon);
+        ctx.SaveChanges();
+        return taxon.TaxonId;
+    }
+
+    public int InsertObservationWithTaxon(int authorId, int taxonId, string text, long pubDate)
+    {
+        using var ctx = NewContext();
+        var author = ctx.Authors.Find(authorId)
+            ?? throw new InvalidOperationException($"Author {authorId} not found");
+        var taxon = ctx.Taxons.Find(taxonId)
+            ?? throw new InvalidOperationException($"Taxon {taxonId} not found");
+        var obs = new Observation
+        {
+            Author = author,
+            Taxon = taxon,
+            Text = text,
+            TimeStamp = DateTimeOffset.FromUnixTimeSeconds(pubDate).UtcDateTime
+        };
+        ctx.Observations.Add(obs);
+        ctx.SaveChanges();
+        return obs.PostId;
+    }
+    // Inserts a comment for a given observation, creating the author if they don't exist. Returns the PostId of the new comment.
     public int InsertComment(int observationId, string author, string text, long pubDate)
     {
+        // Use a new context to ensure that the comment is added in a fresh transaction. This avoids issues with tracking entities across different contexts.
         using var ctx = NewContext();
         var observation = ctx.Observations.Find(observationId)
             ?? throw new InvalidOperationException($"Observation {observationId} not found");
@@ -95,6 +119,7 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
             authorEntity = new Author { Name = author, Email = $"{author}@local.test" };
             ctx.Authors.Add(authorEntity);
         }
+        // Create a new Comment entity linking the observation and author. The Text is set to the provided text, and the TimeStamp is set based on the provided pubDate.
         var comment = new Comment
         {
             Observation = observation,
@@ -109,6 +134,7 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
 
     public int InsertProposal(int observationId, string author, string taxonId, long pubDate)
     {
+        // Use a new context to ensure that the proposal is added in a fresh transaction. This avoids issues with tracking entities across different contexts.
         using var ctx = NewContext();
         var observation = ctx.Observations.Find(observationId)
             ?? throw new InvalidOperationException($"Observation {observationId} not found");
@@ -123,9 +149,11 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
         var taxon = ctx.Taxons.FirstOrDefault(t => t.dwc_TaxonID == taxonId);
         if (taxon == null)
         {
+            // If the taxon doesn't exist, create a new one with the given dwc_TaxonID. The VernacularName is set to null since it's not provided in this context.
             taxon = new Taxon { dwc_TaxonID = taxonId, VernacularName = null };
             ctx.Taxons.Add(taxon);
         }
+        // Create a new Proposal entity linking the observation, author, and taxon. The Text is set to an empty string, and the TimeStamp is set based on the provided pubDate.
         var proposal = new Proposal
         {
             Observation = observation,
@@ -141,9 +169,7 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
 
     // ── Convenience: the standard seed ────────────────────────────────────
 
-    /// <summary>Inserts the two users + two observations + one comment + one
-    /// proposal that the test suite has always expected (Eduard "A heron",
-    /// Peter "A big bird", a "Rats" comment and proposal on obs1).</summary>
+    // Seeds the database with a standard set of users and observations for testing. Returns a tuple of (userId, taxonId, obs1Id, obs2Id) for easier assertions in tests.
     public (int edu, int pet, int obs1, int obs2) SeedStandard()
     {
         int edu  = InsertUser("Eduard", "edka@itu.dk");
@@ -157,14 +183,18 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
 
     // ── Factories (all pointed at this helper's temp DB) ─────────────────
 
+    // Creates a new BisonDBContext for the test database. This is useful for tests that need a fresh context to avoid issues with entity tracking.
     public BisonDBContext CreateContext() => _ctx;
 
+    // Creates a new PostRepository that uses the test database context. This is useful for tests that need to interact with posts in the database.
     public Bison.Razor.Services.PostRepository CreatePostRepository()
         => new(CreateContext());
 
+    // Creates a new ObservationService that uses the test database context. This is useful for tests that need to interact with observations in the database.
     public Bison.Razor.Services.ObservationService CreateObservationService()
         => new(CreatePostRepository());
 
+    // Creates a new PostService that uses the test database context. This is useful for tests that need to interact with posts in the database.
     public Bison.Razor.Services.PostService CreatePostService()
         => new(CreatePostRepository());
 }
