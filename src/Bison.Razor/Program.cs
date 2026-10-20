@@ -32,6 +32,15 @@ using (var scope = app.Services.CreateScope())
     var context =
         scope.ServiceProvider.GetRequiredService<BisonDBContext>();
 
+    // SQLite cannot create the parent directory of the DB file, so make sure
+    // it exists before EnsureCreated. This lets the app run from any CWD
+    // (e.g. a publish/ folder where Data/ has not been pre-created).
+    var dbDir = Path.GetDirectoryName(Path.GetFullPath(bisonDbPath));
+    if (!string.IsNullOrEmpty(dbDir))
+    {
+        Directory.CreateDirectory(dbDir);
+    }
+
     await context.Database.EnsureCreatedAsync();
 
     var seedEnabled = !string.Equals(
