@@ -62,4 +62,6 @@ jobs:
           app-name: 'bdsagroup01bison'
           slot-name: 'Production'
           package: .
+          startup-command: 'dotnet Bison.Razor.dll'
+          clean: true
           
