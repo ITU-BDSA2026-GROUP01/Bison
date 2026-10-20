@@ -31,10 +31,6 @@
     <InternalsVisibleTo Include="WebserverTest" />
   </ItemGroup>
 
-  <ItemGroup>
-    <!-- Dafny-generated (verification/ObservationFilter.dfy, dafny 4.11.0) — not NRT-annotated.
-         Its CS86xx/CS87xx nullable warnings are suppressed by the project-level NoWarn above. -->
-    <Compile Include="..\..\verification\ObservationFilter.cs" />
-  </ItemGroup>
+  
   
 </Project>
