@@ -6,19 +6,7 @@ using System.Runtime.InteropServices;
 
 namespace WebserverTest;
 
-/// <summary>
-/// HTTP API tests: send real GET requests to the public timeline (/) and
-/// private timeline (/{author}) endpoints via WebApplicationFactory, and
-/// assert the rendered HTML body contains the expected cheep data.
-///
-/// The app is pointed at a hermetic temp database (via the BISONDBPATH
-/// environment variable — which Program.cs honours) so it reads exactly the
-/// standard seed the suite has always expected:
-///   Eduard → "A heron"
-///   Peter  → "A big bird"
-/// BISON_SEED=false disables the app's 400+ post seed so it doesn't clobber
-/// the test fixture.
-/// </summary>
+
 public class TimelineApiTests : IDisposable
 {
     private readonly SQLiteDatabaseTestHelper _db;
@@ -123,5 +111,32 @@ public class TimelineApiTests : IDisposable
         var html = await response.Content.ReadAsStringAsync();
 
         Assert.Contains("There are no cheeps so far.", html);
+    }
+
+    [Fact]
+    public async Task PublicTimeline_TaxonWithoutObservations_ShowsBlankPage()
+    {
+        int emptyTaxon = _db.InsertTaxon("t:empty", "Emptybird");
+
+        var response = await _client.GetAsync($"/?taxonId={emptyTaxon}");
+        response.EnsureSuccessStatusCode();
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.DoesNotContain("A heron", html);
+        Assert.DoesNotContain("A big bird", html);
+        Assert.DoesNotContain("There are no cheeps so far.", html);
+    }
+
+    [Fact]
+    public async Task PublicTimeline_ShowsTaxonDropdownWithTaxa()
+    {
+        _db.InsertTaxon("t:select", "Selectbird");
+
+        var response = await _client.GetAsync("/");
+        response.EnsureSuccessStatusCode();
+        var html = await response.Content.ReadAsStringAsync();
+
+        Assert.Contains("<select", html);
+        Assert.Contains("Selectbird", html);
     }
 }
