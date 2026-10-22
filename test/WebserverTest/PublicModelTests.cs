@@ -1,7 +1,6 @@
 using Bison.Razor.Pages;
 using Bison.Razor.Services;
 using BisonTest;
-using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace WebserverTest;
@@ -23,8 +22,8 @@ public class PublicModelTests : IDisposable
         _db = new SQLiteDatabaseTestHelper();
         // SeedStandard returns a tuple of (userId, taxonId, obs1Id, obs2Id). We only care about the observation IDs here.
         (_, _, _obs1, _obs2) = _db.SeedStandard();
-        // Create the PublicModel instance, which is the page model we are testing. It uses the PostService and the test database context.
-        _model = new PublicModel(new PostService(_db.CreatePostRepository()), _db.Context);
+        // Create a new PublicModel instance using the PostService and the test database context.
+        _model = new PublicModel(new PostService(_db.CreatePostRepository()), _db.Context, new ObservationTaxonFilterService());
     }
 
     // Dispose method cleans up the test database after each test.
@@ -105,7 +104,7 @@ public class PublicModelTests : IDisposable
     // Test that filtering by a taxon returns only observations of that taxon and its sub-taxa.
     public void OnGet_WithTaxonId_ReturnsObservationsOfTaxonAndSubTaxa()
     {
-        // Seed taxa and insert observations for testing. The heron is a sub-taxon of bird, so both should be returned when filtering by bird.
+        // Seed taxa and insert observations for testing.
         var (bird, heron, mammal) = SeedTaxa();
         int author = _db.InsertUser("Birder", "b@x.dk");
         int oBird = _db.InsertObservationWithTaxon(author, bird, "some bird", 1700000001);
@@ -178,13 +177,46 @@ public class PublicModelTests : IDisposable
     }
 
     [Fact]
-    // Test that filtering by an unknown taxon ID returns a NotFoundResult.
-    public void OnGet_WithUnknownTaxonId_ReturnsNotFound()
-    { 
-        // Call OnGet with a taxon ID that does not exist in the database, which should return a NotFoundResult.
+    // Test that filtering by an unknown taxon ID returns a blank page with no Cheeps.
+    public void OnGet_WithUnknownTaxonId_ReturnsBlankPage()
+    {
+        // Call OnGet with a taxon ID that does not exist in the database, which should return a blank page with no Cheeps.
         var result = _model.OnGet(taxonId: 987654);
+        // Assert that the result is a PageResult and that the Cheeps list is empty, indicating a blank page.
+        Assert.IsType<PageResult>(result);
+        Assert.Empty(_model.Cheeps);
+        Assert.True(_model.IsFiltered);
+    }
 
-        // Assert that the result is of type NotFoundResult, indicating that the requested taxon was not found.
-        Assert.IsType<NotFoundResult>(result);
+     [Fact]
+     // Test that filtering by a taxon ID marks the page as filtered and remembers the selected taxon ID.
+    public void OnGet_WithTaxonId_MarksPageAsFilteredAndRemembersSelection()
+    {
+        // Seed taxa for testing. The bird taxon will be used for filtering.
+        var (bird, _, _) = SeedTaxa();
+
+        _model.OnGet(taxonId: bird);
+
+        // Assert that the page is marked as filtered and that the selected taxon ID is remembered.
+        Assert.True(_model.IsFiltered);
+        Assert.Equal(bird, _model.SelectedTaxonId);
+    }
+
+    [Fact]
+    // Test that when no taxon ID is provided, the page is not marked as filtered and the selected taxon ID is null.
+    public void OnGet_WithoutTaxonId_IsNotFilteredAndListsTaxaForDropdown()
+    {
+        // Seed taxa for testing. The bird, heron, and mammal taxa will be used to populate the dropdown.
+        var (bird, heron, mammal) = SeedTaxa();
+
+        _model.OnGet();
+        // Assert that the page is not marked as filtered, the selected taxon ID is null, and the Taxa list contains the seeded taxa for the dropdown.
+        Assert.False(_model.IsFiltered);
+        Assert.Null(_model.SelectedTaxonId);
+        var ids = _model.Taxa.Select(t => t.TaxonId).ToList();
+        Assert.Contains(bird, ids);
+        Assert.Contains(heron, ids);
+        Assert.Contains(mammal, ids);
     }
 }
+
