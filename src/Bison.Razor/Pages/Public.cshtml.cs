@@ -17,27 +17,45 @@ public class PublicModel : PageModel
 
     public List<ObservationDTO> Cheeps { get; set; } = new();
 
-    public PublicModel(IPostService service, BisonDBContext db, IObservationTaxonFilterService? filter = null)
+    //list of all taxa for the filter dropdown
+    public List<Taxon> Taxa { get; set; } = new();
+
+    public int? SelectedTaxonId { get; set; }
+
+    // Whether the current page is filtered by a taxon. This is used to
+    // conditionally show the "clear filter" link in the UI.
+    public bool IsFiltered => SelectedTaxonId.HasValue;
+
+    public PublicModel(IPostService service, BisonDBContext db, IObservationTaxonFilterService filter)
     {
         _service = service;
         _db = db;
-        _filter = filter ?? new ObservationTaxonFilterService();
+        _filter = filter;
     }
 
     public ActionResult OnGet([FromQuery] int page = 1, [FromQuery] int? taxonId = null)
     {
+        // Load all taxa for the filter dropdown.
+        var allTaxa = _db.Taxons.ToList();
+
+        // Only show taxa with a vernacular name, and sort by that name.
+        Taxa = allTaxa
+            .Where(t=> !String.IsNullOrEmpty(t.VernacularName))
+            .OrderBy(t => t.VernacularName)
+            .ToList();
+            SelectedTaxonId = taxonId;
+
         if (!taxonId.HasValue)
         {
             Cheeps = _service.GetObservations(page);
             return Page();
         }
 
-        // Load the whole taxonomy so every Parent chain is linked (IsSubTaxon walks up the tree).
-        _db.Taxons.Load();
-        var root = _db.Taxons.Find(taxonId.Value);
+       var root = allTaxa.FirstOrDefault(t => t.TaxonId == taxonId.Value);
         if (root is null)
         {
-            return NotFound();
+            // Unknown taxon: nothing can match, so the page stays blank.
+            return Page();
         }
 
         var newestFirst = _db.Observations
