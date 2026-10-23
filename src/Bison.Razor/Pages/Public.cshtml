@@ -5,28 +5,53 @@
     Layout = "Shared/_Layout";
 }
 
-<div>
-    <h2> Public Timeline </h2>
+<div class="public-layout @(Model.IsFiltered ? "filter-open" : "")">
+    <div class="public-main">
+        <div class="public-header">
+            <h2> Public Timeline </h2>
+            <button type="button" id="filter-toggle">Filter</button>
+        </div>
 
-    @if (Model.Cheeps.Any())
-    {
-        <ul id="messagelist" class="cheeps">
-            @foreach (var cheep in Model.Cheeps)
-            {
-                <li>
-                    <p>
-                        <strong>
-                            <a href="/@cheep.Author">@cheep.Author</a>
-                        </strong>
-                        @cheep.Message
-                        <small>&mdash; @cheep.Timestamp</small>
-                    </p>
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <em>There are no cheeps so far.</em>
-    }
+        @if (Model.Cheeps.Any())
+        {
+            <ul id="messagelist" class="cheeps">
+                @foreach (var cheep in Model.Cheeps)
+                {
+                    <li>
+                        <p>
+                            <strong>
+                                <a href="/@cheep.Author">@cheep.Author</a>
+                            </strong>
+                            @cheep.Message
+                            <small>&mdash; @cheep.Timestamp</small>
+                        </p>
+                    </li>
+                }
+            </ul>
+        }
+        else if (!Model.IsFiltered)
+        {
+            <em>There are no cheeps so far.</em>
+        }
+    </div>
+
+    <aside class="public-filter">
+        <form method="get" action="/" id="taxon-filter">
+            <label for="taxonId">Filter by taxon:</label>
+            <select name="taxonId" id="taxonId" size="@(Model.Taxa.Count + 1)" onchange="this.form.submit()">
+                <option value="">All</option>
+                @foreach (var taxon in Model.Taxa)
+                {
+                    <option value="@taxon.TaxonId" selected="@(Model.SelectedTaxonId == taxon.TaxonId)">@taxon.VernacularName</option>
+                }
+            </select>
+            <noscript><button type="submit">Filter</button></noscript>
+        </form>
+    </aside>
 </div>
+
+<script>
+    document.getElementById('filter-toggle').addEventListener('click', function () {
+        document.querySelector('.public-layout').classList.toggle('filter-open');
+    });
+</script>
