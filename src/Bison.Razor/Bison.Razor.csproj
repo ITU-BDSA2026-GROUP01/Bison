@@ -4,6 +4,18 @@
     <TargetFramework>net8.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+    <!-- The publish/ output folder (dotnet publish -o publish) sits inside this
+         project directory and breaks the SDK's default globs: the apphost binary
+         'publish/Bison.Razor' matches the case-insensitive **/*.razor RazorComponent
+         glob and is passed to csc as an /additionalfile (CS2015: binary file),
+         and publish/*.json pollute the Content items. Exclude the whole folder. -->
+    <DefaultItemExcludes>$(DefaultItemExcludes);publish/**</DefaultItemExcludes>
+    <!-- Suppress NRT warnings ONLY in the Dafny-generated file (verification/ObservationFilter.cs),
+         which is not NRT-annotated. Per-item NoWarn on the Compile item did NOT work here
+         (SDK 8.0.131 csc line only carried global /nowarn), so suppress at project level.
+         Every other .cs in this project is already warning-free, so this is safe.
+         Regenerate the .cs with `dafny translate cs` when ObservationFilter.dfy changes. -->
+    <NoWarn>$(NoWarn);CS8600;CS8603;CS8604;CS8605;CS8625;CS8629;CS8714;CS8765;CS8769;CS8981</NoWarn>
   </PropertyGroup>
 
   <ItemGroup>
