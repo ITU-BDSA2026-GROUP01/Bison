@@ -25,7 +25,7 @@ jobs:
 
       - name: Verify and compile Dafny code to C#
         run: dafny translate cs --include-runtime ObservationFilter.dfy
-        working-directory: verification
+                working-directory: src/Bison.Razor/verification
 
       - name: Restore
         run: dotnet restore ./Bison.sln
