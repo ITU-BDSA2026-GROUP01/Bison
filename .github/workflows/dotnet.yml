@@ -18,6 +18,15 @@ jobs:
         with:
           dotnet-version: "8.0.x"
 
+      - name: Setup Dafny
+        uses: dafny-lang/setup-dafny-action@v1
+        with:
+          dafny-version: "4.11.0"
+
+      - name: Verify and compile Dafny code to C#
+        run: dafny translate cs --include-runtime ObservationFilter.dfy
+        working-directory: src/Bison.Razor/verification
+
       - name: Restore
         run: dotnet restore ./Bison.sln
 
@@ -26,4 +35,3 @@ jobs:
 
       - name: Test
         run: dotnet test ./Bison.sln --no-build -m:1
-
