@@ -5,6 +5,25 @@
     Layout = "Shared/_Layout";
 }
 
+<div class=navigation>
+    @if (User.Identity.IsAuthenticated)
+    {
+        <div>
+            <a href="/@(User.Identity.Name)">My Observations</a> |
+            <a href="/">Public Observations</a> |
+            <a ...>Logout [@(User.Identity.Name)]</a>
+        </div>
+    }
+    else
+    {
+        <div>
+            <a href="/">Public Observations</a> |
+            <a ...>Register</a>
+            <a ...>Login</a>
+        </div>
+    }
+</div>
+
 <div class="public-layout @(Model.IsFiltered ? "filter-open" : "")">
     <div class="public-main">
         <div class="public-header">
@@ -42,16 +61,17 @@
                 <option value="">All</option>
                 @foreach (var taxon in Model.Taxa)
                 {
-                    <option value="@taxon.TaxonId" selected="@(Model.SelectedTaxonId == taxon.TaxonId)">@taxon.VernacularName</option>
-                }
-            </select>
-            <noscript><button type="submit">Filter</button></noscript>
-        </form>
-    </aside>
-</div>
+                    <option value="@taxon.TaxonId" selected="@(Model.SelectedTaxonId == taxon.TaxonId)">
+                        @taxon.VernacularName</option>
+                    }
+                </select>
+                <noscript><button type="submit">Filter</button></noscript>
+            </form>
+        </aside>
+    </div>
 
-<script>
-    document.getElementById('filter-toggle').addEventListener('click', function () {
-        document.querySelector('.public-layout').classList.toggle('filter-open');
-    });
-</script>
+    <script>
+        document.getElementById('filter-toggle').addEventListener('click', function () {
+            document.querySelector('.public-layout').classList.toggle('filter-open');
+        });
+    </script>
