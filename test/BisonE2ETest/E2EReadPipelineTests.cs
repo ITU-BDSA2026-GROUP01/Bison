@@ -6,11 +6,7 @@ using Microsoft.AspNetCore.Mvc.RazorPages;
 
 namespace BisonE2ETest;
 
-/// <summary>
-/// End-to-end read pipeline tests: full schema + seed data → PostRepository
-/// (EF-Core) → services → page models. Verifies the whole read path works
-/// together without a live web server, against a hermetic EF-Core SQLite DB.
-/// </summary>
+
 public class E2EReadPipelineTests : IDisposable
 {
     private readonly SQLiteDatabaseTestHelper _db;
@@ -38,7 +34,7 @@ public class E2EReadPipelineTests : IDisposable
         var fromService = _postSvc.GetObservations();
         Assert.Equal(2, fromService.Count);
 
-        var page = new PublicModel(_postSvc);
+        var page = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
         var result = page.OnGet();
         Assert.IsType<PageResult>(result);
         Assert.Equal(2, page.Cheeps.Count);
@@ -49,7 +45,7 @@ public class E2EReadPipelineTests : IDisposable
     public void PublicFeed_DataMatchesAcrossLayers()
     {
         var service = _postSvc.GetObservations();
-        var page = new PublicModel(_postSvc);
+        var page = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
         page.OnGet();
 
         for (int i = 0; i < service.Count; i++)
@@ -157,7 +153,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newProposal, detail.Proposals[0].Id);
 
         // 5. PublicModel feed shows it at the top.
-        var publicPage = new PublicModel(_postSvc);
+        var publicPage = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
         publicPage.OnGet();
         Assert.Equal(newObs, publicPage.Cheeps[0].Id);
 
