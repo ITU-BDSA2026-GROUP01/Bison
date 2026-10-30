@@ -1,9 +1,10 @@
 using Bison.Razor.Models;
+using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
 
 namespace Bison.Razor.Data;
 
-public class BisonDBContext : DbContext
+public class BisonDBContext : IdentityDbContext<ApplicationUser>
 {
     public BisonDBContext(DbContextOptions<BisonDBContext> options)
         : base(options)
