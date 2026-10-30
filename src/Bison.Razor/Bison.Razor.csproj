@@ -25,6 +25,11 @@
       <PrivateAssets>all</PrivateAssets>
     </PackageReference>
     <PackageReference Include="Microsoft.EntityFrameworkCore.Sqlite" Version="8.0.0" />
+	  <PackageReference
+        Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore"
+        Version="7.0.0" />
+	  <PackageReference
+	   Include="Microsoft.AspNetCore.Identity.UI" Version="7.0.0" />
   </ItemGroup>
 
   <ItemGroup>
