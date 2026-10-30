@@ -15,7 +15,7 @@ namespace Bison.Razor.Migrations
         protected override void BuildModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
-            modelBuilder.HasAnnotation("ProductVersion", "8.0.0");
+            modelBuilder.HasAnnotation("ProductVersion", "8.0.33");
 
             modelBuilder.Entity("Bison.Razor.Data.ApplicationUser", b =>
                 {
@@ -35,6 +35,9 @@ namespace Bison.Razor.Migrations
 
                     b.Property<bool>("EmailConfirmed")
                         .HasColumnType("INTEGER");
+
+                    b.Property<string>("FullName")
+                        .HasColumnType("TEXT");
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("INTEGER");
@@ -127,7 +130,7 @@ namespace Bison.Razor.Migrations
 
                     b.ToTable("Posts");
 
-                    b.HasDiscriminator<string>("Discriminator").HasValue("Post");
+                    b.HasDiscriminator().HasValue("Post");
 
                     b.UseTphMappingStrategy();
                 });

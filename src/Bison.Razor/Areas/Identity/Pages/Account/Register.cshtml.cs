@@ -93,7 +93,7 @@ public class RegisterModel : PageModel
             {
                 UserName = Input.Email,
                 Email = Input.Email,
-                FullName = Input.Name // optional: only if you added FullName property
+               
             };
 
             await _userStore.SetUserNameAsync(user, Input.Email, CancellationToken.None);
