@@ -11,6 +11,7 @@ builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
 builder.Services.AddSingleton<IObservationTaxonFilterService, ObservationTaxonFilterService>();
 
+
 // Allow the SQLite path to be overridden via the BISONDBPATH environment
 // variable (tests use this to point the app at a hermetic temp database) or
 // the BISONDBPATH configuration key. The default is the project's tracked
@@ -22,6 +23,9 @@ var bisonDbPath =
     ?? "Data/bison.db";
 builder.Services.AddDbContext<BisonDBContext>(options =>
     options.UseSqlite($"Data Source={bisonDbPath}"));
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+ options.SignIn.RequireConfirmedAccount = true)
+ .AddEntityFrameworkStores<BisonDBContext>();
 
 var app = builder.Build();
 
