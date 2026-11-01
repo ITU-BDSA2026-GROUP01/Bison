@@ -1,7 +1,9 @@
 using Bison.Razor.Data;
-using Microsoft.EntityFrameworkCore;
 using Bison.Razor.Services;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+using System.Security.Claims
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -52,11 +54,16 @@ using (var scope = app.Services.CreateScope())
     await context.Database.EnsureCreatedAsync();
 
     var seedEnabled = !string.Equals(
-        builder.Configuration["BISON_SEED"], "false",
-        StringComparison.OrdinalIgnoreCase);
+    builder.Configuration["BISON_SEED"], "false",
+    StringComparison.OrdinalIgnoreCase);
     if (seedEnabled)
     {
         DbInitializer.SeedDatabase(context);
+        // Seed two users for testing purposes. The passwords are intentionally weak
+        var userManager = scope.ServiceProvider
+            .GetRequiredService<UserManager<ApplicationUser>>();
+        await SeedUserAsync(userManager, "Eduard", "edka@itu.dk", "123456");
+        await SeedUserAsync(userManager, "Debasmita", "debloh@itu.dk", "password");
     }
 }
 
@@ -79,3 +86,29 @@ app.UseAuthorization();
 app.MapRazorPages();
 
 app.Run();
+
+// Seed a user with the given full name, email, and password if they don't already exist.
+static async Task SeedUserAsync(
+    UserManager<ApplicationUser> userManager,
+    string fullName, string email, string password)
+{
+    if (await userManager.FindByEmailAsync(email) != null) return; 
+
+    var user = new ApplicationUser
+    {
+        UserName = email,
+        Email = email,
+        EmailConfirmed = true   
+    };
+
+    var result = await userManager.CreateAsync(user, password);
+    if (!result.Succeeded)
+    {
+        throw new InvalidOperationException(
+            $"Could not seed {email}: " +
+            string.Join("; ", result.Errors.Select(e => e.Description)));
+    }
+
+    
+    await userManager.AddClaimAsync(user, new Claim("FullName", fullName));
+}
