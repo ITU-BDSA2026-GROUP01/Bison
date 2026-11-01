@@ -3,7 +3,6 @@ using Bison.Razor.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
-using System.Security.Claims
 
 
 var builder = WebApplication.CreateBuilder(args);
@@ -29,8 +28,16 @@ var bisonDbPath =
 builder.Services.AddDbContext<BisonDBContext>(options =>
     options.UseSqlite($"Data Source={bisonDbPath}"));
 builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
- options.SignIn.RequireConfirmedAccount = true)
- .AddEntityFrameworkStores<BisonDBContext>();
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+})
+.AddEntityFrameworkStores<BisonDBContext>();
 
 var app = builder.Build();
 
