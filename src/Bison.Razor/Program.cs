@@ -1,8 +1,12 @@
 using Bison.Razor.Data;
-using Microsoft.EntityFrameworkCore;
 using Bison.Razor.Services;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
+using System.Security.Claims;
+
 
 var builder = WebApplication.CreateBuilder(args);
+var connectionString = builder.Configuration.GetConnectionString("BisonDBContext") ?? throw new InvalidOperationException("Connection string 'BisonDBContext' not found.");
 
 // Add services to the container.
 builder.Services.AddRazorPages();
@@ -10,6 +14,7 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
 builder.Services.AddSingleton<IObservationTaxonFilterService, ObservationTaxonFilterService>();
+
 
 // Allow the SQLite path to be overridden via the BISONDBPATH environment
 // variable (tests use this to point the app at a hermetic temp database) or
@@ -22,6 +27,17 @@ var bisonDbPath =
     ?? "Data/bison.db";
 builder.Services.AddDbContext<BisonDBContext>(options =>
     options.UseSqlite($"Data Source={bisonDbPath}"));
+builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
+{
+    options.SignIn.RequireConfirmedAccount = true;
+    options.Password.RequireDigit = false;
+    options.Password.RequireLowercase = false;
+    options.Password.RequireUppercase = false;
+    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 6;
+    options.Password.RequiredUniqueChars = 1;
+})
+.AddEntityFrameworkStores<BisonDBContext>();
 
 var app = builder.Build();
 
@@ -45,11 +61,16 @@ using (var scope = app.Services.CreateScope())
     await context.Database.EnsureCreatedAsync();
 
     var seedEnabled = !string.Equals(
-        builder.Configuration["BISON_SEED"], "false",
-        StringComparison.OrdinalIgnoreCase);
+    builder.Configuration["BISON_SEED"], "false",
+    StringComparison.OrdinalIgnoreCase);
     if (seedEnabled)
     {
         DbInitializer.SeedDatabase(context);
+        // Seed two users for testing purposes. The passwords are intentionally weak
+        var userManager = scope.ServiceProvider
+            .GetRequiredService<UserManager<ApplicationUser>>();
+        await SeedUserAsync(userManager, "Eduard", "edka@itu.dk", "123456");
+        await SeedUserAsync(userManager, "Debasmita", "debloh@itu.dk", "password");
     }
 }
 
@@ -66,6 +87,35 @@ app.UseStaticFiles();
 
 app.UseRouting();
 
+app.UseAuthentication();
+app.UseAuthorization();
+
 app.MapRazorPages();
 
 app.Run();
+
+// Seed a user with the given full name, email, and password if they don't already exist.
+static async Task SeedUserAsync(
+    UserManager<ApplicationUser> userManager,
+    string fullName, string email, string password)
+{
+    if (await userManager.FindByEmailAsync(email) != null) return; 
+
+    var user = new ApplicationUser
+    {
+        UserName = email,
+        Email = email,
+        EmailConfirmed = true   
+    };
+
+    var result = await userManager.CreateAsync(user, password);
+    if (!result.Succeeded)
+    {
+        throw new InvalidOperationException(
+            $"Could not seed {email}: " +
+            string.Join("; ", result.Errors.Select(e => e.Description)));
+    }
+
+    
+    await userManager.AddClaimAsync(user, new Claim("FullName", fullName));
+}
