@@ -5,25 +5,6 @@
     Layout = "Shared/_Layout";
 }
 
-<div class=navigation>
-    @if (User.Identity.IsAuthenticated)
-    {
-        <div>
-            <a href="/@(User.Identity.Name)">My Observations</a> |
-            <a href="/">Public Observations</a> |
-            <a ...>Logout [@(User.Identity.Name)]</a>
-        </div>
-    }
-    else
-    {
-        <div>
-            <a href="/">Public Observations</a> |
-            <a ...>Register</a>
-            <a ...>Login</a>
-        </div>
-    }
-</div>
-
 <div class="public-layout @(Model.IsFiltered ? "filter-open" : "")">
     <div class="public-main">
         <div class="public-header">
