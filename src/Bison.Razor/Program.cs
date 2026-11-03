@@ -39,6 +39,14 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<BisonDBContext>();
 
+builder.Services.AddAuthentication()
+ .AddGitHub(options =>
+ {
+ options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]!;
+ options.ClientSecret =
+builder.Configuration["Authentication:GitHub:ClientSecret"]!;
+ });
+
 var app = builder.Build();
 
 // Ensure the database is created. Only seed when BISON_SEED is not set to
