@@ -1,5 +1,6 @@
 using Bison.Razor.Data;
 using Bison.Razor.Services;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -39,13 +40,21 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<BisonDBContext>();
 
-builder.Services.AddAuthentication()
- .AddGitHub(options =>
- {
- options.ClientId = builder.Configuration["Authentication:GitHub:ClientId"]!;
- options.ClientSecret =
-builder.Configuration["Authentication:GitHub:ClientSecret"]!;
- });
+builder.Services.AddAuthentication(options =>
+{
+options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+options.DefaultSignInScheme = CookieAuthenticationDefaults.AuthenticationScheme;
+options.DefaultChallengeScheme = "GitHub";
+})
+.AddCookie()
+.AddGitHub(o =>
+{
+o.ClientId = builder.Configuration["Authentication:Github:ClientId"]
+    ?? throw new InvalidOperationException("Authentication:Github:ClientId not found.");
+o.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]
+    ?? throw new InvalidOperationException("Authentication:Github:ClientSecret not found.");
+o.CallbackPath = "/signin-github";
+});
 
 var app = builder.Build();
 
@@ -97,6 +106,7 @@ app.UseRouting();
 
 app.UseAuthentication();
 app.UseAuthorization();
+app.UseSession();
 
 app.MapRazorPages();
 
