@@ -40,6 +40,9 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 })
 .AddEntityFrameworkStores<BisonDBContext>();
 
+
+builder.Services.AddSession();
+
 builder.Services.AddAuthentication(options =>
 {
 options.DefaultAuthenticateScheme = CookieAuthenticationDefaults.AuthenticationScheme;
