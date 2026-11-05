@@ -42,21 +42,40 @@ builder.Services.AddDefaultIdentity<ApplicationUser>(options =>
 
 builder.Services.AddSession();
 
-builder.Services.AddAuthentication(options =>
+var githubClientId = builder.Configuration["Authentication:Github:ClientId"];
+var githubClientSecret = builder.Configuration["Authentication:Github:ClientSecret"];
+var githubConfigured =
+    !string.IsNullOrWhiteSpace(githubClientId)
+    && !string.IsNullOrWhiteSpace(githubClientSecret);
+
+var authentication = builder.Services.AddAuthentication(options =>
 {
-options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
-options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
-options.DefaultChallengeScheme = "GitHub";
-})
-.AddGitHub(o =>
-{
-o.ClientId = builder.Configuration["Authentication:Github:ClientId"]
-    ?? throw new InvalidOperationException("Authentication:Github:ClientId not found.");
-o.ClientSecret = builder.Configuration["Authentication:Github:ClientSecret"]
-    ?? throw new InvalidOperationException("Authentication:Github:ClientSecret not found.");
-o.CallbackPath = "/signin-github";
-o.SignInScheme = IdentityConstants.ExternalScheme;
+    options.DefaultAuthenticateScheme = IdentityConstants.ApplicationScheme;
+    options.DefaultSignInScheme = IdentityConstants.ExternalScheme;
+    // Point the default challenge at GitHub only when it is actually
+    // registered; otherwise the application cookie handles sign-in.
+    options.DefaultChallengeScheme = githubConfigured
+        ? "GitHub"
+        : IdentityConstants.ApplicationScheme;
 });
+
+// GitHub OAuth is an optional external provider: register it only when real
+// credentials are configured (local development via User Secrets, or a
+// deployment with a provisioned GitHub OAuth app). In environments without
+// credentials -- e.g. CI, which runs the WebApplicationFactory test host in
+// Production and has no User Secrets -- the app still starts and the public
+// timeline pages work, instead of throwing on every request while the
+// auth middleware resolves the GitHub scheme's options.
+if (githubConfigured)
+{
+    authentication.AddGitHub(o =>
+    {
+        o.ClientId = githubClientId!;
+        o.ClientSecret = githubClientSecret!;
+        o.CallbackPath = "/signin-github";
+        o.SignInScheme = IdentityConstants.ExternalScheme;
+    });
+}
 
 var app = builder.Build();
 
