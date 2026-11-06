@@ -1,4 +1,5 @@
 using Bison.Core;
+using Bison.Repositories;
 using Bison.Services;
 
 namespace BisonTest;
