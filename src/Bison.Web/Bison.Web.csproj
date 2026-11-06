@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="8.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.33" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="8.0.33" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.33">
