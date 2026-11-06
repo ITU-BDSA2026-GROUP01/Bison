@@ -1,5 +1,6 @@
-using Bison.Razor.Pages;
-using Bison.Razor.Services;
+using Bison.Web.Pages;
+using Bison.Repositories;
+using Bison.Services;
 using BisonTest;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,7 +35,7 @@ public class E2EReadPipelineTests : IDisposable
         var fromService = _postSvc.GetObservations();
         Assert.Equal(2, fromService.Count);
 
-        var page = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
+        var page = new PublicModel(_postSvc);
         var result = page.OnGet();
         Assert.IsType<PageResult>(result);
         Assert.Equal(2, page.Cheeps.Count);
@@ -45,7 +46,7 @@ public class E2EReadPipelineTests : IDisposable
     public void PublicFeed_DataMatchesAcrossLayers()
     {
         var service = _postSvc.GetObservations();
-        var page = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
+        var page = new PublicModel(_postSvc);
         page.OnGet();
 
         for (int i = 0; i < service.Count; i++)
@@ -75,7 +76,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_RepositoryToPageModel_DeliversSeededCommentAndProposal()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         var result = page.OnGet(id: _obs1);
 
         Assert.IsType<PageResult>(result);
@@ -89,7 +90,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ObservationWithoutAttachments_HasEmptyLists()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         page.OnGet(id: _obs2);
 
         Assert.NotNull(page.Observation);
@@ -100,7 +101,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_UnknownId_PipelineReturnsNotFound()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         var result = page.OnGet(id: 424242);
 
         var nfr = Assert.IsType<NotFoundResult>(result);
@@ -111,7 +112,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ListModeWithoutId_ReturnsAll()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         var result = page.OnGet(id: null);
 
         Assert.IsType<PageResult>(result);
@@ -144,7 +145,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newObs, timeline[0].Id);
 
         // 4. ObservationModel detail page sees it + its comment + proposal.
-        var detail = new ObservationModel(_db.CreatePostRepository());
+        var detail = new ObservationModel(_db.CreatePostService());
         detail.OnGet(id: newObs);
         Assert.Equal(newObs, detail.Observation!.Id);
         Assert.Single(detail.Comments);
@@ -153,7 +154,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newProposal, detail.Proposals[0].Id);
 
         // 5. PublicModel feed shows it at the top.
-        var publicPage = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
+        var publicPage = new PublicModel(_postSvc);
         publicPage.OnGet();
         Assert.Equal(newObs, publicPage.Cheeps[0].Id);
 

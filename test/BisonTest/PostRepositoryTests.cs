@@ -1,5 +1,6 @@
-using Bison.Razor.Models;
-using Bison.Razor.Services;
+using Bison.Core;
+using Bison.Repositories;
+using Bison.Services;
 
 namespace BisonTest;
 
