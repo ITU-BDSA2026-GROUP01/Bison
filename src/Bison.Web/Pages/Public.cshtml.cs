@@ -1,11 +1,11 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Bison.Razor.Data;
-using Bison.Razor.Models;
-using Bison.Razor.Services;
+using Bison.Infrastructure.Data;
+using Bison.Core;
+using Bison.Services;
 using Microsoft.EntityFrameworkCore;
 
-namespace Bison.Razor.Pages;
+namespace Bison.Web.Pages;
 
 public class PublicModel : PageModel
 {

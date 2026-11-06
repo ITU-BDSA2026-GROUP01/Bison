@@ -3,7 +3,7 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace Bison.Razor.Migrations
+namespace Bison.Infrastructure.Migrations
 {
     /// <inheritdoc />
     public partial class AddIdentitySchema : Migration

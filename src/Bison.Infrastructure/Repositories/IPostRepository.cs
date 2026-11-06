@@ -1,8 +1,8 @@
-using Bison.Razor.Models;
-using Bison.Razor.Data;
+using Bison.Core;
+using Bison.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 
-namespace Bison.Razor.Services;
+namespace Bison.Services;
 
 public interface IPostRepository
 {

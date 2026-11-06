@@ -14,9 +14,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.Extensions.Logging;
-using Bison.Razor.Data;
+using Bison.Infrastructure.Data;
 
-namespace Bison.Razor.Areas.Identity.Pages.Account;
+namespace Bison.Web.Areas.Identity.Pages.Account;
 
 public class LoginModel : PageModel
 {

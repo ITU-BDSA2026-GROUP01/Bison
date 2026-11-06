@@ -1,5 +1,5 @@
-using Bison.Razor.Data;
-using Bison.Razor.Services;
+using Bison.Infrastructure.Data;
+using Bison.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
@@ -20,7 +20,7 @@ builder.Services.AddSingleton<IObservationTaxonFilterService, ObservationTaxonFi
 // variable (tests use this to point the app at a hermetic temp database) or
 // the BISONDBPATH configuration key. The default is the project's tracked
 // Data/bison.db, relative to the working directory (the app is run from
-// src/Bison.Razor, where Data/bison.db lives).
+// src/Bison.Web, where Data/bison.db lives).
 var bisonDbPath =
     Environment.GetEnvironmentVariable("BISONDBPATH")
     ?? builder.Configuration["BISONDBPATH"]

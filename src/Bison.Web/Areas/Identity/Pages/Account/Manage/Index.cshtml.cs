@@ -9,9 +9,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Bison.Razor.Data;
+using Bison.Infrastructure.Data;
 
-namespace Bison.Razor.Areas.Identity.Pages.Account.Manage;
+namespace Bison.Web.Areas.Identity.Pages.Account.Manage;
 
 public class IndexModel : PageModel
 {

@@ -1,4 +1,4 @@
-namespace Bison.Razor.Models;
+namespace Bison.Core;
 
 public class Proposal : Post
 {

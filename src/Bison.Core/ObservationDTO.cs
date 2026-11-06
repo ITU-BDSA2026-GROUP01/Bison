@@ -1,4 +1,4 @@
-﻿namespace Bison.Razor.Models;
+﻿namespace Bison.Core;
 
 /// DTO used to transport the simplified observation data needed by the Razor views.
 /// Only primitive display values are exposed here.

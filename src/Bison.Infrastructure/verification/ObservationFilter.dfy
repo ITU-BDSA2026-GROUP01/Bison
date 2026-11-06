@@ -1,4 +1,4 @@
-module {:extern "Bison.Razor.Models"}ObservationFilter {
+module {:extern "Bison.Core"}ObservationFilter {
 
   class {:extern "Taxon"} Taxon {
     function {:extern}  {:axiom} IsSubTaxon(ancestor: Taxon): bool

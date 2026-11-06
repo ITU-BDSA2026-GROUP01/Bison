@@ -11,9 +11,9 @@ using Microsoft.AspNetCore.Identity.UI.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Microsoft.AspNetCore.WebUtilities;
-using Bison.Razor.Data;
+using Bison.Infrastructure.Data;
 
-namespace Bison.Razor.Areas.Identity.Pages.Account.Manage;
+namespace Bison.Web.Areas.Identity.Pages.Account.Manage;
 
 public class EmailModel : PageModel
 {

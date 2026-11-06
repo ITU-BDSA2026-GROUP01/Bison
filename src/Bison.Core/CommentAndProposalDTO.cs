@@ -1,5 +1,5 @@
 
-namespace Bison.Razor.Models;
+namespace Bison.Core;
 
 
 /// DTO used to transport comment data to the UI without exposing the underlying repository model.

@@ -1,9 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
-using Bison.Razor.Models;
-using Bison.Razor.Services;
+using Bison.Core;
+using Bison.Services;
 
-namespace Bison.Razor.Pages;
+namespace Bison.Web.Pages;
 
 public class UserTimelineModel : PageModel
 {

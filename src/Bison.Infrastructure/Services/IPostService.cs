@@ -1,6 +1,6 @@
-﻿using Bison.Razor.Models;
+﻿using Bison.Core;
 
-namespace Bison.Razor.Services;
+namespace Bison.Services;
 
 public interface IPostService
 {
