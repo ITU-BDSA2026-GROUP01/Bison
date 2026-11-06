@@ -24,7 +24,7 @@ public class PublicModelTests : IDisposable
         // SeedStandard returns a tuple of (userId, taxonId, obs1Id, obs2Id). We only care about the observation IDs here.
         (_, _, _obs1, _obs2) = _db.SeedStandard();
         // Create a new PublicModel instance using the PostService and the test database context.
-        _model = new PublicModel(new PostService(_db.CreatePostRepository()), _db.Context, new ObservationTaxonFilterService());
+        _model = new PublicModel(new PostService(_db.CreatePostRepository()));
     }
 
     // Dispose method cleans up the test database after each test.
@@ -220,4 +220,3 @@ public class PublicModelTests : IDisposable
         Assert.Contains(mammal, ids);
     }
 }
-
