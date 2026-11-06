@@ -1,9 +1,6 @@
-using Bison.Infrastructure.Data;
 using Bison.Core;
 
-using System;
-
-public static class DbInitializer
+namespace Bison.Infrastructure.Data;
 {
     public static void SeedDatabase(BisonDBContext bisonContext)
     {

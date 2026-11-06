@@ -1,5 +1,5 @@
 ﻿using Bison.Core;
-
+using Bison.Repositories;
 namespace Bison.Services;
 
 public class PostService : IPostService

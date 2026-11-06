@@ -15,8 +15,10 @@
          (SDK 8.0.131 csc line only carried global /nowarn), so suppress at project level.
          Every other .cs in this project is already warning-free, so this is safe.
          Regenerate the .cs with `dafny translate cs` when ObservationFilter.dfy changes. -->
-    <NoWarn>$(NoWarn);CS8600;CS8603;CS8604;CS8605;CS8625;CS8629;CS8714;CS8765;CS8769;CS8981</NoWarn>
   </PropertyGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\Bison.Infrastructure\Bison.Infrastructure.csproj" />
+  </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.33" />
