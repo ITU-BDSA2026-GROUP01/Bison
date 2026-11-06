@@ -112,4 +112,8 @@ public class PostRepository : IPostRepository
             .OrderByDescending(o => o.TimeStamp)
             .ToList();
     }
+    public List<Taxon> GetAllTaxa()
+{
+    return _context.Taxons.ToList();
+}
 }
