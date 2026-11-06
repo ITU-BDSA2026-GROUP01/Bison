@@ -1,5 +1,5 @@
-using Bison.Core;
-using Bison.Services;
+using Bison.Razor.Models;
+using Bison.Razor.Services;
 
 namespace WebserverTest;
 

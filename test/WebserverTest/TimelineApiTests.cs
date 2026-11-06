@@ -1,4 +1,4 @@
-using Bison.Web;
+using Bison.Razor;
 using BisonTest;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.Configuration;

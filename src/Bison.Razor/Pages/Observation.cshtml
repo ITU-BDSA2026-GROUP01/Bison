@@ -1,0 +1,78 @@
+@page "/ob/{id:int?}"
+@model Bison.Razor.Pages.ObservationModel
+@{
+    ViewData["Title"] = "Observation";
+    Layout = "Shared/_Layout";
+}
+
+<div>
+    @if (Model.Observation != null)
+    {
+        <h2> Observation @Model.Observation.Id</h2>
+        <p><strong>@Model.Observation.Author</strong></p>
+        <p> @Model.Observation.Message</p>
+        <small> @Model.Observation.Timestamp</small>
+    } else
+    {
+        <h2>All Observations</h2>
+        @if (Model.Observations.Any())
+        {
+            <ul>
+                @foreach (var observation in Model.Observations)
+                {
+                    <li>
+                        <a href="/ob/@observation.Id"> @observation.Message</a>
+                        <small>by @observation.Author</small>
+                    </li>
+                }
+            </ul>
+        }
+        else
+        {
+            <p>No observations found</p>
+        }
+    }
+
+    @if (Model.Observation != null)
+    {
+         <h3>Comments</h3>
+
+    @if (Model.Comments.Any())
+    {
+        <ul>
+            @foreach (var comment in Model.Comments)
+            {
+                <li>
+                    <strong> @comment.Author</strong>
+                    <small> @comment.Timestamp</small>
+                    <p> @comment.Message</p>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>No comments found</p>
+    }
+    <h3>Proposals</h3>
+
+    @if (Model.Proposals.Any())
+    {
+        <ul>
+            @foreach (var proposal in Model.Proposals)
+            {
+                <li>
+                    <strong>@proposal.Author</strong>
+                    <small>@proposal.Timestamp</small>
+                    <p>Taxon: @proposal.TaxonId</p>
+                </li>
+            }
+        </ul>
+    }
+    else
+        {
+            <p>No proposals found</p>
+        }
+    }
+
+</div>

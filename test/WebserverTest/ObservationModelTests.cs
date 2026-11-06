@@ -1,5 +1,5 @@
-using Bison.Web.Pages;
-using Bison.Services;
+using Bison.Razor.Pages;
+using Bison.Razor.Services;
 using BisonTest;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;

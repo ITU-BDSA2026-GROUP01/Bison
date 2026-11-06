@@ -1,5 +1,5 @@
-using Bison.Infrastructure.Data;
-using Bison.Core;
+using Bison.Razor.Data;
+using Bison.Razor.Models;
 using Microsoft.EntityFrameworkCore;
 
 namespace BisonTest;
@@ -187,14 +187,14 @@ public sealed class SQLiteDatabaseTestHelper : IDisposable
     public BisonDBContext CreateContext() => _ctx;
 
     // Creates a new PostRepository that uses the test database context. This is useful for tests that need to interact with posts in the database.
-    public Bison.Repositories.PostRepository CreatePostRepository()
+    public Bison.Razor.Services.PostRepository CreatePostRepository()
         => new(CreateContext());
 
     // Creates a new ObservationService that uses the test database context. This is useful for tests that need to interact with observations in the database.
-    public Bison.Services.ObservationService CreateObservationService()
+    public Bison.Razor.Services.ObservationService CreateObservationService()
         => new(CreatePostRepository());
 
     // Creates a new PostService that uses the test database context. This is useful for tests that need to interact with posts in the database.
-    public Bison.Services.PostService CreatePostService()
+    public Bison.Razor.Services.PostService CreatePostService()
         => new(CreatePostRepository());
 }
