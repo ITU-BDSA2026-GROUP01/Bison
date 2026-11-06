@@ -1,5 +1,6 @@
-using Bison.Razor.Pages;
-using Bison.Razor.Services;
+using Bison.Web.Pages;
+using Bison.Repositories;
+using Bison.Services;
 using BisonTest;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
@@ -34,7 +35,7 @@ public class E2EReadPipelineTests : IDisposable
         var fromService = _postSvc.GetObservations();
         Assert.Equal(2, fromService.Count);
 
-        var page = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
+        var page = new PublicModel(_postSvc);
         var result = page.OnGet();
         Assert.IsType<PageResult>(result);
         Assert.Equal(2, page.Cheeps.Count);
@@ -45,7 +46,7 @@ public class E2EReadPipelineTests : IDisposable
     public void PublicFeed_DataMatchesAcrossLayers()
     {
         var service = _postSvc.GetObservations();
-        var page = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
+        var page = new PublicModel(_postSvc);
         page.OnGet();
 
         for (int i = 0; i < service.Count; i++)
@@ -153,7 +154,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newProposal, detail.Proposals[0].Id);
 
         // 5. PublicModel feed shows it at the top.
-        var publicPage = new PublicModel(_postSvc, _db.Context, new ObservationTaxonFilterService());
+        var publicPage = new PublicModel(_postSvc);
         publicPage.OnGet();
         Assert.Equal(newObs, publicPage.Cheeps[0].Id);
 
