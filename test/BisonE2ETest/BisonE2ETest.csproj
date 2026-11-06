@@ -25,7 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\src\Bison.Razor\Bison.Razor.csproj" />
+    <ProjectReference Include="..\..\src\Bison.Web\Bison.Web.csproj" />
     <ProjectReference Include="..\BisonTest\BisonTest.csproj" />
   </ItemGroup>
 
