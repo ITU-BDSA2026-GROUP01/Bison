@@ -28,3 +28,4 @@ There were no ethic decisions this week. : )
 
 When we are done with a new week, delete the old branches from current week - 1 week. Ie. Week 4 done, delete branches Week 3 and behind. 
 
+Hello.
