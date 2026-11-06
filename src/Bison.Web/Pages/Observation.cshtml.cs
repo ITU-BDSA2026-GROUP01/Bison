@@ -1,18 +1,17 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Bison.Core;
-using Bison.Repositories;
 using Bison.Services;
 
 namespace Bison.Web.Pages;
 
 public class ObservationModel : PageModel
 {
-    private readonly IPostRepository _repo;
+    private readonly IPostService _service;
 
-    public ObservationModel(IPostRepository repo)
+    public ObservationModel(IPostService service)
     {
-        _repo = repo;
+        _service = service;
     }
 
     public ObservationDTO? Observation { get; set; }
@@ -24,25 +23,18 @@ public class ObservationModel : PageModel
     {
         if (id.HasValue)
         {
-            var entity = _repo.GetObservationWithAttachments(id.Value);
-            if (entity == null)
+            Observation = _service.GetObservation(id.Value);
+            if (Observation == null)
             {
                 return NotFound();
             }
 
-            Observation = new ObservationDTO
-            {
-                Id = entity.PostId,
-                Author = entity.Author.Name,
-                Message = entity.Text,
-                Timestamp = entity.TimeStamp.ToString("u")
-            };
-            Comments = _repo.GetCommentsForObservation(id.Value);
-            Proposals = _repo.GetProposalsForObservation(id.Value);
+            Comments = _service.GetComments(id.Value);
+            Proposals = _service.GetProposals(id.Value);
             return Page();
         }
 
-        Observations = _repo.GetAllObservations(page);
+        Observations = _service.GetObservations(page);
         return Page();
     }
 }

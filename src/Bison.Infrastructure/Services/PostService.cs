@@ -47,4 +47,26 @@ public class PostService : IPostService
     {
         return _repository.GetAllTaxa();
     }
+
+    public ObservationDTO? GetObservation(int id)
+{
+    var entity = _repository.GetObservationWithAttachments(id);
+    if (entity == null) return null;
+
+    return new ObservationDTO
+    {
+        Id = entity.PostId,
+        Author = entity.Author.Name,
+        Message = entity.Text,
+        Timestamp = entity.TimeStamp.ToString("u")
+    };
 }
+
+public List<CommentDTO> GetComments(int observationId)
+    => _repository.GetCommentsForObservation(observationId);
+
+public List<ProposalDTO> GetProposals(int observationId)
+    => _repository.GetProposalsForObservation(observationId);
+}
+
+

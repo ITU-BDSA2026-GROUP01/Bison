@@ -76,7 +76,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_RepositoryToPageModel_DeliversSeededCommentAndProposal()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         var result = page.OnGet(id: _obs1);
 
         Assert.IsType<PageResult>(result);
@@ -90,7 +90,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ObservationWithoutAttachments_HasEmptyLists()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         page.OnGet(id: _obs2);
 
         Assert.NotNull(page.Observation);
@@ -101,7 +101,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_UnknownId_PipelineReturnsNotFound()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         var result = page.OnGet(id: 424242);
 
         var nfr = Assert.IsType<NotFoundResult>(result);
@@ -112,7 +112,7 @@ public class E2EReadPipelineTests : IDisposable
     [Fact]
     public void ObservationDetail_ListModeWithoutId_ReturnsAll()
     {
-        var page = new ObservationModel(_db.CreatePostRepository());
+        var page = new ObservationModel(_db.CreatePostService());
         var result = page.OnGet(id: null);
 
         Assert.IsType<PageResult>(result);
@@ -145,7 +145,7 @@ public class E2EReadPipelineTests : IDisposable
         Assert.Equal(newObs, timeline[0].Id);
 
         // 4. ObservationModel detail page sees it + its comment + proposal.
-        var detail = new ObservationModel(_db.CreatePostRepository());
+        var detail = new ObservationModel(_db.CreatePostService());
         detail.OnGet(id: newObs);
         Assert.Equal(newObs, detail.Observation!.Id);
         Assert.Single(detail.Comments);
