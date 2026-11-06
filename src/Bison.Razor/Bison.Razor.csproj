@@ -16,9 +16,11 @@
          Every other .cs in this project is already warning-free, so this is safe.
          Regenerate the .cs with `dafny translate cs` when ObservationFilter.dfy changes. -->
     <NoWarn>$(NoWarn);CS8600;CS8603;CS8604;CS8605;CS8625;CS8629;CS8714;CS8765;CS8769;CS8981</NoWarn>
+    <UserSecretsId>02c60924-9be9-4a7e-8a6d-bc6937252486</UserSecretsId>
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AspNet.Security.OAuth.GitHub" Version="8.3.0" />
     <PackageReference Include="Microsoft.AspNetCore.Identity.UI" Version="8.0.33" />
     <PackageReference Include="Microsoft.Data.Sqlite" Version="10.0.12" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.33">

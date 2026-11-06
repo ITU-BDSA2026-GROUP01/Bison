@@ -8,21 +8,21 @@
     }
   },
   "profiles": {
-    "http": {
+    "httpS": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "http://localhost:5273",
+      "applicationUrl": "https://localhost:7102",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "BISONDBPATH": "Data/bison.db"
       }
     },
-    "https": {
+    "http": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
-      "applicationUrl": "https://localhost:7102;http://localhost:5273",
+      "applicationUrl": "http://localhost:5273",
       "environmentVariables": {
         "ASPNETCORE_ENVIRONMENT": "Development",
         "BISONDBPATH": "Data/bison.db"
