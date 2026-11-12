@@ -36,7 +36,7 @@ public class PostRepository : IPostRepository
     {
         return _context.Observations
             .Include(o => o.Author)
-            .Where(o => o.Author.Name == author)
+            .Where(o => o.Author.Name == author || o.Author.Email == auther)
             .OrderByDescending(o => o.TimeStamp)
             .Skip((page - 1) * PageSize)
             .Take(PageSize)
@@ -48,6 +48,39 @@ public class PostRepository : IPostRepository
                 Author = o.Author.Name
             })
             .ToList();
+    }
+
+
+    public ObservationDTO CreateObervation (string authorName, string autherEmail, string text, int taxonId)
+    {
+        if (!_contextTaxon.Any(t=> t.TaxonId == taxonid))
+            throw new ArgumentException ("Unknow taxon.", nameof(taxonId));
+
+            var auther = _context.Author.FirstOrDefault(a => a.Email == authorEmail)
+                    ??_context..Author.FirstOrDefault(a => a.Email == authorEmail)
+            if (author == null)
+            {
+                author = new Author { Name = authorName, Email = authorEmail};
+                _context.Authers.Add(auther);
+            }
+
+            var observation = new Observation
+            {
+                Text = text,
+                TimeStamp = DateTime.UtcNow,
+                Author = author,
+                TaxonId = taxonId
+            };
+            _context.Observations.Add(observation);
+            _context.SaveChanges();
+
+            return new ObservationDTO
+            {
+                Id = observation.PostId,
+                Messages = observation.Text,
+                TimeStamp = observation.TimeStamp.ToString("u"),
+                Author = author.Name
+            };
     }
 
     public Observation? GetObservationWithAttachments(int id)

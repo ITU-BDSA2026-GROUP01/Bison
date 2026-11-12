@@ -20,4 +20,6 @@ public interface IPostRepository
     List<ProposalDTO> GetProposalsForObservation(int observationId);
     List<Observation> GetAllObservationsWithTaxons();
     List<Taxon> GetAllTaxa();
+
+    ObservationDTO CreateObervation(string authorName, string autherEmail, string text, int taxonId);
 }
