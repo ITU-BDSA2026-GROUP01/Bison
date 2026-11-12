@@ -7,7 +7,27 @@
 }
 
 <div>
-    <h2> @routeName's Timeline </h2>
+    <h2>@(Model.IsOwnTimeline ? "My Observations" : $"{routeName}'s Observations")</h2>
+
+    @if (Model.IsOwnTimeline)
+    {
+        <div class="cheepbox">
+            <h3>What did you see, @User.Identity!.Name?</h3>
+            <form method="post">
+                <input type="text" asp-for="Text" />
+                <select asp-for="NewTaxonId">
+                    <option value="">Choose taxon</option>
+                    @foreach (var taxon in Model.Taxa)
+                    {
+                        <option value="@taxon.TaxonId">@taxon.VernacularName</option>
+                    }
+                </select>
+                <input type="submit" value="Share" />
+                <span class="text-danger" asp-validation-for="Text"></span>
+                <span class="text-danger" asp-validation-for="NewTaxonId"></span>
+            </form>
+        </div>
+    }
 
     @if (Model.Cheeps.Any())
     {
@@ -16,9 +36,7 @@
             {
                 <li>
                     <p>
-                        <strong>
-                            <a href="/@cheep.Author">@cheep.Author</a>
-                        </strong>
+                        <strong><a href="/@cheep.Author">@cheep.Author</a></strong>
                         @cheep.Message
                         <small>&mdash; @cheep.Timestamp</small>
                     </p>
