@@ -173,7 +173,23 @@ div.page div.cheepbox p {
 }
 
 div.page div.cheepbox input[type="text"] {
-  width: 585px;
+  width: 380px;
+}
+
+div.page div.cheepbox select {
+  max-width: 150px;
+  background: white;
+  border: 1px solid #e6c0bf
+  padding: 2px;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 14px;
+  color: #571010;
+}
+
+.text-danger {
+  display: block;
+  color: #a00;
+  font-size: 13px;
 }
 
 div.page div.cheepbox input[type="submit"] {
