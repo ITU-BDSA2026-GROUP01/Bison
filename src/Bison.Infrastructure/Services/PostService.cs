@@ -43,6 +43,15 @@ public class PostService : IPostService
             .ToList();
     }
 
+
+    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException("Observation text cannot be empty", nameof(text));
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId);
+    }
+
+
     public List<Taxon> GetAllTaxa()
     {
         return _repository.GetAllTaxa();

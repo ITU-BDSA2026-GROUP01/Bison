@@ -23,6 +23,20 @@ public class ObservationService : IObservationService
         return _repository.GetObservationsByAuthor(author, page);
     }
 
+
+     public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException("Observation text cannot be empty", nameof(text));
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId);
+    }
+
+
+    public List<Taxon> GetAllTaxa()
+    {
+        return _repository.GetAllTaxa();
+    }
+
     public List<Observation> GetByTaxon(Taxon root)
     {
         var allObservations = _repository.GetAllObservationsWithTaxons();

@@ -2,6 +2,7 @@
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Bison.Core;
 using Bison.Services;
+using System.Security.Claims;
 
 namespace Bison.Web.Pages;
 
@@ -20,6 +21,12 @@ public class PublicModel : PageModel
     // conditionally show the "clear filter" link in the UI.
     public bool IsFiltered => SelectedTaxonId.HasValue;
 
+
+    [BindProperty] public string? Text {get; set; }
+
+
+    [BindProperty] public int? NewTaxonId { get; set; }
+
     public PublicModel(IPostService service)
     {
         _service = service;
@@ -27,22 +34,57 @@ public class PublicModel : PageModel
 
     public ActionResult OnGet([FromQuery] int page = 1, [FromQuery] int? taxonId = null)
     {
+        LoadPage(page, taxonId);
+        return Page();
+    }
+
+
+    public IActionResult OnPost()
+    {
+        // only real homies (those who are logged in) are allowed to create observations)
+        if (User.Identity?.IsAuthenticated !=true)
+            return Unauthorized();
+
+        // empty text or no taxon is rejected
+        if (string.IsNullOrWhiteSpace(Text))
+            ModelState.AddModelError(nameof(Text), "Write something first!!!!!!!!!!!!!");
+        if (!NewTaxonId.HasValue)
+            ModelState.AddModelError(nameof(NewTaxonId), "Pls pls pls choose a taxon");
+        if (!ModelState.IsValid)
+        {
+            // Show the page again with error messages. Bad bad.
+            LoadPage(1, null);
+            return Page();
+
+        }
+        // Get authors information from the logged user
+        var userName = User.Identity.Name!;
+        var email = User.FindFirst(ClaimTypes.Email)?.Value ?? userName;
+        var name = User.FindFirst("FullName")?.Value ?? userName;
+
+
+        // save via server so like service -> repo -> database
+        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value);
+
+        // Refresh dont resubmit the form. 
+        return RedirectToPage();
+    }   
+
+    private void LoadPage(int page, int? taxonId)
+    {
         // Only show taxa with a vernacular name, and sort by that name.
         Taxa = _service.GetAllTaxa()
             .Where(t => !string.IsNullOrEmpty(t.VernacularName))
             .OrderBy(t => t.VernacularName)
             .ToList();
         SelectedTaxonId = taxonId;
-
-        if (!taxonId.HasValue)
-        {
-            Cheeps = _service.GetObservations(page);
-            return Page();
-        }
-
         // Filtering happens before pagination in the service so matching rows
         // on later pages are not skipped.
-        Cheeps = _service.GetObservationsByTaxon(taxonId.Value, page);
-        return Page();
+        Cheeps = taxonId.HasValue
+        ?_service.GetObservationsByTaxon(taxonId.Value, page)
+        : _service.GetObservations(page);
+
     }
+
+
 }

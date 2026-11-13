@@ -10,4 +10,7 @@ public interface IPostService
     ObservationDTO? GetObservation(int id);
     List<CommentDTO> GetComments(int observationId);
     List<ProposalDTO> GetProposals(int observationId);
+
+
+    ObservationDTO CreateObservation (string authorName, string authorEmail, string text, int taxonId);
 }
