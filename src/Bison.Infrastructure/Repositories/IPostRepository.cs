@@ -21,5 +21,5 @@ public interface IPostRepository
     List<Observation> GetAllObservationsWithTaxons();
     List<Taxon> GetAllTaxa();
 
-    ObservationDTO CreateObervation(string authorName, string autherEmail, string text, int taxonId);
+    ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId);
 }

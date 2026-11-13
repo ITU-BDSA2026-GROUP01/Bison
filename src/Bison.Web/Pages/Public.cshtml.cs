@@ -22,10 +22,10 @@ public class PublicModel : PageModel
     public bool IsFiltered => SelectedTaxonId.HasValue;
 
 
-    [BindPropetry] public string? Text {get; set; }
+    [BindProperty] public string? Text {get; set; }
 
 
-    [BindPropetry] public int? NewTaxonId { get; set; }
+    [BindProperty] public int? NewTaxonId { get; set; }
 
     public PublicModel(IPostService service)
     {
@@ -46,10 +46,10 @@ public class PublicModel : PageModel
             return Unauthorized();
 
         // empty text or no taxon is rejected
-        if (string.IsNullorWhiteSpace(Text))
-            ModelState.AddModelEroor(nameof(Text), "Write something first!!!!!!!!!!!!!")
+        if (string.IsNullOrWhiteSpace(Text))
+            ModelState.AddModelError(nameof(Text), "Write something first!!!!!!!!!!!!!");
         if (!NewTaxonId.HasValue)
-            ModelState.AddModelEroor(nameof(NewTaxonId), "Pls pls pls choose a taxon");
+            ModelState.AddModelError(nameof(NewTaxonId), "Pls pls pls choose a taxon");
         if (!ModelState.IsValid)
         {
             // Show the page again with error messages. Bad bad.
@@ -64,13 +64,13 @@ public class PublicModel : PageModel
 
 
         // save via server so like service -> repo -> database
-        _service.CreateObervation(name, emial, Text!, NewTaxonId!.Value);
+        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value);
 
         // Refresh dont resubmit the form. 
         return RedirectToPage();
     }   
 
-    Private void LoadPage(int page, int? taxonId)
+    private void LoadPage(int page, int? taxonId)
     {
         // Only show taxa with a vernacular name, and sort by that name.
         Taxa = _service.GetAllTaxa()
@@ -82,7 +82,7 @@ public class PublicModel : PageModel
         // on later pages are not skipped.
         Cheeps = taxonId.HasValue
         ?_service.GetObservationsByTaxon(taxonId.Value, page)
-        : _service.GetObservation(page)
+        : _service.GetObservations(page);
 
     }
 

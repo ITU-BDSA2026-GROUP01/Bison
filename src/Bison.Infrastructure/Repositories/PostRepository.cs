@@ -36,7 +36,7 @@ public class PostRepository : IPostRepository
     {
         return _context.Observations
             .Include(o => o.Author)
-            .Where(o => o.Author.Name == author || o.Author.Email == auther)
+            .Where(o => o.Author.Name == author || o.Author.Email == author)
             .OrderByDescending(o => o.TimeStamp)
             .Skip((page - 1) * PageSize)
             .Take(PageSize)
@@ -51,17 +51,17 @@ public class PostRepository : IPostRepository
     }
 
 
-    public ObservationDTO CreateObervation (string authorName, string autherEmail, string text, int taxonId)
+    public ObservationDTO CreateObservation (string authorName, string authorEmail, string text, int taxonId)
     {
-        if (!_contextTaxon.Any(t=> t.TaxonId == taxonid))
+        if (!_context.Taxons.Any(t=> t.TaxonId == taxonId))
             throw new ArgumentException ("Unknow taxon.", nameof(taxonId));
 
-            var auther = _context.Author.FirstOrDefault(a => a.Email == authorEmail)
-                    ??_context..Author.FirstOrDefault(a => a.Email == authorEmail)
+            var author = _context.Authors.FirstOrDefault(a => a.Email == authorEmail)
+                    ??_context.Authors.FirstOrDefault(a => a.Name == authorName);
             if (author == null)
             {
                 author = new Author { Name = authorName, Email = authorEmail};
-                _context.Authers.Add(auther);
+                _context.Authors.Add(author);
             }
 
             var observation = new Observation
@@ -77,8 +77,8 @@ public class PostRepository : IPostRepository
             return new ObservationDTO
             {
                 Id = observation.PostId,
-                Messages = observation.Text,
-                TimeStamp = observation.TimeStamp.ToString("u"),
+                Message = observation.Text,
+                Timestamp = observation.TimeStamp.ToString("u"),
                 Author = author.Name
             };
     }

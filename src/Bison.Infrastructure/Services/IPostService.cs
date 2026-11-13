@@ -12,5 +12,5 @@ public interface IPostService
     List<ProposalDTO> GetProposals(int observationId);
 
 
-    ObservationDTO CreateObervation (string authorName, string authorEmail, string text, int taxonId);
+    ObservationDTO CreateObservation (string authorName, string authorEmail, string text, int taxonId);
 }

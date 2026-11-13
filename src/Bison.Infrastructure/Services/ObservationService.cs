@@ -24,11 +24,17 @@ public class ObservationService : IObservationService
     }
 
 
-     public ObservationDTO CreateObervation(string authorName, string authorEmail, string text, int taxonId)
+     public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId)
     {
-        if (string.IsNullorWhiteSpace(text))
+        if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Observation text cannot be empty", nameof(text));
-        return _repository.CreateObervation(authorName, authorEmail, text.Trim(), taxonId);
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId);
+    }
+
+
+    public List<Taxon> GetAllTaxa()
+    {
+        return _repository.GetAllTaxa();
     }
 
     public List<Observation> GetByTaxon(Taxon root)
