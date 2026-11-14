@@ -41,7 +41,7 @@ public class PublicModel : PageModel
     }
 
 
-    public async Task<ActionResult> OnPostAsync ([FromServices] IpictureStorage pictures)
+    public async Task<ActionResult> OnPostAsync ([FromServices] IPictureStorage pictures)
     {
         // only real homies (those who are logged in) are allowed to create observations)
         if (User?.Identity?.IsAuthenticated !=true)
@@ -70,11 +70,11 @@ public class PublicModel : PageModel
             if (error !=null)
             {
                 // show the side again with the error message
-                ModelState.AddModelError(nameof(Pictrue), error);
+                ModelState.AddModelError(nameof(Picture), error);
                 LoadPage(1, null);
                 return Page();
             }
-            PicturePath = path;
+            picturePath = path;
 
         }
 

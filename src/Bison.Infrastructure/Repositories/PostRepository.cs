@@ -27,7 +27,7 @@ public class PostRepository : IPostRepository
                 Id = o.PostId,
                 Message = o.Text,
                 Timestamp = o.TimeStamp.ToString("u"),
-                Author = o.Author.Name
+                Author = o.Author.Name,
                 PicturePath = o.PicturePath
             })
             .ToList();
@@ -46,7 +46,7 @@ public class PostRepository : IPostRepository
                 Id = o.PostId,
                 Message = o.Text,
                 Timestamp = o.TimeStamp.ToString("u"),
-                Author = o.Author.Name
+                Author = o.Author.Name,
                 PicturePath = o.PicturePath
 
             })
@@ -72,7 +72,7 @@ public class PostRepository : IPostRepository
                 Text = text,
                 TimeStamp = DateTime.UtcNow,
                 Author = author,
-                TaxonId = taxonId
+                TaxonId = taxonId,
                 PicturePath = picturePath
             };
             _context.Observations.Add(observation);
@@ -83,7 +83,7 @@ public class PostRepository : IPostRepository
                 Id = observation.PostId,
                 Message = observation.Text,
                 Timestamp = observation.TimeStamp.ToString("u"),
-                Author = author.Name
+                Author = author.Name,
                 PicturePath = observation.PicturePath
             };
     }

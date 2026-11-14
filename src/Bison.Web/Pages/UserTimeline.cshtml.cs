@@ -18,6 +18,8 @@ public class UserTimelineModel : PageModel
 
 
     [BindProperty] public int? NewTaxonId { get; set; }
+
+    [BindProperty] public IFormFile? Picture {get; set; }
     
     
     public UserTimelineModel(IObservationService service)
@@ -31,7 +33,7 @@ public class UserTimelineModel : PageModel
         return Page();
     }
 
-    public IActionResult OnPost(string author)
+    public async Task<IActionResult> OnPostAsync(string author, [FromServices] IPictureStorage pictures)
     {
         if (User?.Identity?.IsAuthenticated != true)
         return Unauthorized();
@@ -53,13 +55,32 @@ public class UserTimelineModel : PageModel
         }
 
 
+        string? picturePath = null;
+        if ( Picture is {Length: > 0}) // only if it has chosen one file
+        {
+
+            // Checks the filetype and the size and saves in wwwroot/uploads.
+            // gives a path or fucks it 
+            var (path, error) = await pictures.SaveAsync(Picture);
+            if (error !=null)
+            {
+                // show the side again with the error message
+                ModelState.AddModelError(nameof(Picture), error);
+                LoadPage(author, 1);
+                return Page();
+            }
+            picturePath = path;
+
+        }
+
+
         var userName = User.Identity.Name!;
         var email = User.FindFirst(System.Security.Claims.ClaimTypes.Email)?.Value ?? userName;
         var name = User.FindFirst("FullName")?.Value ?? userName;
 
 
         // save via server so like service -> repo -> database
-        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value);
+        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value, picturePath);
 
         // Refresh dont resubmit the form. 
         return RedirectToPage(new {author });

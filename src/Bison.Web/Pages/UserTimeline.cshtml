@@ -45,6 +45,10 @@
                         @cheep.Message
                         <small>&mdash; @cheep.Timestamp</small>
                     </p>
+                     @if (!string.IsNullOrEmpty(cheep.PicturePath))
+                    {
+                             <img class="observation-picture" src="@cheep.PicturePath" alt="Picture posted by @cheep.Author" />
+                    }
                 </li>
             }
         </ul>

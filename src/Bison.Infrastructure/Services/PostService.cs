@@ -44,11 +44,11 @@ public class PostService : IPostService
     }
 
 
-    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId)
+    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null)
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Observation text cannot be empty", nameof(text));
-        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId);
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId, picturePath);
     }
 
 
@@ -68,6 +68,7 @@ public class PostService : IPostService
         Author = entity.Author.Name,
         Message = entity.Text,
         Timestamp = entity.TimeStamp.ToString("u")
+
     };
 }
 
