@@ -16,7 +16,7 @@
         {
             <div class="cheepbox">
                 <h3>What did you see, @User.Identity.Name?</h3>
-                <form method="post">
+                <form method="post" enctype="multipart/form-data">
                     <input type="text" asp-for="Text" />
                     <select asp-for="NewTaxonId">
                         <option value="">Choose taxon</option>
