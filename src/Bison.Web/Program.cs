@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Bison.Repositories;
+using Bison.Web;
 
 
 
@@ -16,7 +17,7 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
 builder.Services.AddSingleton<IObservationTaxonFilterService, ObservationTaxonFilterService>();
-
+builder.Services.AddSingleton<IPictureStorage, PictureStorage>();
 
 // Allow the SQLite path to be overridden via the BISONDBPATH environment
 // variable (tests use this to point the app at a hermetic temp database) or
