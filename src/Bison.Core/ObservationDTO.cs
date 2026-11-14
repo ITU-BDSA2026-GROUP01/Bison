@@ -5,7 +5,8 @@
 
 public class ObservationDTO
 {
-    public int Id { get; set; }
+    public int Id { get; set; }¨
+    public string? PicturePath { get; set; }
     public string Author { get; set; } = "";
     public string Message { get; set; } = "";
     public string Timestamp { get; set; } = "";
