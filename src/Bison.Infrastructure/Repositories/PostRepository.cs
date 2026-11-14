@@ -28,6 +28,7 @@ public class PostRepository : IPostRepository
                 Message = o.Text,
                 Timestamp = o.TimeStamp.ToString("u"),
                 Author = o.Author.Name
+                PicturePath = o.PicturePath
             })
             .ToList();
     }
@@ -46,15 +47,17 @@ public class PostRepository : IPostRepository
                 Message = o.Text,
                 Timestamp = o.TimeStamp.ToString("u"),
                 Author = o.Author.Name
+                PicturePath = o.PicturePath
+
             })
             .ToList();
     }
 
 
-    public ObservationDTO CreateObservation (string authorName, string authorEmail, string text, int taxonId)
+    public ObservationDTO CreateObservation (string authorName, string authorEmail, string text, int taxonId, string? picturePath = null)
     {
         if (!_context.Taxons.Any(t=> t.TaxonId == taxonId))
-            throw new ArgumentException ("Unknow taxon.", nameof(taxonId));
+            throw new ArgumentException ("Unknown taxon.", nameof(taxonId));
 
             var author = _context.Authors.FirstOrDefault(a => a.Email == authorEmail)
                     ??_context.Authors.FirstOrDefault(a => a.Name == authorName);
@@ -70,6 +73,7 @@ public class PostRepository : IPostRepository
                 TimeStamp = DateTime.UtcNow,
                 Author = author,
                 TaxonId = taxonId
+                PicturePath = picturePath
             };
             _context.Observations.Add(observation);
             _context.SaveChanges();
@@ -80,6 +84,7 @@ public class PostRepository : IPostRepository
                 Message = observation.Text,
                 Timestamp = observation.TimeStamp.ToString("u"),
                 Author = author.Name
+                PicturePath = observation.PicturePath
             };
     }
 
@@ -149,4 +154,5 @@ public class PostRepository : IPostRepository
 {
     return _context.Taxons.ToList();
 }
+
 }

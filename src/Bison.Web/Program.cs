@@ -100,6 +100,16 @@ using (var scope = app.Services.CreateScope())
 
     await context.Database.EnsureCreatedAsync();
 
+    
+  var hasPictureColumn = context.Database
+        .SqlQueryRaw<int>("SELECT COUNT(*) AS \"Value\" FROM pragma_table_info('Posts') WHERE name = 'PicturePath'")
+        .AsEnumerable()
+        .First() > 0;
+    if (!hasPictureColumn)
+    {
+        await context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Posts\" ADD COLUMN \"PicturePath\" TEXT NULL");
+    }
+
     var seedEnabled = !string.Equals(
     builder.Configuration["BISON_SEED"], "false",
     StringComparison.OrdinalIgnoreCase);
