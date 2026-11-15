@@ -1,6 +1,12 @@
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Hosting;
+using System.Collections.Generic;
+using System.IO;
+
+
 namespace Bison.Web;
 
-public interface IpictureStorage 
+public interface IPictureStorage 
 {
     // Return the public path or an error message if the file is not accepted 
     Task<(string? Path, string? Error)> SaveAsync(IFormFile file);
@@ -8,19 +14,19 @@ public interface IpictureStorage
 }
 
 
-public class PicturePath : IpictureStorage
+public class PictureStorage : IPictureStorage
 {
     private const long MaxBytes = 5 * 1024 * 1024;
 
 
-    private static readonly Directory<string, string> AllowedTypes = new (StringComparison.OrderIgnoreCase);
+    private static readonly Dictionary<string, string> AllowedTypes = new(StringComparer.OrdinalIgnoreCase)
     {
         [".jpg"] = "image/jpeg",
-        ["jpeg"] = "image/jpeg",
+        [".jpeg"] = "image/jpeg",
         [".png"] = "image/png",
         [".webp"] = "image/webp",
         [".gif"] = "image/gif"
-    }:
+    };
 
     private readonly string _uploadDir;
 
