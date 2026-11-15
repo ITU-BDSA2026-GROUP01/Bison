@@ -350,3 +350,14 @@ ul.nav li a:hover {
   opacity: 1;
   visibility: visible;
 }
+
+
+div.page ul.cheeps li img.observation-picture,
+div.page img.observation-picture {
+  float: none;
+  display: block;
+  padding: 0;
+  margin-top: 6px;
+  max-width: 100%;
+  max-height: 240px;
+}
