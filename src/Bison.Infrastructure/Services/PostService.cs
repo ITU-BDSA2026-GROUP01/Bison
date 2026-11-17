@@ -38,7 +38,8 @@ public class PostService : IPostService
                 Id = observation.PostId,
                 Message = observation.Text,
                 Timestamp = observation.TimeStamp.ToString("u"),
-                Author = observation.Author?.Name ?? ""
+                Author = observation.Author?.Name ?? "",
+                PicturePath = observation.PicturePath
             })
             .ToList();
     }
@@ -67,7 +68,8 @@ public class PostService : IPostService
         Id = entity.PostId,
         Author = entity.Author.Name,
         Message = entity.Text,
-        Timestamp = entity.TimeStamp.ToString("u")
+        Timestamp = entity.TimeStamp.ToString("u"),
+        PicturePath = entity.PicturePath
 
     };
 }
