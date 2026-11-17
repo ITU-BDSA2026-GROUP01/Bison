@@ -74,11 +74,23 @@ public class PostService : IPostService
     };
 }
 
-public List<CommentDTO> GetComments(int observationId)
-    => _repository.GetCommentsForObservation(observationId);
+    public List<CommentDTO> GetComments(int observationId)
+        => _repository.GetCommentsForObservation(observationId);
 
-public List<ProposalDTO> GetProposals(int observationId)
-    => _repository.GetProposalsForObservation(observationId);
+    public List<ProposalDTO> GetProposals(int observationId)
+        => _repository.GetProposalsForObservation(observationId);
+
+
+    public CommentDTO CreateComment (string authorName, string authorEmail, string text, int observationId)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException ("Hey your comment be looking like the dragon warriors scroll (empty....)", nameof(text));
+        return _repository.CreateComment(authorName, authorEmail, text.Trim(), observationId);
+    }
+
+    public ProposalDTO CreateProposal (string authorName, string authorEmail, int observationId, int taxonId)
+        => _repository.CreateProposal(authorName, authorEmail, observationId, taxonId);
+
 }
 
 
