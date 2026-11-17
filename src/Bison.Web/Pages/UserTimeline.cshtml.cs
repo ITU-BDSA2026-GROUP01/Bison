@@ -56,7 +56,7 @@ public class UserTimelineModel : PageModel
 
 
         string? picturePath = null;
-        if (Picture is not null}) // only if it has chosen one file
+        if (Picture is not null) // only if it has chosen one file
         {
 
             // Checks the filetype and the size and saves in wwwroot/uploads.
