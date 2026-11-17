@@ -88,6 +88,80 @@ public class PostRepository : IPostRepository
             };
     }
 
+
+
+    private Author GetCreateOrAuthor(string authorName, string authorEmail)
+    {
+        var author= _context.Authors.FirstOrDefault (a => a.Email == authorEmail)
+            ?? _context.Authors.FirstOrDefault (a => a.Name == authorName);
+
+        if (author == null)
+        {
+            author = new Author {Name = authorName, Email = authorEmail};
+            _context.Authors.Add(author);
+        } return author;
+    }
+
+    public CommentDTO CreateComment (string authorName, string authorEmail, string text, int observationId)
+    {
+        if (!_context.Observations.Any(o => o.PostId == observationId))
+            throw new ArgumentException("hmmm i don't know this observation", nameof(observationId));
+
+
+        var author = GetCreateOrAuthor (authorName, authorEmail); 
+        var comment = new Comment
+            {
+                Text = text,
+                TimeStamp = DateTime.UtcNow,
+                Author = author,
+                ObservationId = observationId
+            };
+            _context.Comments.Add(comment);
+            _context.SaveChanges();
+
+            return new CommentDTO
+            {
+                Id = comment.PostId,
+                ObservationId = observationId,
+                Author = author.Name,
+                Message = comment.Text,
+                Timestamp = comment.TimeStamp.ToString("u")
+            };
+
+    }
+
+public ProposalDTO CreateProposal(string authorName, string authorEmail, int observationId, int taxonId)
+{
+    if (!_context.Observations.Any(o => o.PostId == observationId))
+        throw new ArgumentException("hmmm i don't know this observation", nameof(observationId));
+    var taxon = _context.Taxons.FirstOrDefault (t => t.TaxonId == taxonId)
+        ?? throw new ArgumentException("hmmm i don't know this taxon", nameof(taxonId));
+    
+    var author = GetCreateOrAuthor(authorName, authorEmail);
+    var proposal = new Proposal
+    {
+
+        Text = "",
+        TimeStamp = DateTime.UtcNow,
+        Author = author,
+        ObservationId = observationId,
+        TaxonId = taxonId
+    };
+    _context.Proposals.Add(proposal);
+    _context.SaveChanges();
+
+    return new ProposalDTO
+    {
+        Id = proposal.PostId,
+        ObservationId = observationId,
+        Author = author.Name,
+        TaxonId = taxon.dwc_TaxonID,
+        TaxonName = taxon.VernacularName ?? taxon.dwc_TaxonID,
+        Timestamp = proposal.TimeStamp.ToString("u")
+
+    };
+}
+
     public Observation? GetObservationWithAttachments(int id)
     {
         return _context.Observations
@@ -133,6 +207,7 @@ public class PostRepository : IPostRepository
                 ObservationId = p.ObservationId,
                 Author = p.Author.Name,
                 TaxonId = p.Taxon?.dwc_TaxonID ?? "",
+                TaxonName = p.Taxon?.VernacularName ?? p.Taxon?.dwc_TaxonID ?? "",
                 Timestamp = p.TimeStamp.ToString("u")
             })
             .ToList();
