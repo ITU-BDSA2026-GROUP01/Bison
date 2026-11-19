@@ -361,3 +361,34 @@ div.page img.observation-picture {
   max-width: 100%;
   max-height: 240px;
 }
+
+.post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 500px;
+  margin: 10px 0 1rem 0;
+}
+
+.post-form textarea,
+.post-form select {
+  width: 100%;
+  max-width: 100%;
+  padding: 4px 6px;
+  background: white;
+  border: 1px solid #e6c0bf;
+  border-radius: 2px;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 14px;
+  color: #571010;
+  box-sizing: border-box;
+}
+
+.post-form textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.post-form button {
+  align-self: flex-start;
+}

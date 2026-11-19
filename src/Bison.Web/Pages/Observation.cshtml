@@ -8,14 +8,14 @@
 <div>
     @if (Model.Observation != null)
     {
-        <h2> Observation @Model.Observation.Id</h2>
+        <h2>Observation @Model.Observation.Id</h2>
         <p><strong>@Model.Observation.Author</strong></p>
-        <p> @Model.Observation.Message</p>
+        <p>@Model.Observation.Message</p>
         @if (!string.IsNullOrEmpty(Model.Observation.PicturePath))
         {
             <img class="observation-picture" src="@Model.Observation.PicturePath" alt="Picture posted by @Model.Observation.Author" />
         }
-        <small> @Model.Observation.Timestamp</small>
+        <small>@Model.Observation.Timestamp</small>
 
         <h3>Comments</h3>
         @if (Model.Comments.Any())
@@ -38,9 +38,9 @@
 
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <form method="post" asp-page-handler="Comment" asp-route-id="@Model.Observation.Id">
+            <form method="post" asp-page-handler="Comment" asp-route-id="@Model.Observation.Id" class="post-form">
                 <label for="CommentText">Write a comment</label>
-                <textarea asp-for="CommentText" rows="3"></textarea>
+                <textarea asp-for="CommentText" rows="2" placeholder="Write a comment..."></textarea>
                 <span asp-validation-for="CommentText" class="text-danger"></span>
                 <button type="submit">Add comment</button>
             </form>
@@ -67,7 +67,7 @@
 
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <form method="post" asp-page-handler="Proposal" asp-route-id="@Model.Observation.Id">
+            <form method="post" asp-page-handler="Proposal" asp-route-id="@Model.Observation.Id" class="post-form">
                 <label for="ProposalTaxonId">Propose an animal</label>
                 <select asp-for="ProposalTaxonId" asp-items="@(new SelectList(Model.Taxa, "TaxonId", "VernacularName"))">
                     <option value="">Choose an animal</option>
