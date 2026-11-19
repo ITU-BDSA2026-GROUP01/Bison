@@ -36,16 +36,6 @@
             <p>No comments found</p>
         }
 
-        @if (User.Identity?.IsAuthenticated == true)
-        {
-            <form method="post" asp-page-handler="Comment" asp-route-id="@Model.Observation.Id" class="post-form">
-                <label for="CommentText">Write a comment</label>
-                <textarea asp-for="CommentText" rows="2" placeholder="Write a comment..."></textarea>
-                <span asp-validation-for="CommentText" class="text-danger"></span>
-                <button type="submit">Add comment</button>
-            </form>
-        }
-
         <h3>Proposals</h3>
         @if (Model.Proposals.Any())
         {
@@ -67,13 +57,18 @@
 
         @if (User.Identity?.IsAuthenticated == true)
         {
-            <form method="post" asp-page-handler="Proposal" asp-route-id="@Model.Observation.Id" class="post-form">
+            <form method="post" asp-route-id="@Model.Observation.Id" class="post-form">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+                <label for="CommentText">Write a comment</label>
+                <textarea asp-for="CommentText" rows="2" placeholder="Write a comment..."></textarea>
+
                 <label for="ProposalTaxonId">Propose an animal</label>
                 <select asp-for="ProposalTaxonId" asp-items="@(new SelectList(Model.Taxa, "TaxonId", "VernacularName"))">
                     <option value="">Choose an animal</option>
                 </select>
-                <span asp-validation-for="ProposalTaxonId" class="text-danger"></span>
-                <button type="submit">Add proposal</button>
+
+                <button type="submit">Post</button>
             </form>
         }
         else
