@@ -78,7 +78,6 @@ public class ObservationModel : PageModel
             .ToList();
         return true;
     }
-
     private (string Name, string Email) GetAuthor()
     {
         var userName = User.Identity!.Name!;
