@@ -32,6 +32,14 @@
                     <label for="Picture">Picture (optional)</label>
                     <input type="file" asp-for="Picture" accept="image/jpeg,image/png,image/gif,image/webp" />
                     <span class="text-danger" asp-validation-for="Picture"></span>
+                    <label for="PictureLicense">Picture license</label>
+                    <select asp-for="PictureLicense" required>
+                        @foreach (var (code, label) in PictureLicenses.Options)
+                        {
+                            <option value="@code">@label</option>
+                        }
+                    </select>
+                    <span class="text-danger" asp-validation-for="PictureLicense"></span>
             </div>       
                     <span class="text-danger" asp-validation-for="Text"></span>
                     <span class="text-danger" asp-validation-for="NewTaxonId"></span>
@@ -55,6 +63,10 @@
                         @if (!string.IsNullOrEmpty(cheep.PicturePath))
                         {
                              <img class="observation-picture" src="@cheep.PicturePath" alt="Picture posted by @cheep.Author" />
+                             @if (!string.IsNullOrEmpty(cheep.PictureLicense))
+                             {
+                                 <p><small>Picture: @PictureLicenses.LabelFor(cheep.PictureLicense)</small></p>
+                             }
                         }
                     </li>
                 }

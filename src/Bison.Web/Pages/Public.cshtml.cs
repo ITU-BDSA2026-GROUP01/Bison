@@ -29,6 +29,8 @@ public class PublicModel : PageModel
 
     [BindProperty] public IFormFile? Picture{ get; set; }
 
+    [BindProperty] public string? PictureLicense { get; set; }
+
     public PublicModel(IPostService service)
     {
         _service = service;
@@ -52,6 +54,10 @@ public class PublicModel : PageModel
             ModelState.AddModelError(nameof(Text), "Write something first!!!!!!!!!!!!!");
         if (!NewTaxonId.HasValue)
             ModelState.AddModelError(nameof(NewTaxonId), "Pls pls pls choose a taxon");
+        if (Picture is not null && string.IsNullOrWhiteSpace(PictureLicense))
+            ModelState.AddModelError(nameof(PictureLicense), "Pick a license for your picture!");
+        else if (!PictureLicenses.IsValid(PictureLicense))
+            ModelState.AddModelError(nameof(PictureLicense), "Pick a license from the list");
         if (!ModelState.IsValid)
         {
             // Show the page again with error messages. Bad bad.
@@ -61,6 +67,7 @@ public class PublicModel : PageModel
         }
 
         string? picturePath = null;
+        string? pictureLicense = null;
         if (Picture is not null) // only if it has chosen one file
         {
 
@@ -75,6 +82,7 @@ public class PublicModel : PageModel
                 return Page();
             }
             picturePath = path;
+            pictureLicense = string.IsNullOrWhiteSpace(PictureLicense) ? null : PictureLicense!.Trim();
 
         }
 
@@ -86,7 +94,7 @@ public class PublicModel : PageModel
 
 
         // save via server so like service -> repo -> database
-        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value, picturePath);
+        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value, picturePath, pictureLicense);
 
         // Refresh dont resubmit the form. 
         return RedirectToPage();

@@ -24,11 +24,11 @@ public class ObservationService : IObservationService
     }
 
 
-     public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null)
+     public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null, string? pictureLicense = null)
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Observation text cannot be empty", nameof(text));
-        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId, picturePath);
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId, picturePath, pictureLicense);
     }
 
 

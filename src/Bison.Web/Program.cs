@@ -103,13 +103,22 @@ using (var scope = app.Services.CreateScope())
 
     
   var hasPictureColumn = context.Database
-        .SqlQueryRaw<int>("SELECT COUNT(*) AS \"Value\" FROM pragma_table_info('Posts') WHERE name = 'PicturePath'")
-        .AsEnumerable()
-        .First() > 0;
-    if (!hasPictureColumn)
-    {
-        await context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Posts\" ADD COLUMN \"PicturePath\" TEXT NULL");
-    }
+      .SqlQueryRaw<int>("SELECT COUNT(*) AS \"Value\" FROM pragma_table_info('Posts') WHERE name = 'PicturePath'")
+      .AsEnumerable()
+      .First() > 0;
+  if (!hasPictureColumn)
+  {
+      await context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Posts\" ADD COLUMN \"PicturePath\" TEXT NULL");
+  }
+
+  var hasPictureLicenseColumn = context.Database
+      .SqlQueryRaw<int>("SELECT COUNT(*) AS \"Value\" FROM pragma_table_info('Posts') WHERE name = 'PictureLicense'")
+      .AsEnumerable()
+      .First() > 0;
+  if (!hasPictureLicenseColumn)
+  {
+      await context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Posts\" ADD COLUMN \"PictureLicense\" TEXT NULL");
+  }
 
     var seedEnabled = !string.Equals(
     builder.Configuration["BISON_SEED"], "false",
