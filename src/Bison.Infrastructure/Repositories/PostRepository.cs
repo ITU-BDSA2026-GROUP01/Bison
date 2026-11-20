@@ -48,8 +48,8 @@ public class PostRepository : IPostRepository
                 Message = o.Text,
                 Timestamp = o.TimeStamp.ToString("u"),
                 Author = o.Author.Name,
-                PicturePath = o.PicturePath
-
+                PicturePath = o.PicturePath,
+                PictureLicense = o.PictureLicense
             })
             .ToList();
     }

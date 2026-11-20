@@ -64,6 +64,10 @@
                         @if (!string.IsNullOrEmpty(cheep.PicturePath))
                         {
                              <img class="observation-picture" src="@cheep.PicturePath" alt="Picture posted by @cheep.Author" />
+                             @if (!string.IsNullOrEmpty(cheep.PictureLicense))
+                             {
+                                 <p><small>Picture: @PictureLicenses.LabelFor(cheep.PictureLicense)</small></p>
+                             }
                         }
                     </li>
                 }
