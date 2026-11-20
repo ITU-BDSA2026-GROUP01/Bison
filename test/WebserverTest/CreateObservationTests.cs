@@ -85,6 +85,23 @@ public class CreateObservationTests : IDisposable
             _service.CreateObservation("Eduard", "edka@itu.dk", "Hello", 99999));
     }
 
+    [Fact]
+    public void CreatedObservation_WithoutPicture_HasNoPicturePath()
+    {
+    var created = _service.CreateObservation("Eduard", "edka@itu.dk", "No picture", _taxonId);
+
+    Assert.Null(created.PicturePath);
+    } 
+
+    [Fact]
+    public void CreatedObservation_WithPicture_KeepsPicturePath()
+    {
+    _service.CreateObservation("Eduard", "edka@itu.dk", "With picture", _taxonId, "/uploads/heron.jpg");
+
+    var listed = Assert.Single(_service.GetObservations());
+    Assert.Equal("/uploads/heron.jpg", listed.PicturePath);
+    }  
+
     public void Dispose()
     {
         _context.Dispose();

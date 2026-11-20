@@ -350,3 +350,73 @@ ul.nav li a:hover {
   opacity: 1;
   visibility: visible;
 }
+
+
+div.page ul.cheeps li img.observation-picture,
+div.page img.observation-picture {
+  float: none;
+  display: block;
+  padding: 0;
+  margin-top: 6px;
+  max-width: 100%;
+  max-height: 240px;
+}
+
+.post-form {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  max-width: 500px;
+  margin: 10px 0 1rem 0;
+}
+
+.post-form textarea,
+.post-form select {
+  width: 100%;
+  max-width: 100%;
+  padding: 4px 6px;
+  background: white;
+  border: 1px solid #e6c0bf;
+  border-radius: 2px;
+  font-family: 'Trebuchet MS', sans-serif;
+  font-size: 14px;
+  color: #571010;
+  box-sizing: border-box;
+}
+
+.post-form textarea {
+  resize: vertical;
+  min-height: 50px;
+}
+
+.post-form button {
+  align-self: flex-start;
+}
+
+div.page ul.cheeps li small,
+div.page small,
+small {
+    color: #595959;
+}
+
+div.page div.footer {
+    color: #595959;
+}
+
+div.page div.navigation {
+    color: #555;
+}
+
+ul.nav {
+    background-color: #8b4949;
+}
+
+ul.nav li a:hover {
+    background-color: #5f2f2f;
+}
+
+button,
+input[type=submit] {
+    background-color: #1f5f8b;
+    color: #ffffff;
+}

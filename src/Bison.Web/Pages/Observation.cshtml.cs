@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.RazorPages;
 using Bison.Core;
 using Bison.Services;
+using System.Security.Claims;
 
 namespace Bison.Web.Pages;
 
@@ -18,23 +19,70 @@ public class ObservationModel : PageModel
     public List<ObservationDTO> Observations { get; set; } = new();
     public List<CommentDTO> Comments { get; set; } = new();
     public List<ProposalDTO> Proposals { get; set; } = new();
+    public List<Taxon> Taxa { get; set; } = new();
+
+    [BindProperty] public string? CommentText { get; set; }
+    [BindProperty] public int? ProposalTaxonId { get; set; }
 
     public IActionResult OnGet(int? id, [FromQuery] int page = 1)
     {
         if (id.HasValue)
         {
-            Observation = _service.GetObservation(id.Value);
-            if (Observation == null)
-            {
-                return NotFound();
-            }
-
-            Comments = _service.GetComments(id.Value);
-            Proposals = _service.GetProposals(id.Value);
+            if (!LoadObservation (id.Value)) return NotFound();
             return Page();
         }
 
         Observations = _service.GetObservations(page);
         return Page();
+    }
+
+    // One handler for the combined form comment, proposal, or both
+    public IActionResult OnPost(int id)
+    {
+        if (User?.Identity?.IsAuthenticated != true)
+            return Unauthorized();
+
+        var hasComment = !string.IsNullOrWhiteSpace(CommentText);
+        var hasProposal = ProposalTaxonId.HasValue;
+
+        if (!hasComment && !hasProposal)
+            ModelState.AddModelError(string.Empty, "DUMB DUMB. Write a comment or CHOOSE YOUR POKEMON (animal)");
+
+        if (!ModelState.IsValid)
+        {
+            if(!LoadObservation(id)) return NotFound();
+            return Page();
+        }
+
+        var (name, email) = GetAuthor();
+
+        if (hasComment)
+            _service.CreateComment(name, email, CommentText!, id);
+
+        if (hasProposal)
+            _service.CreateProposal(name, email, id, ProposalTaxonId!.Value);
+
+        return RedirectToPage(new { id });
+    }
+
+    private bool LoadObservation (int id)
+    {
+        Observation = _service.GetObservation(id);
+        if (Observation == null) return false;
+
+        Comments = _service.GetComments(id);
+        Proposals = _service.GetProposals(id);
+        Taxa = _service.GetAllTaxa()
+            .Where(t => !string.IsNullOrEmpty(t.VernacularName))
+            .OrderBy(t => t.VernacularName)
+            .ToList();
+        return true;
+    }
+    private (string Name, string Email) GetAuthor()
+    {
+        var userName = User.Identity!.Name!;
+        var email = User.FindFirst(ClaimTypes.Email)?.Value ?? userName;
+        var name = User.FindFirst("FullName")?.Value ?? userName;
+        return (name, email);
     }
 }

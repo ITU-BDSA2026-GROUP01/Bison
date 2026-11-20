@@ -27,6 +27,8 @@ public class PublicModel : PageModel
 
     [BindProperty] public int? NewTaxonId { get; set; }
 
+    [BindProperty] public IFormFile? Picture{ get; set; }
+
     public PublicModel(IPostService service)
     {
         _service = service;
@@ -39,10 +41,10 @@ public class PublicModel : PageModel
     }
 
 
-    public IActionResult OnPost()
+    public async Task<ActionResult> OnPostAsync ([FromServices] IPictureStorage pictures)
     {
         // only real homies (those who are logged in) are allowed to create observations)
-        if (User.Identity?.IsAuthenticated !=true)
+        if (User?.Identity?.IsAuthenticated !=true)
             return Unauthorized();
 
         // empty text or no taxon is rejected
@@ -57,6 +59,26 @@ public class PublicModel : PageModel
             return Page();
 
         }
+
+        string? picturePath = null;
+        if (Picture is not null) // only if it has chosen one file
+        {
+
+            // Checks the filetype and the size and saves in wwwroot/uploads.
+            // gives a path or fucks it 
+            var (path, error) = await pictures.SaveAsync(Picture);
+            if (error !=null)
+            {
+                // show the side again with the error message
+                ModelState.AddModelError(nameof(Picture), error);
+                LoadPage(1, null);
+                return Page();
+            }
+            picturePath = path;
+
+        }
+
+
         // Get authors information from the logged user
         var userName = User.Identity.Name!;
         var email = User.FindFirst(ClaimTypes.Email)?.Value ?? userName;
@@ -64,7 +86,7 @@ public class PublicModel : PageModel
 
 
         // save via server so like service -> repo -> database
-        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value);
+        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value, picturePath);
 
         // Refresh dont resubmit the form. 
         return RedirectToPage();
@@ -85,6 +107,5 @@ public class PublicModel : PageModel
         : _service.GetObservations(page);
 
     }
-
 
 }

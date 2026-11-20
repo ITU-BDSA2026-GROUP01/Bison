@@ -21,5 +21,6 @@ public class ProposalDTO
     public int ObservationId { get; set; }
     public string Author { get; set; } = "";
     public string TaxonId { get; set; } = "";
+    public string TaxonName { get; set; } = "";
     public string Timestamp { get; set; } = "";
 }

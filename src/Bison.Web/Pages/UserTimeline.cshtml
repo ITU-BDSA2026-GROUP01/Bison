@@ -13,7 +13,7 @@
     {
         <div class="cheepbox">
             <h3>What did you see, @User.Identity!.Name?</h3>
-            <form method="post">
+            <form method="post" enctype="multipart/form-data">
                 <input type="text" asp-for="Text" />
                 <select asp-for="NewTaxonId">
                     <option value="">Choose taxon</option>
@@ -23,6 +23,11 @@
                     }
                 </select>
                 <input type="submit" value="Share" />
+        <div>
+                <label for="Picture">Picture (optional)</label>
+                <input type="file" asp-for="Picture" accept="image/jpeg,image/png,image/gif,image/webp" />
+                <span class="text-danger" asp-validation-for="Picture"></span>
+        </div>
                 <span class="text-danger" asp-validation-for="Text"></span>
                 <span class="text-danger" asp-validation-for="NewTaxonId"></span>
             </form>
@@ -36,10 +41,16 @@
             {
                 <li>
                     <p>
-                        <strong><a href="/@cheep.Author">@cheep.Author</a></strong>
-                        @cheep.Message
+                        <strong>
+                                <a href="/@cheep.Author">@cheep.Author</a>
+                        </strong>
+                        <a href="/ob/@cheep.Id">@cheep.Message</a>
                         <small>&mdash; @cheep.Timestamp</small>
                     </p>
+                     @if (!string.IsNullOrEmpty(cheep.PicturePath))
+                    {
+                             <img class="observation-picture" src="@cheep.PicturePath" alt="Picture posted by @cheep.Author" />
+                    }
                 </li>
             }
         </ul>

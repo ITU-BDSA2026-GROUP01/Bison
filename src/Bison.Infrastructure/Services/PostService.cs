@@ -38,17 +38,18 @@ public class PostService : IPostService
                 Id = observation.PostId,
                 Message = observation.Text,
                 Timestamp = observation.TimeStamp.ToString("u"),
-                Author = observation.Author?.Name ?? ""
+                Author = observation.Author?.Name ?? "",
+                PicturePath = observation.PicturePath
             })
             .ToList();
     }
 
 
-    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId)
+    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null)
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Observation text cannot be empty", nameof(text));
-        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId);
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId, picturePath);
     }
 
 
@@ -67,15 +68,29 @@ public class PostService : IPostService
         Id = entity.PostId,
         Author = entity.Author.Name,
         Message = entity.Text,
-        Timestamp = entity.TimeStamp.ToString("u")
+        Timestamp = entity.TimeStamp.ToString("u"),
+        PicturePath = entity.PicturePath
+
     };
 }
 
-public List<CommentDTO> GetComments(int observationId)
-    => _repository.GetCommentsForObservation(observationId);
+    public List<CommentDTO> GetComments(int observationId)
+        => _repository.GetCommentsForObservation(observationId);
 
-public List<ProposalDTO> GetProposals(int observationId)
-    => _repository.GetProposalsForObservation(observationId);
+    public List<ProposalDTO> GetProposals(int observationId)
+        => _repository.GetProposalsForObservation(observationId);
+
+
+    public CommentDTO CreateComment (string authorName, string authorEmail, string text, int observationId)
+    {
+        if (string.IsNullOrWhiteSpace(text))
+            throw new ArgumentException ("Hey your comment be looking like the dragon warriors scroll (empty....)", nameof(text));
+        return _repository.CreateComment(authorName, authorEmail, text.Trim(), observationId);
+    }
+
+    public ProposalDTO CreateProposal (string authorName, string authorEmail, int observationId, int taxonId)
+        => _repository.CreateProposal(authorName, authorEmail, observationId, taxonId);
+
 }
 
 

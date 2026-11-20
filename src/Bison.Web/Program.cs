@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using System.Security.Claims;
 using Bison.Repositories;
+using Bison.Web;
 
 
 
@@ -16,7 +17,7 @@ builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();
 builder.Services.AddSingleton<IObservationTaxonFilterService, ObservationTaxonFilterService>();
-
+builder.Services.AddSingleton<IPictureStorage, PictureStorage>();
 
 // Allow the SQLite path to be overridden via the BISONDBPATH environment
 // variable (tests use this to point the app at a hermetic temp database) or
@@ -100,6 +101,16 @@ using (var scope = app.Services.CreateScope())
 
     await context.Database.EnsureCreatedAsync();
 
+    
+  var hasPictureColumn = context.Database
+        .SqlQueryRaw<int>("SELECT COUNT(*) AS \"Value\" FROM pragma_table_info('Posts') WHERE name = 'PicturePath'")
+        .AsEnumerable()
+        .First() > 0;
+    if (!hasPictureColumn)
+    {
+        await context.Database.ExecuteSqlRawAsync("ALTER TABLE \"Posts\" ADD COLUMN \"PicturePath\" TEXT NULL");
+    }
+
     var seedEnabled = !string.Equals(
     builder.Configuration["BISON_SEED"], "false",
     StringComparison.OrdinalIgnoreCase);
@@ -160,3 +171,4 @@ static async Task SeedUserAsync(
     
     await userManager.AddClaimAsync(user, new Claim("FullName", fullName));
 }
+public partial class Program { }
