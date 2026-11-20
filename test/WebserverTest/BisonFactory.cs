@@ -19,7 +19,9 @@ public class BisonFactory : WebApplicationFactory<Program>
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
-        _connection.Open(); 
+        _connection.Open();
+
+        builder.ConfigureServices(services => 
         {
             services.RemoveAll<DbContextOptions<BisonDBContext>>();
             services.AddDbContext<BisonDBContext>(o => o.UseSqlite(_connection));
