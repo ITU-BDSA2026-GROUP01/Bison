@@ -392,3 +392,31 @@ div.page img.observation-picture {
 .post-form button {
   align-self: flex-start;
 }
+
+div.page ul.cheeps li small,
+div.page small,
+small {
+    color: #595959;
+}
+
+div.page div.footer {
+    color: #595959;
+}
+
+div.page div.navigation {
+    color: #555;
+}
+
+ul.nav {
+    background-color: #8b4949;
+}
+
+ul.nav li a:hover {
+    background-color: #5f2f2f;
+}
+
+button,
+input[type=submit] {
+    background-color: #1f5f8b;
+    color: #ffffff;
+}
