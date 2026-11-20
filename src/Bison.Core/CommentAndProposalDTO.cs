@@ -24,3 +24,12 @@ public class ProposalDTO
     public string TaxonName { get; set; } = "";
     public string Timestamp { get; set; } = "";
 }
+
+/// DTO used to transport user posts data to the UI without exposing the underlying repository model.
+/// Everything a user has posted: used by the "about me" page.
+public class UserPostsDTO
+{
+    public List<ObservationDTO> Observations { get; set; } = new();
+    public List<CommentDTO> Comments { get; set; } = new();
+    public List<ProposalDTO> Proposals { get; set; } = new();
+}
