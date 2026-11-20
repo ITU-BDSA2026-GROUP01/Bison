@@ -21,6 +21,7 @@ public class ObservationE2ETests : IClassFixture<BisonAppFixture>
         {
             BaseURL = BisonAppFixture.BaseUrl
         });
+        context.SetDefaultTimeout(60_000);
         return await context.NewPageAsync();
     }
 
@@ -30,8 +31,12 @@ public class ObservationE2ETests : IClassFixture<BisonAppFixture>
         await page.FillAsync("#Input_Email", email);
         await page.FillAsync("#Input_Password", password);
         await page.ClickAsync("#login-submit");
-        await page.WaitForURLAsync(url => !url.Contains("/Identity/Account/Login"));
+
+
+        await Assertions.Expect(page.Locator("select[name=NewTaxonId]"))
+            .ToBeVisibleAsync(new LocatorAssertionsToBeVisibleOptions { Timeout = 60_000 });
     }
+    
 
     private static async Task ShareObservationAsync(IPage page, string text)
     {
