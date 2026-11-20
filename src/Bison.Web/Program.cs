@@ -171,3 +171,4 @@ static async Task SeedUserAsync(
     
     await userManager.AddClaimAsync(user, new Claim("FullName", fullName));
 }
+public partial class Program { }

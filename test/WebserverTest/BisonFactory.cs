@@ -44,7 +44,7 @@ public class BisonFactory : WebApplicationFactory<Program>
 
 public class TestAuthHandler : AuthenticationHandler<AuthenticationSchemeOptions>
 {
-    public const string Scheme = "Test";
+    public new const string Scheme = "Test";
     public const string HeaderName = "X-Test-User";
 
     public TestAuthHandler(IOptionsMonitor<AuthenticationSchemeOptions> options,
