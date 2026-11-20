@@ -47,8 +47,10 @@ public class UserTimelineModel : PageModel
             ModelState.AddModelError(nameof(Text), "Write something first!!!!!!!!!!!!!");
         if (!NewTaxonId.HasValue)
             ModelState.AddModelError(nameof(NewTaxonId), "Pls pls pls choose a taxon");
-        if (!PictureLicenses.IsValid(PictureLicense))
-            ModelState.AddModelError(nameof(PictureLicense), "Pick a license from the list (or leave it empty)");
+        if (Picture is not null && string.IsNullOrWhiteSpace(PictureLicense))
+            ModelState.AddModelError(nameof(PictureLicense), "Pick a license for your picture!");
+        else if (!PictureLicenses.IsValid(PictureLicense))
+            ModelState.AddModelError(nameof(PictureLicense), "Pick a license from the list");
 
         if (!ModelState.IsValid)
         {

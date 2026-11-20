@@ -32,9 +32,8 @@
                     <label for="Picture">Picture (optional)</label>
                     <input type="file" asp-for="Picture" accept="image/jpeg,image/png,image/gif,image/webp" />
                     <span class="text-danger" asp-validation-for="Picture"></span>
-                    <label for="PictureLicense">Picture license (optional)</label>
-                    <select asp-for="PictureLicense">
-                        <option value="">No license (all rights reserved)</option>
+                    <label for="PictureLicense">Picture license</label>
+                    <select asp-for="PictureLicense" required>
                         @foreach (var (code, label) in PictureLicenses.Options)
                         {
                             <option value="@code">@label</option>
