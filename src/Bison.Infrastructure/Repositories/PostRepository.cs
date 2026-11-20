@@ -26,7 +26,7 @@ public class PostRepository : IPostRepository
             {
                 Id = o.PostId,
                 Message = o.Text,
-                Timestamp = o.TimeStamp.ToString("u"),
+                Timestamp = o.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"),
                 Author = o.Author.Name,
                 PicturePath = o.PicturePath,
                 PictureLicense = o.PictureLicense
@@ -46,7 +46,7 @@ public class PostRepository : IPostRepository
             {
                 Id = o.PostId,
                 Message = o.Text,
-                Timestamp = o.TimeStamp.ToString("u"),
+                Timestamp = o.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"),
                 Author = o.Author.Name,
                 PicturePath = o.PicturePath,
                 PictureLicense = o.PictureLicense
@@ -84,7 +84,7 @@ public class PostRepository : IPostRepository
             {
                 Id = observation.PostId,
                 Message = observation.Text,
-                Timestamp = observation.TimeStamp.ToString("u"),
+                Timestamp = observation.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"),
                 Author = author.Name,
                 PicturePath = observation.PicturePath,
                 PictureLicense = observation.PictureLicense
@@ -128,7 +128,7 @@ public class PostRepository : IPostRepository
                 ObservationId = observationId,
                 Author = author.Name,
                 Message = comment.Text,
-                Timestamp = comment.TimeStamp.ToString("u")
+                Timestamp = comment.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")
             };
 
     }
@@ -160,7 +160,7 @@ public ProposalDTO CreateProposal(string authorName, string authorEmail, int obs
         Author = author.Name,
         TaxonId = taxon.dwc_TaxonID,
         TaxonName = taxon.VernacularName ?? taxon.dwc_TaxonID,
-        Timestamp = proposal.TimeStamp.ToString("u")
+        Timestamp = proposal.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")
 
     };
 }
@@ -191,7 +191,7 @@ public ProposalDTO CreateProposal(string authorName, string authorEmail, int obs
                 ObservationId = c.ObservationId,
                 Author = c.Author.Name,
                 Message = c.Text,
-                Timestamp = c.TimeStamp.ToString("u")
+                Timestamp = c.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")
             })
             .ToList();
     }
@@ -211,7 +211,7 @@ public ProposalDTO CreateProposal(string authorName, string authorEmail, int obs
                 Author = p.Author.Name,
                 TaxonId = p.Taxon?.dwc_TaxonID ?? "",
                 TaxonName = p.Taxon?.VernacularName ?? p.Taxon?.dwc_TaxonID ?? "",
-                Timestamp = p.TimeStamp.ToString("u")
+                Timestamp = p.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss")
             })
             .ToList();
     }

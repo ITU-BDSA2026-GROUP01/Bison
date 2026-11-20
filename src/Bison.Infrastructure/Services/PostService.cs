@@ -37,7 +37,7 @@ public class PostService : IPostService
             {
                 Id = observation.PostId,
                 Message = observation.Text,
-                Timestamp = observation.TimeStamp.ToString("u"),
+                Timestamp = observation.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"),
                 Author = observation.Author?.Name ?? "",
                 PicturePath = observation.PicturePath,
                 PictureLicense = observation.PictureLicense
@@ -69,7 +69,7 @@ public class PostService : IPostService
         Id = entity.PostId,
         Author = entity.Author.Name,
         Message = entity.Text,
-        Timestamp = entity.TimeStamp.ToString("u"),
+        Timestamp = entity.TimeStamp.ToString("yyyy-MM-dd HH:mm:ss"),
         PicturePath = entity.PicturePath,
         PictureLicense = entity.PictureLicense
 
