@@ -17,7 +17,9 @@
             <div class="cheepbox">
                 <h3>What did you see, @User.Identity.Name?</h3>
                 <form method="post" enctype="multipart/form-data">
+                    <label for="Text">Observation</label>
                     <input type="text" asp-for="Text" />
+                    <label for="NewTaxonId">Taxon</label>
                     <select asp-for="NewTaxonId">
                         <option value="">Choose taxon</option>
                         @foreach (var taxon in Model.Taxa)
