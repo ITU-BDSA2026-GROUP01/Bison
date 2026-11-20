@@ -233,7 +233,8 @@ public ProposalDTO CreateProposal(string authorName, string authorEmail, int obs
     return _context.Taxons.ToList();
 }
 
-public UserPostsDTO GetPostsByAuthorEmail(string email)
+
+public UserPostsDTO GetPostsByAuthorEmail(string email) 
 {
     const string format = "yyyy-MM-dd HH:mm:ss";
     var culture = System.Globalization.CultureInfo.InvariantCulture;
