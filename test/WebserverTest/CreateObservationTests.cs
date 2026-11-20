@@ -102,6 +102,34 @@ public class CreateObservationTests : IDisposable
     Assert.Equal("/uploads/heron.jpg", listed.PicturePath);
     }  
 
+    [Fact]
+    public void CreatedObservation_WithPicture_KeepsPictureLicense()
+    {
+    _service.CreateObservation("Eduard", "edka@itu.dk", "Licensed", _taxonId, "/uploads/heron.jpg", "CC BY-SA");
+
+    var listed = Assert.Single(_service.GetObservations());
+    Assert.Equal("/uploads/heron.jpg", listed.PicturePath);
+    Assert.Equal("CC BY-SA", listed.PictureLicense);
+    }
+
+    [Fact]
+    public void CreatedObservation_WithoutLicense_HasNoPictureLicense()
+    {
+    var created = _service.CreateObservation("Eduard", "edka@itu.dk", "No license", _taxonId, "/uploads/heron.jpg");
+
+    Assert.Null(created.PictureLicense);
+    }
+
+    [Fact]
+    public void PictureLicenses_OnlyAcceptsKnownCodes()
+    {
+    Assert.True(PictureLicenses.IsValid(null));
+    Assert.True(PictureLicenses.IsValid(""));
+    foreach (var (code, _) in PictureLicenses.Options)
+        Assert.True(PictureLicenses.IsValid(code));
+    Assert.False(PictureLicenses.IsValid("CC GPL-3.0"));
+    }
+
     public void Dispose()
     {
         _context.Dispose();

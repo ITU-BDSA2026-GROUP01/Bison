@@ -20,6 +20,8 @@ public class UserTimelineModel : PageModel
     [BindProperty] public int? NewTaxonId { get; set; }
 
     [BindProperty] public IFormFile? Picture {get; set; }
+
+    [BindProperty] public string? PictureLicense { get; set; }
     
     
     public UserTimelineModel(IObservationService service)
@@ -40,11 +42,13 @@ public class UserTimelineModel : PageModel
         if (!IsOwn(author))
         return StatusCode(403);
 
-         // empty text or no taxon is rejected
+        // empty text or no taxon is rejected
         if (string.IsNullOrWhiteSpace(Text))
             ModelState.AddModelError(nameof(Text), "Write something first!!!!!!!!!!!!!");
         if (!NewTaxonId.HasValue)
             ModelState.AddModelError(nameof(NewTaxonId), "Pls pls pls choose a taxon");
+        if (!PictureLicenses.IsValid(PictureLicense))
+            ModelState.AddModelError(nameof(PictureLicense), "Pick a license from the list (or leave it empty)");
 
         if (!ModelState.IsValid)
         {
@@ -56,6 +60,7 @@ public class UserTimelineModel : PageModel
 
 
         string? picturePath = null;
+        string? pictureLicense = null;
         if (Picture is not null) // only if it has chosen one file
         {
 
@@ -70,6 +75,7 @@ public class UserTimelineModel : PageModel
                 return Page();
             }
             picturePath = path;
+            pictureLicense = string.IsNullOrWhiteSpace(PictureLicense) ? null : PictureLicense!.Trim();
 
         }
 
@@ -80,7 +86,7 @@ public class UserTimelineModel : PageModel
 
 
         // save via server so like service -> repo -> database
-        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value, picturePath);
+        _service.CreateObservation(name, email, Text!, NewTaxonId!.Value, picturePath, pictureLicense);
 
         // Refresh dont resubmit the form. 
         return RedirectToPage(new {author });

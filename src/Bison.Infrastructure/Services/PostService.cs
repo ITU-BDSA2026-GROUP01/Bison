@@ -39,17 +39,18 @@ public class PostService : IPostService
                 Message = observation.Text,
                 Timestamp = observation.TimeStamp.ToString("u"),
                 Author = observation.Author?.Name ?? "",
-                PicturePath = observation.PicturePath
+                PicturePath = observation.PicturePath,
+                PictureLicense = observation.PictureLicense
             })
             .ToList();
     }
 
 
-    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null)
+    public ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null, string? pictureLicense = null)
     {
         if (string.IsNullOrWhiteSpace(text))
             throw new ArgumentException("Observation text cannot be empty", nameof(text));
-        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId, picturePath);
+        return _repository.CreateObservation(authorName, authorEmail, text.Trim(), taxonId, picturePath, pictureLicense);
     }
 
 
@@ -69,7 +70,8 @@ public class PostService : IPostService
         Author = entity.Author.Name,
         Message = entity.Text,
         Timestamp = entity.TimeStamp.ToString("u"),
-        PicturePath = entity.PicturePath
+        PicturePath = entity.PicturePath,
+        PictureLicense = entity.PictureLicense
 
     };
 }

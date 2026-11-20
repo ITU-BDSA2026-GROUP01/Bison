@@ -21,7 +21,7 @@ public interface IPostRepository
     List<Observation> GetAllObservationsWithTaxons();
     List<Taxon> GetAllTaxa();
 
-    ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null);
+    ObservationDTO CreateObservation(string authorName, string authorEmail, string text, int taxonId, string? picturePath = null, string? pictureLicense = null);
     CommentDTO CreateComment(string authorName, string authorEmail, string text, int observationId);
     ProposalDTO CreateProposal(string authorName, string authorEmail, int observationId, int taxonId);
 }

@@ -27,6 +27,15 @@
                 <label for="Picture">Picture (optional)</label>
                 <input type="file" asp-for="Picture" accept="image/jpeg,image/png,image/gif,image/webp" />
                 <span class="text-danger" asp-validation-for="Picture"></span>
+                <label for="PictureLicense">Picture license (optional)</label>
+                <select asp-for="PictureLicense">
+                    <option value="">No license (all rights reserved)</option>
+                    @foreach (var (code, label) in PictureLicenses.Options)
+                    {
+                        <option value="@code">@label</option>
+                    }
+                </select>
+                <span class="text-danger" asp-validation-for="PictureLicense"></span>
         </div>
                 <span class="text-danger" asp-validation-for="Text"></span>
                 <span class="text-danger" asp-validation-for="NewTaxonId"></span>
