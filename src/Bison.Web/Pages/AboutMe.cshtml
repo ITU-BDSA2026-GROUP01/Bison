@@ -1,0 +1,84 @@
+@page "/aboutme"
+@model Bison.Web.Pages.AboutMeModel
+@{
+    ViewData["Title"] = "About me";
+    Layout = "Shared/_Layout";
+}
+
+<div>
+    <h2>About me</h2>
+    <p>This is all the information Bison stores about you.</p>
+
+    <h3>Personal information</h3>
+    <ul id="personal-info">
+        <li><strong>Name:</strong> @(Model.FullName ?? "(none)")</li>
+        <li><strong>Email:</strong> @Model.Email (@(Model.EmailConfirmed ? "confirmed" : "not confirmed"))</li>
+        <li><strong>Phone number:</strong> @(string.IsNullOrEmpty(Model.PhoneNumber) ? "(none)" : Model.PhoneNumber)</li>
+        @if (Model.ExternalLogins.Any()){
+            <li><strong>External logins:</strong> @string.Join(", ", Model.ExternalLogins)</li>
+        }
+    </ul>
+
+    <h3>My observations (@Model.Posts.Observations.Count)</h3>
+    @if (Model.Posts.Observations.Any())
+    {
+        <ul id="my-observations">
+            @foreach (var o in Model.Posts.Observations)
+            {
+                <li>
+                    <a href="/ob/@o.Id">@o.Message</a>
+                    <small>&mdash; @o.Timestamp</small>
+                    @if (!string.IsNullOrEmpty(o.PicturePath))
+                    {
+                        <br />
+                        <img class="observation-picture" src="@o.PicturePath" alt="Picture posted by @o.Author" />
+                        @if (!string.IsNullOrEmpty(o.PictureLicense))
+                        {
+                            <br /><small>Picture: @PictureLicenses.LabelFor(o.PictureLicense)</small>
+                        }
+                    }
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You have not posted any observations.</p>
+    }
+
+    <h3>My comments (@Model.Posts.Comments.Count)</h3>
+    @if (Model.Posts.Comments.Any())
+    {
+        <ul id="my-comments">
+            @foreach (var c in Model.Posts.Comments)
+            {
+                <li>
+                    @c.Message
+                    <small>&mdash; on <a href="/ob/@c.ObservationId">observation @c.ObservationId</a>, @c.Timestamp</small>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You have not written any comments.</p>
+    }
+
+    <h3>My proposals (@Model.Posts.Proposals.Count)</h3>
+    @if (Model.Posts.Proposals.Any())
+    {
+        <ul id="my-proposals">
+            @foreach (var p in Model.Posts.Proposals)
+            {
+                <li>
+                    @p.TaxonName
+                    <small>&mdash; on <a href="/ob/@p.ObservationId">observation @p.ObservationId</a>, @p.Timestamp</small>
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You have not made any proposals.</p>
+    }
+</div>

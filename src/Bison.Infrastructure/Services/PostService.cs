@@ -93,6 +93,8 @@ public class PostService : IPostService
     public ProposalDTO CreateProposal (string authorName, string authorEmail, int observationId, int taxonId)
         => _repository.CreateProposal(authorName, authorEmail, observationId, taxonId);
 
+    public UserPostsDTO GetPostsByAuthorEmail(string email)
+    => _repository.GetPostsByAuthorEmail(email);
 }
 
 

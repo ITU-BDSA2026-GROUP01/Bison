@@ -233,4 +233,66 @@ public ProposalDTO CreateProposal(string authorName, string authorEmail, int obs
     return _context.Taxons.ToList();
 }
 
+
+public UserPostsDTO GetPostsByAuthorEmail(string email) 
+{
+    const string format = "yyyy-MM-dd HH:mm:ss";
+    var culture = System.Globalization.CultureInfo.InvariantCulture;
+
+    var observations = _context.Observations
+        .Include(o => o.Author)
+        .Where(o => o.Author.Email == email)
+        .OrderByDescending(o => o.TimeStamp)
+        .ToList()
+        .Select(o => new ObservationDTO
+        {
+            Id = o.PostId,
+            Message = o.Text,
+            Timestamp = o.TimeStamp.ToString(format, culture),
+            Author = o.Author.Name,
+            PicturePath = o.PicturePath,
+            PictureLicense = o.PictureLicense
+        })
+        .ToList();
+
+    var comments = _context.Comments
+        .Include(c => c.Author)
+        .Where(c => c.Author.Email == email)
+        .OrderByDescending(c => c.TimeStamp)
+        .ToList()
+        .Select(c => new CommentDTO
+        {
+            Id = c.PostId,
+            ObservationId = c.ObservationId,
+            Author = c.Author.Name,
+            Message = c.Text,
+            Timestamp = c.TimeStamp.ToString(format, culture)
+        })
+        .ToList();
+
+    var proposals = _context.Proposals
+        .Include(p => p.Author)
+        .Include(p => p.Taxon)
+        .Where(p => p.Author.Email == email)
+        .OrderByDescending(p => p.TimeStamp)
+        .ToList()
+        .Select(p => new ProposalDTO
+        {
+            Id = p.PostId,
+            ObservationId = p.ObservationId,
+            Author = p.Author.Name,
+            TaxonId = p.Taxon?.dwc_TaxonID ?? "",
+            TaxonName = p.Taxon?.VernacularName ?? p.Taxon?.dwc_TaxonID ?? "",
+            Timestamp = p.TimeStamp.ToString(format, culture)
+        })
+        .ToList();
+
+    return new UserPostsDTO
+    {
+        Observations = observations,
+        Comments = comments,
+        Proposals = proposals
+    };
+}
+
 }
