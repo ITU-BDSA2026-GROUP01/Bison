@@ -130,6 +130,15 @@ public class CreateObservationTests : IDisposable
     Assert.False(PictureLicenses.IsValid("CC GPL-3.0"));
     }
 
+    [Fact]
+    public void SameNameDifferentEmail_CreatesTwoAuthors()
+    {
+        _service.CreateObservation("Sam", "sam.a@itu.dk", "one", _taxonId);
+        _service.CreateObservation("Sam", "sam.b@itu.dk", "two", _taxonId);
+
+        Assert.Equal(2, _context.Authors.Count());
+    }
+
     public void Dispose()
     {
         _context.Dispose();

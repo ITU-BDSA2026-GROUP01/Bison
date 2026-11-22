@@ -57,16 +57,10 @@ public class PostRepository : IPostRepository
 
     public ObservationDTO CreateObservation (string authorName, string authorEmail, string text, int taxonId, string? picturePath = null, string? pictureLicense = null)
     {
-        if (!_context.Taxons.Any(t=> t.TaxonId == taxonId))
+       if (!_context.Taxons.Any(t=> t.TaxonId == taxonId))
             throw new ArgumentException ("Unknown taxon.", nameof(taxonId));
 
-            var author = _context.Authors.FirstOrDefault(a => a.Email == authorEmail)
-                    ??_context.Authors.FirstOrDefault(a => a.Name == authorName);
-            if (author == null)
-            {
-                author = new Author { Name = authorName, Email = authorEmail};
-                _context.Authors.Add(author);
-            }
+            var author = GetCreateOrAuthor(authorName, authorEmail);
 
             var observation = new Observation
             {
@@ -95,14 +89,14 @@ public class PostRepository : IPostRepository
 
     private Author GetCreateOrAuthor(string authorName, string authorEmail)
     {
-        var author= _context.Authors.FirstOrDefault (a => a.Email == authorEmail)
-            ?? _context.Authors.FirstOrDefault (a => a.Name == authorName);
+        var author = _context.Authors.FirstOrDefault(a => a.Email == authorEmail);
 
         if (author == null)
         {
-            author = new Author {Name = authorName, Email = authorEmail};
+            author = new Author { Name = authorName, Email = authorEmail };
             _context.Authors.Add(author);
-        } return author;
+        }
+        return author;
     }
 
     public CommentDTO CreateComment (string authorName, string authorEmail, string text, int observationId)
