@@ -420,3 +420,14 @@ input[type=submit] {
     background-color: #1f5f8b;
     color: #ffffff;
 }
+
+button.forget-me-button {
+  display:block;
+  margin-top: 1rem;  
+  background-color: #c20013;
+  color: #ffffff;
+}
+
+button.forget-me-button:hover {
+  background-color: #6c010c;
+}

@@ -18,7 +18,7 @@
             <li><strong>External logins:</strong> @string.Join(", ", Model.ExternalLogins)</li>
         }
     </ul>
-
+    <button type="button" class="forget-me-button">Forget me!</button>
     <h3>My observations (@Model.Posts.Observations.Count)</h3>
     @if (Model.Posts.Observations.Any())
     {
