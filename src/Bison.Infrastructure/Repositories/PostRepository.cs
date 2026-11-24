@@ -301,8 +301,8 @@ public void ForgetUserByAuthorEmail(string authorEmail, bool keepObservations)
     // Comments and proposals are anonymized by deletion, regardless of the keepObservations flag
    _context.Comments.RemoveRange(_context.Comments.Where(c => c.AuthorId == author.AuthorId));
    _context.Proposals.RemoveRange(_context.Proposals.Where(p => p.AuthorId == author.AuthorId));
-    // If keepObservations is false, we also delete the observations; otherwise, we just anonymize them
-    if (!keepObservations)
+    // If keepObservations is true, we just anonymize them, otherwise we also delete the observations
+    if (keepObservations)
     {
         author.Name = "Deleted User";
         author.Email = $"deleted-{Guid.NewGuid():N}@deleted.invalid"; // Anonymize the author
@@ -310,7 +310,7 @@ public void ForgetUserByAuthorEmail(string authorEmail, bool keepObservations)
     else
     {
       _context.Observations.RemoveRange(_context.Observations.Where(o => o.AuthorId == author.AuthorId));
-      _context.Authors.Remove(author); // Remove the author if we are keeping observations
+      _context.Authors.Remove(author); // Remove the author because none of their observations are being kept
     }
     _context.SaveChanges();
 }
