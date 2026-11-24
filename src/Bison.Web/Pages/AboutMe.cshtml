@@ -18,7 +18,20 @@
             <li><strong>External logins:</strong> @string.Join(", ", Model.ExternalLogins)</li>
         }
     </ul>
-    <button type="button" class="forget-me-button">Forget me!</button>
+    <button id="forget-me-button" type="button" class="forget-me-button">Forget me!</button>
+    
+    <dialog id = "forgetdialog">
+        <div>
+            <h2> Are you sure? </h2>
+            <p> Your personal information will be deleted.</p>
+            <label>
+                <input type="checkbox" name="KeepObservations" value="true" /> Keep my observations and comments online (otherwise they will be deleted)
+            </label>
+            <button type = "button" onclick="document.getElementById('forgetdialog').close();">Cancel</button>
+            <button type="button" class = "forget-me-button">Confirm</button>
+        </div>
+    </dialog>
+   
     <h3>My observations (@Model.Posts.Observations.Count)</h3>
     @if (Model.Posts.Observations.Any())
     {
@@ -82,3 +95,11 @@
         <p>You have not made any proposals.</p>
     }
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("forget-me-button").addEventListener("click", function () {
+            document.getElementById("forgetdialog").showModal();
+        });
+    </script>
+}
