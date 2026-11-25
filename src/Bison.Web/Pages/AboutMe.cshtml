@@ -18,7 +18,22 @@
             <li><strong>External logins:</strong> @string.Join(", ", Model.ExternalLogins)</li>
         }
     </ul>
-
+    <button id="forget-me-button" type="button" class="forget-me-button">Forget me!</button>
+    
+    <dialog id = "forgetdialog">
+        <form method="post" asp-page-handler="ForgetMe">
+            <h2> Are you sure? </h2>
+            <p> Your personal information will be deleted.</p>
+            <label>
+                <input type="checkbox" name="KeepObservations" value="true" /> Keep my observations online (comments and proposals will be deleted either way)
+            </label>
+            <div class = "dialog-buttons">
+                <button type = "button" onclick="document.getElementById('forgetdialog').close();">Cancel</button>
+                <button type="submit" class = "forget-me-button">Confirm</button>
+            </div>
+        </form>
+    </dialog>
+   
     <h3>My observations (@Model.Posts.Observations.Count)</h3>
     @if (Model.Posts.Observations.Any())
     {
@@ -82,3 +97,11 @@
         <p>You have not made any proposals.</p>
     }
 </div>
+
+@section Scripts {
+    <script>
+        document.getElementById("forget-me-button").addEventListener("click", function () { // Add event listener to the "Forget me!" button
+            document.getElementById("forgetdialog").showModal(); // Show the dialog when the button is clicked
+        });
+    </script>
+}

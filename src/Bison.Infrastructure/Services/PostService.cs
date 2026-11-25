@@ -95,6 +95,9 @@ public class PostService : IPostService
 
     public UserPostsDTO GetPostsByAuthorEmail(string email)
     => _repository.GetPostsByAuthorEmail(email);
+
+    public void ForgetUserByAuthorEmail(string authorEmail,  bool keepObservations)
+    => _repository.ForgetUserByAuthorEmail(authorEmail, keepObservations);
 }
 
 

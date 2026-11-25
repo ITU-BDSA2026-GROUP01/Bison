@@ -289,4 +289,29 @@ public UserPostsDTO GetPostsByAuthorEmail(string email)
     };
 }
 
+public void ForgetUserByAuthorEmail(string authorEmail, bool keepObservations)
+{
+    var author = _context.Authors.SingleOrDefault(a => a.Email == authorEmail);
+
+    if (author is null)// No author found with the given email, nothing to do
+    {
+        return;
+    }
+
+    // Comments and proposals are anonymized by deletion, regardless of the keepObservations flag
+   _context.Comments.RemoveRange(_context.Comments.Where(c => c.AuthorId == author.AuthorId));
+   _context.Proposals.RemoveRange(_context.Proposals.Where(p => p.AuthorId == author.AuthorId));
+    // If keepObservations is true, we just anonymize them, otherwise we also delete the observations
+    if (keepObservations)
+    {
+        author.Name = "Deleted User";
+        author.Email = $"deleted-{Guid.NewGuid():N}@deleted.invalid"; // Anonymize the author
+    }
+    else
+    {
+      _context.Observations.RemoveRange(_context.Observations.Where(o => o.AuthorId == author.AuthorId));
+      _context.Authors.Remove(author); // Remove the author because none of their observations are being kept
+    }
+    _context.SaveChanges();
+}
 }
