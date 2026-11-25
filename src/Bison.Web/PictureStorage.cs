@@ -19,8 +19,8 @@ public interface IPictureStorage
 public class PictureStorage : IPictureStorage
 {
     private const long MaxImageBytes = 5L * 1024 * 1024; // 5 mb picture
-    private const long MaxVideoBytes = 150L * 1024 * 1024; // around 8 min of 720p vid
-    private const long MaxAudioBytes = 30L * 1024 * 1024; // around 20 min sound
+    private const long MaxVideoBytes = 150L * 1024 * 1024; // 150 mb video
+    private const long MaxAudioBytes = 30L * 1024 * 1024; // 30 mb sound
 
     private static readonly Dictionary<string, (string[] ContentType, long MaxBytes)> AllowedTypes = new(StringComparer.OrdinalIgnoreCase)
     {
