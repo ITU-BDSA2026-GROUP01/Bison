@@ -120,4 +120,67 @@ public class CommentProposalTests : IDisposable
 
         Assert.Empty(_service.GetComments(other));
     }
+
+
+        [Fact]
+    public void ForgetMe_KeepObservations_AnonymizesAuthorAndKeepsObservation()
+    {
+        _service.ForgetUserByAuthorEmail("eduard@test.dk", keepObservations: true);
+
+        Assert.Equal(1, _context.Observations.Count());
+        Assert.False(_context.Authors.Any(a => a.Email == "eduard@test.dk"));
+        Assert.True(_context.Authors.Any(a => a.Name == "Deleted User"));
+    }
+
+    [Fact]
+    public void ForgetMe_KeepObservations_StillDeletesOwnCommentsAndProposals()
+    {
+        _service.CreateComment("Nathan", "nathan@test.dk", "Nice heron", _observationId);
+        _service.CreateProposal("Nathan", "nathan@test.dk", _observationId, _taxonId);
+
+        _service.ForgetUserByAuthorEmail("nathan@test.dk", keepObservations: true);
+
+        Assert.Empty(_service.GetComments(_observationId));
+        Assert.Empty(_service.GetProposals(_observationId));
+    }
+
+    [Fact]
+    public void ForgetMe_DeleteObservations_RemovesObservationsAndAuthor()
+    {
+        _service.ForgetUserByAuthorEmail("eduard@test.dk", keepObservations: false);
+
+        Assert.Equal(0, _context.Observations.Count());
+        Assert.False(_context.Authors.Any(a => a.Email == "eduard@test.dk"));
+    }
+
+    [Fact]
+    public void ForgetMe_DeleteObservations_WorksWhenOthersCommentedOnThem()
+    {
+        _service.CreateComment("Nathan", "nathan@test.dk", "Nice picture!", _observationId);
+
+        _service.ForgetUserByAuthorEmail("eduard@test.dk", keepObservations: false);
+
+        Assert.Equal(0, _context.Observations.Count());
+    }
+
+    [Fact]
+    public void ForgetMe_DoesNotTouchOtherUsers()
+    {
+        var other = _service.CreateObservation("Nathan", "nathan@test.dk", "A fox", _taxonId);
+        _service.CreateComment("Nathan", "nathan@test.dk", "My comment", other.Id);
+
+        _service.ForgetUserByAuthorEmail("eduard@test.dk", keepObservations: false);
+
+        Assert.Equal(1, _context.Observations.Count());
+        Assert.True(_context.Authors.Any(a => a.Email == "nathan@test.dk"));
+        Assert.Single(_service.GetComments(other.Id));
+    }
+
+    [Fact]
+    public void ForgetMe_UnknownEmail_DoesNothing()
+    {
+        _service.ForgetUserByAuthorEmail("nobody@test.dk", keepObservations: false);
+
+        Assert.Equal(1, _context.Observations.Count());
+    }
 }
