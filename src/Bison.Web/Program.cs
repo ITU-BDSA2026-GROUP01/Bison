@@ -2,6 +2,7 @@ using Bison.Infrastructure.Data;
 using Bison.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.AspNetCore.Http.Features;
 using System.Security.Claims;
 using Bison.Repositories;
 using Bison.Web;
@@ -13,6 +14,9 @@ var connectionString = builder.Configuration.GetConnectionString("BisonDBContext
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+const long maxUploadBytes = 160L * 1024 * 1024; // vids can now be up to 150 MB (Raised from 30 MB limit)
+builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = maxUploadBytes); // kestrel is a way to limit to only 150 MB
+builder.Services.Configure<FormOptions>(o => o.MultipartBodyLengthLimit = maxUploadBytes);
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
 builder.Services.AddScoped<IObservationService, ObservationService>();

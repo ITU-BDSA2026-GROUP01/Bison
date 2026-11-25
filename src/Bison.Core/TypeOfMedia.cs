@@ -8,7 +8,7 @@ namespace Bison.Core;
 public static class TypeOfMedia 
 {
 
-    public static string For(string path?) 
+    public static string For(string? path) 
     {
         var extension = System.IO.Path.GetExtension( path ?? "").ToLowerInvariant();
         return extension switch
