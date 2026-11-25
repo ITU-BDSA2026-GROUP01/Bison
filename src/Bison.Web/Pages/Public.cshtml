@@ -29,10 +29,10 @@
                     </select>
                     <input type="submit" value="Share" />
             <div>
-                    <label for="Picture">Picture (optional)</label>
-                    <input type="file" asp-for="Picture" accept="image/jpeg,image/png,image/gif,image/webp" />
+                    <label for="Picture">Picture, video or audio (optional)</label>
+                    <input type="file" asp-for="Picture" accept=".jpg,.jpeg,.png,.gif,.webp,.mp4,.webm,.mp3,.m4a,.ogg" />
                     <span class="text-danger" asp-validation-for="Picture"></span>
-                    <label for="PictureLicense">Picture license</label>
+                    <label for="PictureLicense">License</label>
                     <select asp-for="PictureLicense" required>
                         @foreach (var (code, label) in PictureLicenses.Options)
                         {
@@ -60,14 +60,7 @@
                             <a href="/ob/@cheep.Id">@cheep.Message</a>
                             <small>&mdash; @cheep.Timestamp</small>
                         </p>
-                        @if (!string.IsNullOrEmpty(cheep.PicturePath))
-                        {
-                             <img class="observation-picture" src="@cheep.PicturePath" alt="Picture posted by @cheep.Author" />
-                             @if (!string.IsNullOrEmpty(cheep.PictureLicense))
-                             {
-                                 <p><small>Picture: @PictureLicenses.LabelFor(cheep.PictureLicense)</small></p>
-                             }
-                        }
+                        <partial name="_Media" model="cheep" />
                     </li>
                 }
             </ul>
