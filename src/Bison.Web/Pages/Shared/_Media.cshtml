@@ -1,0 +1,28 @@
+@model Bison.Core.ObservationDTO
+@using Bison.Core
+@if (!string.IsNullOrEmpty(Model.PicturePath))
+{
+
+    var kind = TypeOfMedia.For(Model.PicturePath);
+    if (kind == "video")
+        {
+            <video class="observation-media" controls preload="metadata" src="@Model.PicturePath" aria-label="Video posted by @Model.Author"></video>
+        }
+        else if (kind == "audio")
+        {
+            <audio class="observation-media" controls preload="metadata" src="@Model.PicturePath" aria-label="Audio posted by @Model.Author"></audio>
+
+        }
+        else
+        {
+            <img class="observation-picture" src="@Model.PicturePath" alt="Picture posted by @Model.Author" />
+
+        }
+    @if (!string.IsNullOrEmpty(Model.PictureLicense))
+    {
+        <p><small>License: @PictureLicenses.LabelFor(Model.PictureLicense)</small></p>
+    }
+}
+
+
+

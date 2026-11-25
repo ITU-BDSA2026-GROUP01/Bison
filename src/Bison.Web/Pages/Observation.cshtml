@@ -11,14 +11,7 @@
         <h2>Observation @Model.Observation.Id</h2>
         <p><strong>@Model.Observation.Author</strong></p>
         <p>@Model.Observation.Message</p>
-        @if (!string.IsNullOrEmpty(Model.Observation.PicturePath))
-        {
-            <img class="observation-picture" src="@Model.Observation.PicturePath" alt="Picture posted by @Model.Observation.Author" />
-            @if (!string.IsNullOrEmpty(Model.Observation.PictureLicense))
-            {
-                <p><small>Picture: @PictureLicenses.LabelFor(Model.Observation.PictureLicense)</small></p>
-            }
-        }
+        <partial name="_Media" model="Model.Observation" />
         <small>@Model.Observation.Timestamp</small>
 
         <h3>Comments</h3>

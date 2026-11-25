@@ -43,15 +43,7 @@
                 <li>
                     <a href="/ob/@o.Id">@o.Message</a>
                     <small>&mdash; @o.Timestamp</small>
-                    @if (!string.IsNullOrEmpty(o.PicturePath))
-                    {
-                        <br />
-                        <img class="observation-picture" src="@o.PicturePath" alt="Picture posted by @o.Author" />
-                        @if (!string.IsNullOrEmpty(o.PictureLicense))
-                        {
-                            <br /><small>Picture: @PictureLicenses.LabelFor(o.PictureLicense)</small>
-                        }
-                    }
+                    <partial name="_Media" model="o" />
                 </li>
             }
         </ul>
