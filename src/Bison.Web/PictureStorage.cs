@@ -11,6 +11,8 @@ public interface IPictureStorage
     // Return the public path or an error message if the file is not accepted 
     Task<(string? Path, string? Error)> SaveAsync(IFormFile file);
 
+    Task DeleteAsync(string? picturePath);
+
 }
 
 
@@ -53,6 +55,25 @@ public class PictureStorage : IPictureStorage
         await file.CopyToAsync(stream);
 
         return ($"/uploads/{fileName}", null);
+    }
+    public Task DeleteAsync(string? picturePath)
+    {
+        if(string.IsNullOrWhiteSpace(picturePath))
+        return Task.CompletedTask;
+        
+        const string uploadPrefix= "/uploads/";
+        if(!picturePath.StartsWith(uploadPrefix, StringComparison.Ordinal))
+        throw new ArgumentException("Invalid upload path", nameof(picturePath));
+
+        var fileName = picturePath.Substring(uploadPrefix.Length);
+        if(Path.GetFileName(fileName)!= fileName)
+        throw new ArgumentException("Invalid upload path", nameof(picturePath));
+
+        var filePath = Path.Combine(_uploadDir, fileName);
+        if(File.Exists(filePath))
+            File.Delete(filePath);
+        
+        return Task.CompletedTask;
     }
 
 }

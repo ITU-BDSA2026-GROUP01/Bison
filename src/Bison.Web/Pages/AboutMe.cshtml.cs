@@ -54,19 +54,29 @@ public class AboutMeModel : PageModel
         return Page();
     }
 
-    public async Task<IActionResult> OnPostForgetMeAsync()
+    public async Task<IActionResult> OnPostForgetMeAsync([FromServices] IPictureStorage pictures)
     {
         var user = await _userManager.GetUserAsync(User);
         if(user is null)
             return Challenge();
         
         var authorEmail = user.Email ?? user.UserName;
-        if(!string.IsNullOrWhiteSpace(authorEmail)) _posts.ForgetUserByAuthorEmail(authorEmail, KeepObservations);
+        if(!string.IsNullOrWhiteSpace(authorEmail))
+        {
+            var posts = _posts.GetPostsByAuthorEmail(authorEmail);
+            _posts.ForgetUserByAuthorEmail(authorEmail, KeepObservations);
+
+            if(!KeepObservations)
+            {
+                foreach(var observation in posts.Observations)
+                await pictures.DeleteAsync(observation.PicturePath);
+            }
+        }
 
         var result = await _userManager.DeleteAsync(user);
         if (!result.Succeeded)
         {
-            throw new InvalidOperationException("Woops smth went wrong, could not delete the user: " + string.Join("; ", result.Errors.Select(error => error.Description)));
+            throw new InvalidOperationException("Woops something went wrong, could not delete the user: " + string.Join("; ", result.Errors.Select(error => error.Description)));
         }
         await _signInManager.SignOutAsync();
         return Redirect("~/");
