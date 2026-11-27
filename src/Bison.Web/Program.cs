@@ -16,6 +16,7 @@ var connectionString = builder.Configuration.GetConnectionString("BisonDBContext
 builder.Services.AddRazorPages();
 const long maxUploadBytes = 160L * 1024 * 1024; // vids can now be up to 150 MB (Raised from 30 MB limit)
 builder.WebHost.ConfigureKestrel(o => o.Limits.MaxRequestBodySize = maxUploadBytes); // kestrel is a way to limit to only 150 MB
+builder.Services.Configure<IISServerOptions>(o => o.MaxRequestBodySize = maxUploadBytes);
 builder.Services.Configure<FormOptions>(o => o.MultipartBodyLengthLimit = maxUploadBytes);
 builder.Services.AddScoped<IPostRepository, PostRepository>();
 builder.Services.AddScoped<IPostService, PostService>();
