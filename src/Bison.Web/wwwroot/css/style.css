@@ -431,3 +431,15 @@ button.forget-me-button {
 button.forget-me-button:hover {
   background-color: #6c010c;
 }
+
+video.observation-media,
+audio.observation-media {
+  display: block;
+  max-width: 100%;
+  margin: 6px;
+}
+
+video.observation-media {
+  max-height: 360px;
+}
+
