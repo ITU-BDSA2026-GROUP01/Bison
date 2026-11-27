@@ -1,5 +1,6 @@
 body {
-  background: #dfe9d8;
+  background: #dfe9d8 url('/images/nature-bg.png') no-repeat center bottom fixed;
+  background-size: cover;
   font-family: 'Trebuchet MS', sans-serif;
   font-size: 14px;
 }
@@ -417,8 +418,13 @@ ul.nav li a:hover {
 
 button,
 input[type=submit] {
-    background-color: #2f5d3a;
+    background-color: #1f5f8b;
     color: #ffffff;
+}
+
+button:hover,
+input[type=submit]:hover {
+    background-color: #174a6d;
 }
 
 button.forget-me-button {
