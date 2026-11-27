@@ -1,5 +1,6 @@
 body {
-  background: #eccaca;
+  background: #dfe9d8 url('/images/nature-bg.png') no-repeat center bottom fixed;
+  background-size: cover;
   font-family: 'Trebuchet MS', sans-serif;
   font-size: 14px;
 }
@@ -17,19 +18,19 @@ input[type="text"],
 input[type="tel"],
 input[type="password"] {
     background: white;
-    border: 1px solid #e6c0bf;
+    border: 1px solid #b7cdb0;
     padding: 2px;
     font-family: 'Trebuchet MS', sans-serif;
     font-size: 14px;
     border-radius: 2px;
     -moz-border-radius: 2px;
     -webkit-border-radius: 2px;
-    color: #571010;
+    color: #1f4228;
 }
 
 input[type="submit"] {
-  background: #571010;
-  border: 1px solid #3b0707;
+  background: #1f4228;
+  border: 1px solid #1f4228;
   padding: 1px 3px;
   font-family: 'Trebuchet MS', sans-serif;
   font-size: 14px;
@@ -42,18 +43,18 @@ input[type="submit"] {
 
 div.page {
   background: white;
-  border: 1px solid #cc6e6e;
+  border: 1px solid #4f7f55;
   width: 700px;
   margin: 30px auto;
 }
 
 div.page > h1 {
-  background: #cc6e6e;
+  background: #4f7f55;
   margin: 0;
   padding: 10px 14px;
   color: white;
   letter-spacing: 1px;
-  text-shadow: 0 0 3px #772424;
+  text-shadow: 0 0 3px #1f3d24;
   font-weight: normal;
   font-size: 80px;
 }
@@ -96,7 +97,7 @@ div.page div.navigation form button {
 
 div.page h2 {
   margin: 0 0 15px 0;
-  color: #571010;
+  color: #1f4228;
   text-shadow: 0 1px 2px #ccc;
 }
 
@@ -156,7 +157,7 @@ div.page div.cheepbox {
   margin: 10px 0;
   padding: 5px;
   background: #F0FAF9;
-  border: 1px solid #e29494;
+  border: 1px solid #8fb894;
   border-radius: 2px;
   -moz-border-radius: 5px;
   -webkit-border-radius: 5px;
@@ -165,7 +166,7 @@ div.page div.cheepbox {
 div.page div.cheepbox h3 {
   margin: 0;
   font-size: 1em;
-  color: #7e2c2c;
+  color: #2f5d3a;
 }
 
 div.page div.cheepbox p {
@@ -179,11 +180,11 @@ div.page div.cheepbox input[type="text"] {
 div.page div.cheepbox select {
   max-width: 150px;
   background: white;
-  border: 1px solid #e6c0bf;
+  border: 1px solid #b7cdb0;
   padding: 2px;
   font-family: 'Trebuchet MS', sans-serif;
   font-size: 14px;
-  color: #571010;
+  color: #1f4228;
 }
 
 .text-danger {
@@ -201,8 +202,8 @@ div.message {
   list-style: none;
   margin: 10px 10px 0 10px;
 
-  background: #f3b9b9;
-  border: 1px solid #ce8181;
+  background: #d9ead3;
+  border: 1px solid #8fb894;
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -211,8 +212,8 @@ div.message {
 }
 
 ul.message li {
-  background: #f3b9b9;
-  border: 1px solid #ce8181;
+  background: #d9ead3;
+  border: 1px solid #8fb894;
   border-radius: 2px;
   -moz-border-radius: 2px;
   -webkit-border-radius: 2px;
@@ -235,7 +236,7 @@ div.topics {
   width: 180px;
   height: 250px;
   background: #ffffff;
-  border: 1px solid #e29494;
+  border: 1px solid #8fb894;
   border-radius: 2px;
   position: fixed;
   top: 50%;
@@ -267,7 +268,7 @@ form * {
 }
 
 button {
-    background-color: #cc6e6e;
+    background-color: #4f7f55;
     border: none;
     color: white;
     padding: 8px 16px;
@@ -277,7 +278,7 @@ button {
 }
 
 button:hover {
-    background-color: #8b4949;
+    background-color: #2a4f31;
 }
 
 ul.nav {
@@ -285,7 +286,7 @@ ul.nav {
     margin: 0;
     padding: 0;
     overflow: hidden;
-    background-color: #cc6e6e;
+    background-color: #4f7f55;
 }
 
 ul.nav li {
@@ -301,7 +302,7 @@ ul.nav li a {
 }
 
 ul.nav li a:hover {
-    background-color: #8b4949;
+    background-color: #2a4f31;
 }
 
 .public-layout {
@@ -376,11 +377,11 @@ div.page img.observation-picture {
   max-width: 100%;
   padding: 4px 6px;
   background: white;
-  border: 1px solid #e6c0bf;
+  border: 1px solid #b7cdb0;
   border-radius: 2px;
   font-family: 'Trebuchet MS', sans-serif;
   font-size: 14px;
-  color: #571010;
+  color: #1f4228;
   box-sizing: border-box;
 }
 
@@ -408,17 +409,22 @@ div.page div.navigation {
 }
 
 ul.nav {
-    background-color: #8b4949;
+    background-color: #4f7f55;
 }
 
 ul.nav li a:hover {
-    background-color: #5f2f2f;
+    background-color: #2a4f31;
 }
 
 button,
 input[type=submit] {
     background-color: #1f5f8b;
     color: #ffffff;
+}
+
+button:hover,
+input[type=submit]:hover {
+    background-color: #174a6d;
 }
 
 button.forget-me-button {
